@@ -33,7 +33,7 @@ endif
 ifndef CONTAINERIZED
 test: artifact.tag ## Run the unit tests in a Docker container against a Docker based database
 	$(info running unit test containers)
-	docker run -ti -e "CONTAINERIZED=true" --entrypoint="make" $(CS_DOCKER_REGISTRY_STAGING)/$(CS_DOCKER_IMAGE_NAME):$(CS_GIT_BRANCH)-$(CS_GIT_SHA)$(CS_DIRTY_TAG) test
+	docker run -i -e "CONTAINERIZED=true" --entrypoint="make" $(CS_DOCKER_REGISTRY_STAGING)/$(CS_DOCKER_IMAGE_NAME):$(CS_GIT_BRANCH)-$(CS_GIT_SHA)$(CS_DIRTY_TAG) test
 else
 test: ## (with "CONTAINERIZED=true") Run the unit tests directly via go
 	@echo "WARNING: deploytool does not have any tests yet."
