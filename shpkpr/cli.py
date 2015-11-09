@@ -1,5 +1,8 @@
+# stdlib imports
 import os
 import sys
+
+# third-party imports
 import click
 from marathon import MarathonClient
 

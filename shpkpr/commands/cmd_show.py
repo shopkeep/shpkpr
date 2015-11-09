@@ -1,4 +1,7 @@
+# third-party import
 import click
+
+# local imports
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
