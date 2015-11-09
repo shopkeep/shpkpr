@@ -2,6 +2,7 @@ import click
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
+from shpkpr.deploy import block_deployment
 
 
 @click.command('scale', short_help='Scale application resources.', context_settings=CONTEXT_SETTINGS)
@@ -29,4 +30,4 @@ def cli(ctx, instances, mem, cpus, application):
         ctx.vlog('Scaling application: %s', application)
         ctx.vlog('=====================%s', '=' * len(application))
         _deployment = ctx.marathon_client.update_app(application, _app)
-        ctx.log(_deployment)
+        block_deployment(ctx.marathon_client, application, _deployment)
