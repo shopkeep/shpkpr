@@ -58,6 +58,6 @@ class ShpkprCLI(click.MultiCommand):
 @click.option('-v', '--verbose', is_flag=True, help='Enables verbose mode.')
 @pass_context
 def cli(ctx, verbose, marathon_url):
-    """A complex command line interface."""
+    """A tool to manage applications running on Marathon."""
     ctx.verbose = verbose
     ctx.marathon_client = MarathonClient(marathon_url)
