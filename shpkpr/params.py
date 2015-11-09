@@ -4,7 +4,9 @@ Only those parameters used by more than one command are defined here in an
 attempt to maintain consistency across commands. Unique paramters may still be
 defined on individual command functions.
 """
+# third-party imports
 import click
+
 
 application = click.option(
     '-a', '--application',
