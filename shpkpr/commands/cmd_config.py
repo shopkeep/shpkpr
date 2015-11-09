@@ -5,6 +5,7 @@ import click
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
+from shpkpr.deploy import block_deployment
 
 
 @click.group('config', short_help='Manage application configuration', context_settings=CONTEXT_SETTINGS)
@@ -23,7 +24,7 @@ def list(ctx, application):
 
     # load existing config from marathon if available
     _existing = ctx.marathon_client.get_app(application)
-    for k, v in _existing.env.items():
+    for k, v in sorted(_existing.env.items()):
         ctx.log("%s=%s", k, v)
 
 
@@ -44,7 +45,7 @@ def set(ctx, application, env_vars):
 
     # redeploy the reconfigured application
     _deployment = ctx.marathon_client.update_app(application, _app)
-    ctx.log(_deployment)
+    block_deployment(ctx.marathon_client, application, _deployment)
 
 
 @cli.command('unset', short_help='Unset application configuration.', context_settings=CONTEXT_SETTINGS)
@@ -66,4 +67,4 @@ def unset(ctx, application, keys):
 
     # redeploy the reconfigured application
     _deployment = ctx.marathon_client.update_app(application, _app)
-    ctx.log(_deployment)
+    block_deployment(ctx.marathon_client, application, _deployment)

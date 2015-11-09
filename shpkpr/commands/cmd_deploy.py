@@ -12,6 +12,7 @@ from marathon.models import MarathonApp
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
+from shpkpr.deploy import block_deployment
 
 
 @click.command('deploy', short_help='Deploy application from template.', context_settings=CONTEXT_SETTINGS)
@@ -76,4 +77,4 @@ def cli(ctx, template, instances, mem, cpus, application):
 
     ctx.vlog(json.dumps(json.loads(_app.to_json()), indent=4))
     _deployment = ctx.marathon_client.update_app(application, _app)
-    ctx.log(_deployment)
+    block_deployment(ctx.marathon_client, application, _deployment)
