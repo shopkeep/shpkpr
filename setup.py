@@ -7,6 +7,8 @@ setup(
     include_package_data=True,
     install_requires=[
         'click==5.1',
+        'dcos==0.2.0',
+        'dcoscli==0.2.0',
         'marathon==0.7.2',
     ],
     entry_points='''
