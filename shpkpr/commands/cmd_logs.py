@@ -21,15 +21,14 @@ def cli(ctx, follow, completed, lines, _file, application):
     """
 
     # get tasks from mesos
-    master = mesos.get_master(ctx.mesos_client)
-    tasks = master.tasks(completed=completed, fltr=application)
+    tasks = ctx.mesos_client.get_tasks(application, completed=completed)
 
     # If we couldn't find any running tasks for our application we check if
     # there exist any completed tasks with the same name. If so, we tell the
     # user and inform them of the correct flags to use to see those logs.
     if not tasks:
         if not completed:
-            completed_tasks = master.tasks(completed=True, fltr=application)
+            completed_tasks = ctx.mesos_client.get_tasks(application, completed=True)
             if completed_tasks:
                 msg = 'No running tasks match ID [{}]; however, there '.format(application)
                 if len(completed_tasks) > 1:

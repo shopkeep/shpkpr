@@ -38,7 +38,7 @@ def cli(ctx, template, instances, mem, cpus, application):
 
     # load existing config from marathon if available
     try:
-        _existing = ctx.marathon_client.get_app(application)
+        _existing = ctx.marathon_client.get_application(application)
     except NotFoundError:
         _existing = None
 
@@ -76,5 +76,4 @@ def cli(ctx, template, instances, mem, cpus, application):
     _app.id = application
 
     ctx.vlog(json.dumps(json.loads(_app.to_json()), indent=4))
-    _deployment = ctx.marathon_client.update_app(application, _app)
-    block_deployment(ctx.marathon_client, application, _deployment)
+    ctx.marathon_client.deploy_application(_app)

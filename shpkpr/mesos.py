@@ -17,12 +17,27 @@ class MesosClient(dcos_mesos.DCOSClient):
         self._dcos_url = None
         self._timeout = 5
         self._mesos_master_url = mesos_master_url
+        self._mesos_master = dcos_mesos.Master(self.get_master_state())
 
+    def get_tasks(self, fltr, completed=False):
+        """Return tasks from mesos that match the given filter
 
-def get_master(mesos_client):
-    """Returns a dcos_mesos.Master instance that can be used to interact with Mesos
-    """
-    return dcos_mesos.Master(mesos_client.get_master_state())
+        If completed is True, tasks that are no longer running will also be
+        returned if available.
+
+        `fltr` does not need to be an exact match and can match multiple
+        tasks. Suppose your cluster is running the following tasks:
+
+            hadoop.myjob.12345-1928731
+            rails.48271236-1231234
+            app-10.89934ht-2398hriwuher
+            app-20.9845uih-9823hriu-2938u422
+
+        A fltr value of "app" will match both app-10 and app-20.
+        A fltr value of "myjob" will only match the hadoop task.
+        A fltr value of "1231234" will only match the rails task.
+        """
+        return self._mesos_master.tasks(completed=completed, fltr=fltr)
 
 
 def _mesos_files(tasks, file_, client):
