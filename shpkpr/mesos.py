@@ -19,6 +19,12 @@ class MesosClient(dcos_mesos.DCOSClient):
         self._mesos_master_url = mesos_master_url
 
 
+def get_master(mesos_client):
+    """Returns a dcos_mesos.Master instance that can be used to interact with Mesos
+    """
+    return dcos_mesos.Master(mesos_client.get_master_state())
+
+
 def _mesos_files(tasks, file_, client):
     """Return MesosFile objects for the specified tasks and file name.
     Only include files that satisfy all of the following:

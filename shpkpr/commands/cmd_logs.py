@@ -1,6 +1,5 @@
 # third-party imports
 import click
-from dcos import mesos as dcos_mesos
 from dcoscli import log
 
 # local imports
@@ -22,7 +21,7 @@ def cli(ctx, follow, completed, lines, _file, application):
     """
 
     # get tasks from mesos
-    master = dcos_mesos.Master(ctx.mesos_client.get_master_state())
+    master = mesos.get_master(ctx.mesos_client)
     tasks = master.tasks(completed=completed, fltr=application)
 
     # If we couldn't find any running tasks for our application we check if
