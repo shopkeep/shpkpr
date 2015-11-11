@@ -10,7 +10,7 @@ from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
 
 
-@click.command('scale', short_help='View/tail application logs.', context_settings=CONTEXT_SETTINGS)
+@click.command('logs', short_help='View/tail application logs.', context_settings=CONTEXT_SETTINGS)
 @params.application
 @click.option('--file', '_file', help='Which sandbox file to read from.', default="stdout")
 @click.option('-n', '--lines', type=int, help='Number of lines to show in tail output.', default=10)
