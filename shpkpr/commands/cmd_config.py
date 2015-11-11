@@ -23,7 +23,7 @@ def list(ctx, application):
     ctx.vlog('============================%s', '=' * len(application))
 
     # load existing config from marathon if available
-    _existing = ctx.marathon_client.get_app(application)
+    _existing = ctx.marathon_client.get_application(application)
     for k, v in sorted(_existing.env.items()):
         ctx.log("%s=%s", k, v)
 
@@ -38,14 +38,13 @@ def set(ctx, application, env_vars):
     ctx.vlog('============================%s', '=' * len(application))
 
     # load existing config from marathon if available
-    _app = ctx.marathon_client.get_app(application)
+    _app = ctx.marathon_client.get_application(application)
     env_vars = dict([(x[0], x[1]) for x in [y.split('=') for y in env_vars]])
     for k, v in env_vars.items():
         _app.env[k] = v
 
     # redeploy the reconfigured application
-    _deployment = ctx.marathon_client.update_app(application, _app)
-    block_deployment(ctx.marathon_client, application, _deployment)
+    ctx.marathon_client.deploy_application(_app)
 
 
 @cli.command('unset', short_help='Unset application configuration.', context_settings=CONTEXT_SETTINGS)
@@ -58,7 +57,7 @@ def unset(ctx, application, keys):
     ctx.vlog('==============================%s', '=' * len(application))
 
     # load existing config from marathon if available
-    _app = ctx.marathon_client.get_app(application)
+    _app = ctx.marathon_client.get_application(application)
     for key in keys:
         try:
             del _app.env[key]
@@ -66,5 +65,4 @@ def unset(ctx, application, keys):
             pass
 
     # redeploy the reconfigured application
-    _deployment = ctx.marathon_client.update_app(application, _app)
-    block_deployment(ctx.marathon_client, application, _deployment)
+    ctx.marathon_client.deploy_application(_app)

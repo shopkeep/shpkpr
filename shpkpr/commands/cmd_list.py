@@ -13,7 +13,5 @@ def cli(ctx):
     ctx.vlog('Listing deployed applications')
     ctx.vlog('=============================\n')
 
-    _list = ctx.marathon_client.list_apps()
-    _list = [app.id.lstrip('/') for app in sorted(_list)]
-    for app in _list:
+    for app in ctx.marathon_client.list_applications():
         ctx.log(app)

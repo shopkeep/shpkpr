@@ -4,9 +4,9 @@ import sys
 
 # third-party imports
 import click
-from marathon import MarathonClient
 
 # local imports
+from shpkpr.marathon import MarathonClient
 from shpkpr.mesos import MesosClient
 
 

@@ -5,7 +5,16 @@ import click
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
-from shpkpr.deploy import block_deployment
+
+
+def _update_property_if_changed(app, prop_name, value):
+    """Update application property only if changed.
+    """
+    updated = False
+    if value is not None and not getattr(app, prop_name) == value:
+        updated = True
+        setattr(app, prop_name, value)
+    return app, updated
 
 
 @click.command('scale', short_help='Scale application resources.', context_settings=CONTEXT_SETTINGS)
@@ -16,21 +25,15 @@ from shpkpr.deploy import block_deployment
 @pass_context
 def cli(ctx, instances, mem, cpus, application):
     """Scale application resources to specified levels."""
-    _app = ctx.marathon_client.get_app(application)
-    _updated = False
+    _app = ctx.marathon_client.get_application(application)
 
-    if instances is not None and not _app.instances == instances:
-        _updated = True
-        _app.instances = instances
-    if mem is not None and not _app.mem == mem:
-        _updated = True
-        _app.mem = mem
-    if cpus is not None and not _app.cpus == cpus:
-        _updated = True
-        _app.cpus = cpus
+    _updated = False
+    for prop_name in ['instances', 'mem', 'cpus']:
+        _app, __updated = _update_property_if_changed(_app, prop_name, locals().get(prop_name))
+        if __updated:
+            _updated = True
 
     if _updated:
         ctx.vlog('Scaling application: %s', application)
         ctx.vlog('=====================%s', '=' * len(application))
-        _deployment = ctx.marathon_client.update_app(application, _app)
-        block_deployment(ctx.marathon_client, application, _deployment)
+        ctx.marathon_client.deploy_application(_app)
