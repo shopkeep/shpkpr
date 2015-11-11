@@ -11,7 +11,7 @@ shpkpr is a tool for controlling and observing applications running on ShopKeep'
 - Scale application resources
 - View/Modify application configuration
 - Deploy applications (using Jinja2 templates)
-- **TODO:** View/Tail application logs
+- View/Tail application logs
 - **TODO:** Run one-off commands inside the deployed environment (like `heroku run`)
 
 
@@ -67,7 +67,8 @@ Usage: shpkpr [OPTIONS] COMMAND [ARGS]...
   A tool to manage applications running on Marathon.
 
 Options:
-  -u, --marathon_url TEXT  URL of the Marathon API to use.  [required]
+  --marathon_url TEXT      URL of the Marathon API to use.  [required]
+  --mesos_master_url TEXT  URL of the Mesos master to use.  [required]
   -v, --verbose            Enables verbose mode.
   --help                   Show this message and exit.
 
@@ -75,6 +76,7 @@ Commands:
   config  Manage application configuration
   deploy  Deploy application from template.
   list    Lists all deployed applications
+  logs    View/tail application logs.
   scale   Scale application resources.
   show    Show application details.
 ```
@@ -189,4 +191,12 @@ $ shpkpr config unset -a my-app-1 MYKEY MYOTHERKEY
 $ shpkpr scale -a my-app-1 --instances=4
 $ shpkpr scale -a my-app-1 --instances=2 --cpus=0.5
 $ shpkpr scale -a my-app-1 --cpus=0.25 --mem=1024
+```
+
+#### Viewing application logs
+
+```bash
+$ shpkpr logs -a my-app-1 -n 100
+$ shpkpr logs -a my-app-1 -n 100 --completed
+$ shpkpr logs -a my-app-1 --follow
 ```
