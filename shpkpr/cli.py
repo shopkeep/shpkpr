@@ -6,6 +6,9 @@ import sys
 import click
 from marathon import MarathonClient
 
+# local imports
+from shpkpr.mesos import MesosClient
+
 
 CONTEXT_SETTINGS = dict(auto_envvar_prefix='SHPKPR')
 
@@ -54,10 +57,12 @@ class ShpkprCLI(click.MultiCommand):
 
 
 @click.command(cls=ShpkprCLI, context_settings=CONTEXT_SETTINGS)
-@click.option('-u', '--marathon_url', required=True, help="URL of the Marathon API to use.")
+@click.option('--marathon_url', required=True, help="URL of the Marathon API to use.")
+@click.option('--mesos_master_url', required=True, help="URL of the Mesos master to use.")
 @click.option('-v', '--verbose', is_flag=True, help='Enables verbose mode.')
 @pass_context
-def cli(ctx, verbose, marathon_url):
+def cli(ctx, verbose, mesos_master_url, marathon_url):
     """A tool to manage applications running on Marathon."""
     ctx.verbose = verbose
+    ctx.mesos_client = MesosClient(mesos_master_url)
     ctx.marathon_client = MarathonClient(marathon_url)
