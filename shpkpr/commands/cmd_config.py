@@ -5,7 +5,6 @@ import click
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
-from shpkpr.deploy import block_deployment
 
 
 @click.group('config', short_help='Manage application configuration', context_settings=CONTEXT_SETTINGS)
