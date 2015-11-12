@@ -17,9 +17,10 @@ class Context(object):
 
     def __init__(self):
         self.marathon_client = None
+        self.mesos_client = None
 
     def log(self, msg, *args):
-        """Logs a message to stderr."""
+        """Logs a message to stdout."""
         if args:
             msg %= args
         click.echo(msg, file=sys.stdout)
