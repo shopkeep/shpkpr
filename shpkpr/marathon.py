@@ -26,7 +26,7 @@ class MarathonClient(object):
         """
         return self.client.get_app(application_id)
 
-    def list_applications(self):
+    def list_application_ids(self):
         """Returns ids of all applications currently deployed to marathon.
         """
         return [app.id.lstrip('/') for app in sorted(self.client.list_apps())]
@@ -44,20 +44,20 @@ class MarathonClient(object):
         If the deployment completes successfully this function will return None, if
         unsuccessful a `DeploymentFailed` exception is raised.
         """
-        _app = None
+        application = None
         _in_progress = True
 
         # check that the given deployment is not in progress
         while _in_progress:
-            _app = self.get_application(application_id)
-            _in_progress = deployment['deploymentId'] in [x.id for x in _app.deployments]
+            application = self.get_application(application_id)
+            _in_progress = deployment['deploymentId'] in [x.id for x in application.deployments]
             if _in_progress:
                 time.sleep(5)
 
         # check that the application's version is as we expect
-        if not deployment['version'] == _app.version:
+        if not deployment['version'] == application.version:
             raise DeploymentFailed(deployment['deploymentId'])
 
         # check that the application's tasks are healthy (if appropriate)
-        if _app.tasks_unhealthy > 0:
-            raise DeploymentFailed("Tasks Unhealthy: %d" % _app.tasks_unhealthy)
+        if application.tasks_unhealthy > 0:
+            raise DeploymentFailed("Tasks Unhealthy: %d" % application.tasks_unhealthy)

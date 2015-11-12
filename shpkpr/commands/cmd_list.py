@@ -11,5 +11,5 @@ from shpkpr.cli import pass_context
 def cli(ctx):
     """Lists all applications currently deployed to marathon.
     """
-    for app in ctx.marathon_client.list_applications():
-        ctx.log(app)
+    for application_id in ctx.marathon_client.list_application_ids():
+        ctx.log(application_id)
