@@ -16,8 +16,20 @@ CONTEXT_SETTINGS = dict(auto_envvar_prefix='SHPKPR')
 class Context(object):
 
     def __init__(self):
-        self.marathon_client = None
-        self.mesos_client = None
+        self.marathon_url = None
+        self.mesos_master_url = None
+
+    @property
+    def marathon_client(self):
+        if not self.marathon_url:
+            raise click.exceptions.UsageError("Missing option \"--marathon_url\".")
+        return MarathonClient(self.marathon_url)
+
+    @property
+    def mesos_client(self):
+        if not self.mesos_master_url:
+            raise click.exceptions.UsageError("Missing option \"--mesos_master_url\".")
+        return MesosClient(self.mesos_master_url)
 
     def log(self, msg, *args):
         """Logs a message to stdout."""
@@ -52,10 +64,10 @@ class ShpkprCLI(click.MultiCommand):
 
 
 @click.command(cls=ShpkprCLI, context_settings=CONTEXT_SETTINGS)
-@click.option('--marathon_url', required=True, help="URL of the Marathon API to use.")
-@click.option('--mesos_master_url', required=True, help="URL of the Mesos master to use.")
+@click.option('--marathon_url', help="URL of the Marathon API to use.")
+@click.option('--mesos_master_url', help="URL of the Mesos master to use.")
 @pass_context
 def cli(ctx, mesos_master_url, marathon_url):
     """A tool to manage applications running on Marathon."""
-    ctx.mesos_client = MesosClient(mesos_master_url)
-    ctx.marathon_client = MarathonClient(marathon_url)
+    ctx.marathon_url = marathon_url
+    ctx.mesos_master_url = mesos_master_url
