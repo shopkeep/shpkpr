@@ -26,10 +26,8 @@ from shpkpr.cli import pass_context
               help="Path of the template to use for deployment.")
 @pass_context
 def cli(ctx, template, instances, mem, cpus, application):
-    """Deploy application from template."""
-    ctx.vlog('Deploying application: %s', application)
-    ctx.vlog('=======================%s', '=' * len(application))
-
+    """Deploy application from template.
+    """
     # read and render deploy template using values from the environment
     _template = Template(template.read())
     _json = json.loads(_template.render(**os.environ))
@@ -74,5 +72,4 @@ def cli(ctx, template, instances, mem, cpus, application):
     # set the application ID to the value specified on the command line (unconditionally)
     _app.id = application
 
-    ctx.vlog(json.dumps(json.loads(_app.to_json()), indent=4))
     ctx.marathon_client.deploy_application(_app)

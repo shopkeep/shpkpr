@@ -24,7 +24,8 @@ def _update_property_if_changed(app, prop_name, value):
 @params.instances
 @pass_context
 def cli(ctx, instances, mem, cpus, application):
-    """Scale application resources to specified levels."""
+    """Scale application resources to specified levels.
+    """
     _app = ctx.marathon_client.get_application(application)
 
     _updated = False
@@ -34,6 +35,4 @@ def cli(ctx, instances, mem, cpus, application):
             _updated = True
 
     if _updated:
-        ctx.vlog('Scaling application: %s', application)
-        ctx.vlog('=====================%s', '=' * len(application))
         ctx.marathon_client.deploy_application(_app)
