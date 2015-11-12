@@ -5,19 +5,11 @@ import sys
 # third-party imports
 import click
 
-# local imports
-from shpkpr.marathon import MarathonClient
-from shpkpr.mesos import MesosClient
-
 
 CONTEXT_SETTINGS = dict(auto_envvar_prefix='SHPKPR')
 
 
 class Context(object):
-
-    def __init__(self):
-        self.marathon_client = None
-        self.mesos_client = None
 
     def log(self, msg, *args):
         """Logs a message to stdout."""
@@ -52,10 +44,6 @@ class ShpkprCLI(click.MultiCommand):
 
 
 @click.command(cls=ShpkprCLI, context_settings=CONTEXT_SETTINGS)
-@click.option('--marathon_url', required=True, help="URL of the Marathon API to use.")
-@click.option('--mesos_master_url', required=True, help="URL of the Mesos master to use.")
 @pass_context
-def cli(ctx, mesos_master_url, marathon_url):
+def cli(ctx):
     """A tool to manage applications running on Marathon."""
-    ctx.mesos_client = MesosClient(mesos_master_url)
-    ctx.marathon_client = MarathonClient(marathon_url)
