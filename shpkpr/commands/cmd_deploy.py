@@ -12,7 +12,6 @@ from marathon.models import MarathonApp
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
-from shpkpr.marathon import MarathonClient
 
 
 @click.command('deploy', short_help='Deploy application from template.', context_settings=CONTEXT_SETTINGS)
@@ -20,18 +19,15 @@ from shpkpr.marathon import MarathonClient
 @params.cpus
 @params.mem
 @params.instances
-@params.marathon_url
 @click.option('-t',
               '--template',
               type=click.File("r"),
               required=True,
               help="Path of the template to use for deployment.")
 @pass_context
-def cli(ctx, marathon_url, template, instances, mem, cpus, application_id):
+def cli(ctx, template, instances, mem, cpus, application_id):
     """Deploy application from template.
     """
-    marathon_client = MarathonClient(marathon_url)
-
     # read and render deploy template using values from the environment
     _template = Template(template.read())
     _json = json.loads(_template.render(**os.environ))
@@ -39,7 +35,7 @@ def cli(ctx, marathon_url, template, instances, mem, cpus, application_id):
 
     # load existing config from marathon if available
     try:
-        _existing = marathon_client.get_application(application_id)
+        _existing = ctx.marathon_client.get_application(application_id)
     except NotFoundError:
         _existing = None
 
@@ -76,4 +72,4 @@ def cli(ctx, marathon_url, template, instances, mem, cpus, application_id):
     # set the application ID to the value specified on the command line (unconditionally)
     application.id = application_id
 
-    marathon_client.deploy_application(application)
+    ctx.marathon_client.deploy_application(application)

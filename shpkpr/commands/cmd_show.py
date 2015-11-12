@@ -5,17 +5,15 @@ import click
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
-from shpkpr.marathon import MarathonClient
 
 
 @click.command('show', short_help='Show application details.', context_settings=CONTEXT_SETTINGS)
 @params.application
-@params.marathon_url
 @pass_context
-def cli(ctx, marathon_url, application_id):
+def cli(ctx, application_id):
     """Shows detailed information for a single application.
     """
-    application = MarathonClient(marathon_url).get_application(application_id)
+    application = ctx.marathon_client.get_application(application_id)
     _pretty_print(ctx, application)
 
 
