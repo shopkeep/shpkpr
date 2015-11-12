@@ -12,7 +12,6 @@ from marathon.models import MarathonApp
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
-from shpkpr.deploy import block_deployment
 
 
 @click.command('deploy', short_help='Deploy application from template.', context_settings=CONTEXT_SETTINGS)
@@ -26,55 +25,51 @@ from shpkpr.deploy import block_deployment
               required=True,
               help="Path of the template to use for deployment.")
 @pass_context
-def cli(ctx, template, instances, mem, cpus, application):
-    """Deploy application from template."""
-    ctx.vlog('Deploying application: %s', application)
-    ctx.vlog('=======================%s', '=' * len(application))
-
+def cli(ctx, template, instances, mem, cpus, application_id):
+    """Deploy application from template.
+    """
     # read and render deploy template using values from the environment
     _template = Template(template.read())
     _json = json.loads(_template.render(**os.environ))
-    _app = MarathonApp.from_json(_json)
+    application = MarathonApp.from_json(_json)
 
     # load existing config from marathon if available
     try:
-        _existing = ctx.marathon_client.get_app(application)
+        _existing = ctx.marathon_client.get_application(application_id)
     except NotFoundError:
         _existing = None
 
     # set instances value if specified
     if instances is not None:
-        _app.instances = instances
+        application.instances = instances
     # otherwise use the existing value from marathon
-    elif _existing is not None and not _app.instances:
-        _app.instances = _existing.instances
+    elif _existing is not None and not application.instances:
+        application.instances = _existing.instances
     # set a default value for instances if not specified
-    if _app.instances is None:
-        _app.instances = 1
+    if application.instances is None:
+        application.instances = 1
 
     # set mem value if specified
     if mem is not None:
-        _app.mem = mem
+        application.mem = mem
     # otherwise use the existing value from marathon
-    elif _existing is not None and not _app.mem:
-        _app.mem = _existing.mem
+    elif _existing is not None and not application.mem:
+        application.mem = _existing.mem
     # set a default value for instances if not specified
-    if _app.mem is None:
-        _app.mem = 512
+    if application.mem is None:
+        application.mem = 512
 
     # set cpus value if specified
     if cpus is not None:
-        _app.cpus = cpus
+        application.cpus = cpus
     # otherwise use the existing value from marathon
-    elif _existing is not None and not _app.cpus:
-        _app.cpus = _existing.cpus
+    elif _existing is not None and not application.cpus:
+        application.cpus = _existing.cpus
     # set a default value for cpus if not specified
-    if _app.cpus is None:
-        _app.cpus = 0.1
+    if application.cpus is None:
+        application.cpus = 0.1
 
     # set the application ID to the value specified on the command line (unconditionally)
-    _app.id = application
+    application.id = application_id
 
-    ctx.vlog(json.dumps(json.loads(_app.to_json()), indent=4))
-    _deployment = ctx.marathon_client.update_app(application, _app)
-    block_deployment(ctx.marathon_client, application, _deployment)
+    ctx.marathon_client.deploy_application(application)

@@ -16,28 +16,15 @@ from shpkpr.cli import pass_context
 @click.option('-c', '--completed', is_flag=True, help='Show logs for completed tasks.')
 @click.option('-f', '--follow', is_flag=True, help='Enables follow mode.')
 @pass_context
-def cli(ctx, follow, completed, lines, _file, application):
+def cli(ctx, follow, completed, lines, _file, application_id):
     """ Tail a file in a mesos task's sandbox.
     """
 
     # get tasks from mesos
-    master = mesos.get_master(ctx.mesos_client)
-    tasks = master.tasks(completed=completed, fltr=application)
+    tasks = ctx.mesos_client.get_tasks(application_id, completed=completed)
 
-    # If we couldn't find any running tasks for our application we check if
-    # there exist any completed tasks with the same name. If so, we tell the
-    # user and inform them of the correct flags to use to see those logs.
+    # If we couldn't find any running tasks for our app we tell the user.
     if not tasks:
-        if not completed:
-            completed_tasks = master.tasks(completed=True, fltr=application)
-            if completed_tasks:
-                msg = 'No running tasks match ID [{}]; however, there '.format(application)
-                if len(completed_tasks) > 1:
-                    msg += 'are {} matching completed tasks. '.format(len(completed_tasks))
-                else:
-                    msg += 'is 1 matching completed task. '
-                msg += 'Run with --completed to see these logs.'
-                raise click.UsageError(msg, ctx)
         raise click.UsageError('No matching tasks. Exiting.')
 
     # for each of our found tasks, check the mesos sandbox of each one and get
