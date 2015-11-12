@@ -11,10 +11,8 @@ from shpkpr.cli import pass_context
 @params.application
 @pass_context
 def cli(ctx, application):
-    """Shows detailed information for a single application."""
-    ctx.vlog('Showing application: %s', application)
-    ctx.vlog('=====================%s', '=' * len(application))
-
+    """Shows detailed information for a single application.
+    """
     _app = ctx.marathon_client.get_application(application)
     _format_output(_app)
 

@@ -10,18 +10,16 @@ from shpkpr.cli import pass_context
 @click.group('config', short_help='Manage application configuration', context_settings=CONTEXT_SETTINGS)
 @pass_context
 def cli(ctx):
-    """Manage application configuration"""
+    """Manage application configuration.
+    """
 
 
 @cli.command('list', short_help='List application configuration.', context_settings=CONTEXT_SETTINGS)
 @params.application
 @pass_context
 def list(ctx, application):
-    """List application configuration."""
-    ctx.vlog('Listing application config: %s', application)
-    ctx.vlog('============================%s', '=' * len(application))
-
-    # load existing config from marathon if available
+    """List application configuration.
+    """
     _existing = ctx.marathon_client.get_application(application)
     for k, v in sorted(_existing.env.items()):
         ctx.log("%s=%s", k, v)
@@ -32,11 +30,8 @@ def list(ctx, application):
 @params.application
 @pass_context
 def set(ctx, application, env_vars):
-    """Set application configuration."""
-    ctx.vlog('Setting application config: %s', application)
-    ctx.vlog('============================%s', '=' * len(application))
-
-    # load existing config from marathon if available
+    """Set application configuration.
+    """
     _app = ctx.marathon_client.get_application(application)
     env_vars = dict([(x[0], x[1]) for x in [y.split('=') for y in env_vars]])
     for k, v in env_vars.items():
@@ -51,11 +46,8 @@ def set(ctx, application, env_vars):
 @params.application
 @pass_context
 def unset(ctx, application, keys):
-    """Unset application configuration."""
-    ctx.vlog('Unsetting application config: %s', application)
-    ctx.vlog('==============================%s', '=' * len(application))
-
-    # load existing config from marathon if available
+    """Unset application configuration.
+    """
     _app = ctx.marathon_client.get_application(application)
     for key in keys:
         try:
