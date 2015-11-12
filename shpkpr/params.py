@@ -37,3 +37,11 @@ instances = click.option(
     type=int,
     help="Number of instances of the application to run.",
 )
+
+# The --marathon_url parameter is common to most commands
+marathon_url = click.option(
+    '--marathon_url',
+    type=str,
+    required=True,
+    help="URL of the Marathon API to use.",
+)

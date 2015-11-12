@@ -5,6 +5,7 @@ import click
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
+from shpkpr.marathon import MarathonClient
 
 
 def _update_property_if_changed(application, prop_name, value):
@@ -22,11 +23,13 @@ def _update_property_if_changed(application, prop_name, value):
 @params.cpus
 @params.mem
 @params.instances
+@params.marathon_url
 @pass_context
-def cli(ctx, instances, mem, cpus, application_id):
+def cli(ctx, marathon_url, instances, mem, cpus, application_id):
     """Scale application resources to specified levels.
     """
-    application = ctx.marathon_client.get_application(application_id)
+    marathon_client = MarathonClient(marathon_url)
+    application = marathon_client.get_application(application_id)
 
     updated = False
     for prop_name in ['instances', 'mem', 'cpus']:
@@ -35,4 +38,4 @@ def cli(ctx, instances, mem, cpus, application_id):
             updated = True
 
     if updated:
-        ctx.marathon_client.deploy_application(application)
+        marathon_client.deploy_application(application)
