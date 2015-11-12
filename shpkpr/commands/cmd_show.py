@@ -13,11 +13,11 @@ from shpkpr.cli import pass_context
 def cli(ctx, application):
     """Shows detailed information for a single application.
     """
-    _app = ctx.marathon_client.get_application(application)
-    _format_output(_app)
+    _application = ctx.marathon_client.get_application(application)
+    _pretty_print(ctx, _application)
 
 
-def _format_output(ctx, application):
+def _pretty_print(ctx, application):
     """Pretty print application details to stdout
     """
     ctx.log("ID:           %s", application.id.lstrip('/'))
