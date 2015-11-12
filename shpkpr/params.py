@@ -11,6 +11,8 @@ import click
 # The --application parameter is common to almost all shpkpr commands
 application = click.option(
     '-a', '--application',
+    'application_id',
+    envvar="SHPKPR_APPLICATION",
     required=True,
     help="ID/name of the application to scale.",
 )

@@ -10,11 +10,11 @@ from shpkpr.cli import pass_context
 @click.command('show', short_help='Show application details.', context_settings=CONTEXT_SETTINGS)
 @params.application
 @pass_context
-def cli(ctx, application):
+def cli(ctx, application_id):
     """Shows detailed information for a single application.
     """
-    _application = ctx.marathon_client.get_application(application)
-    _pretty_print(ctx, _application)
+    application = ctx.marathon_client.get_application(application_id)
+    _pretty_print(ctx, application)
 
 
 def _pretty_print(ctx, application):
@@ -30,13 +30,13 @@ def _pretty_print(ctx, application):
     ctx.log("Status:       %s", _task_status(application))
 
 
-def _task_status(_app):
+def _task_status(application):
     """Returns a nicely formatted string we can use to display application health on the CLI.
     """
-    if len(_app.deployments) > 0:
+    if len(application.deployments) > 0:
         return click.style("DEPLOYING", fg='yellow')
-    if _app.tasks_running == 0:
+    if application.tasks_running == 0:
         return click.style("SUSPENDED", fg='blue')
-    if _app.tasks_unhealthy > 0:
+    if application.tasks_unhealthy > 0:
         return click.style("UNHEALTHY", fg='red')
     return click.style("HEALTHY", fg='green')

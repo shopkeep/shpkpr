@@ -16,12 +16,12 @@ from shpkpr.cli import pass_context
 @click.option('-c', '--completed', is_flag=True, help='Show logs for completed tasks.')
 @click.option('-f', '--follow', is_flag=True, help='Enables follow mode.')
 @pass_context
-def cli(ctx, follow, completed, lines, _file, application):
+def cli(ctx, follow, completed, lines, _file, application_id):
     """ Tail a file in a mesos task's sandbox.
     """
 
     # get tasks from mesos
-    tasks = ctx.mesos_client.get_tasks(application, completed=completed)
+    tasks = ctx.mesos_client.get_tasks(application_id, completed=completed)
 
     # If we couldn't find any running tasks for our app we tell the user.
     if not tasks:

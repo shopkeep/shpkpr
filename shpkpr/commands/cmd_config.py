@@ -17,11 +17,11 @@ def cli(ctx):
 @cli.command('list', short_help='List application configuration.', context_settings=CONTEXT_SETTINGS)
 @params.application
 @pass_context
-def list(ctx, application):
+def list(ctx, application_id):
     """List application configuration.
     """
-    _existing = ctx.marathon_client.get_application(application)
-    for k, v in sorted(_existing.env.items()):
+    application = ctx.marathon_client.get_application(application_id)
+    for k, v in sorted(application.env.items()):
         ctx.log("%s=%s", k, v)
 
 
@@ -29,31 +29,31 @@ def list(ctx, application):
 @click.argument('env_vars', nargs=-1)
 @params.application
 @pass_context
-def set(ctx, application, env_vars):
+def set(ctx, application_id, env_vars):
     """Set application configuration.
     """
-    _app = ctx.marathon_client.get_application(application)
+    application = ctx.marathon_client.get_application(application_id)
     env_vars = dict([(x[0], x[1]) for x in [y.split('=') for y in env_vars]])
     for k, v in env_vars.items():
-        _app.env[k] = v
+        application.env[k] = v
 
     # redeploy the reconfigured application
-    ctx.marathon_client.deploy_application(_app)
+    ctx.marathon_client.deploy_application(application)
 
 
 @cli.command('unset', short_help='Unset application configuration.', context_settings=CONTEXT_SETTINGS)
 @click.argument('keys', nargs=-1)
 @params.application
 @pass_context
-def unset(ctx, application, keys):
+def unset(ctx, application_id, keys):
     """Unset application configuration.
     """
-    _app = ctx.marathon_client.get_application(application)
+    application = ctx.marathon_client.get_application(application_id)
     for key in keys:
         try:
-            del _app.env[key]
+            del application.env[key]
         except KeyError:
             pass
 
     # redeploy the reconfigured application
-    ctx.marathon_client.deploy_application(_app)
+    ctx.marathon_client.deploy_application(application)
