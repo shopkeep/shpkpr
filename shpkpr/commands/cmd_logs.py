@@ -23,20 +23,8 @@ def cli(ctx, follow, completed, lines, _file, application):
     # get tasks from mesos
     tasks = ctx.mesos_client.get_tasks(application, completed=completed)
 
-    # If we couldn't find any running tasks for our application we check if
-    # there exist any completed tasks with the same name. If so, we tell the
-    # user and inform them of the correct flags to use to see those logs.
+    # If we couldn't find any running tasks for our app we tell the user.
     if not tasks:
-        if not completed:
-            completed_tasks = ctx.mesos_client.get_tasks(application, completed=True)
-            if completed_tasks:
-                msg = 'No running tasks match ID [{}]; however, there '.format(application)
-                if len(completed_tasks) > 1:
-                    msg += 'are {} matching completed tasks. '.format(len(completed_tasks))
-                else:
-                    msg += 'is 1 matching completed task. '
-                msg += 'Run with --completed to see these logs.'
-                raise click.UsageError(msg, ctx)
         raise click.UsageError('No matching tasks. Exiting.')
 
     # for each of our found tasks, check the mesos sandbox of each one and get
