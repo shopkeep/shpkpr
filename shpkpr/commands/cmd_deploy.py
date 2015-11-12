@@ -12,7 +12,6 @@ from marathon.models import MarathonApp
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
-from shpkpr.deploy import block_deployment
 
 
 @click.command('deploy', short_help='Deploy application from template.', context_settings=CONTEXT_SETTINGS)
