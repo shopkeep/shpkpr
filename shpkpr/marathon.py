@@ -38,7 +38,7 @@ class MarathonClient(object):
         if block:
             self._block_deployment(application.id, _deployment)
 
-    def _block_deployment(self, application_id, deployment):
+    def _block_deployment(self, application_id, deployment, check_interval_secs=5):
         """Blocks execution until the given deployment has completed.
 
         If the deployment completes successfully this function will return None, if
@@ -52,7 +52,7 @@ class MarathonClient(object):
             application = self.get_application(application_id)
             _in_progress = deployment['deploymentId'] in [x.id for x in application.deployments]
             if _in_progress:
-                time.sleep(5)
+                time.sleep(check_interval_secs)
 
         # check that the application's version is as we expect
         if not deployment['version'] == application.version:

@@ -70,7 +70,7 @@ def test_block_deployment(mock_get_application):
 
     mock_get_application.side_effect = [app_state_pending, app_state_success]
     client = MarathonClient("http://marathon.somedomain.com:8080")
-    client._block_deployment('test-app', deployment)
+    client._block_deployment('test-app', deployment, check_interval_secs=0.01)
     assert mock_get_application.call_count == 2
 
 
