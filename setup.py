@@ -11,8 +11,6 @@ setup(
         'dcoscli==0.2.0',
         'jinja2==2.8',
         'marathon==0.7.2',
-        'mock==1.3.0',
-        'pytest==2.8.2',
     ],
     entry_points='''
         [console_scripts]
