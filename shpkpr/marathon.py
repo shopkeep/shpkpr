@@ -29,7 +29,7 @@ class MarathonClient(object):
     def list_application_ids(self):
         """Returns ids of all applications currently deployed to marathon.
         """
-        return [app.id.lstrip('/') for app in sorted(self.client.list_apps())]
+        return sorted([app.id.lstrip('/') for app in self.client.list_apps()])
 
     def deploy_application(self, application, block=True):
         """Deploys the given application to Marathon.
