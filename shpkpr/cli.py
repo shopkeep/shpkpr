@@ -39,11 +39,18 @@ class Context(object):
             self._mesos_client = MesosClient(self.mesos_master_url)
         return self._mesos_client
 
-    def log(self, msg, *args):
+    def log(self, msg, *args, **kwargs):
         """Logs a message to stdout."""
         if args:
             msg %= args
-        click.echo(msg, file=sys.stdout)
+        click.echo(msg, file=sys.stdout, **kwargs)
+
+    def style(self, msg, *args, **kwargs):
+        """Wrapper around click.style to allow modules to access this
+        functionality via the context object without having to depend on
+        click.
+        """
+        return click.style(msg, *args, **kwargs)
 
 
 pass_context = click.make_pass_decorator(Context, ensure=True)
