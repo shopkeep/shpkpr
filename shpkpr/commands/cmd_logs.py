@@ -33,7 +33,7 @@ def cli(ctx, follow, completed, lines, _file, application_id):
     # a MesosFile object for each of the files we want to inspect.
     mesos_files = mesos._mesos_files(tasks, _file, ctx.mesos_client)
     if not mesos_files:
-        raise click.UsageError('No matching tasks. Exiting.')
+        raise click.UsageError('No matching files. Exiting.')
 
     # For now we're using dcoscli's logging functionality, but this should be
     # ported to use click.echo so that we have more control over formatting
