@@ -5,3 +5,4 @@ dist
 *.pyc
 *.pyo
 tests/__pycache__
+.tox
