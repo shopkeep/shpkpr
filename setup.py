@@ -8,7 +8,6 @@ setup(
     install_requires=[
         'click==5.1',
         'dcos==0.2.0',
-        'dcoscli==0.2.0',
         'jinja2==2.8',
         'marathon==0.7.2',
     ],

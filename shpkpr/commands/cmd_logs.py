@@ -1,12 +1,12 @@
 # third-party imports
 import click
-from dcoscli import log
 
 # local imports
 from shpkpr import mesos
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
+from shpkpr.files import log_files
 
 
 @click.command('logs', short_help='View/tail application logs.', context_settings=CONTEXT_SETTINGS)
@@ -35,7 +35,4 @@ def cli(ctx, follow, completed, lines, _file, application_id):
     if not mesos_files:
         raise click.UsageError('No matching files. Exiting.')
 
-    # For now we're using dcoscli's logging functionality, but this should be
-    # ported to use click.echo so that we have more control over formatting
-    # and timing of the outputted logs.
-    log.log_files(mesos_files, follow, lines)
+    log_files(ctx, mesos_files, follow, lines)
