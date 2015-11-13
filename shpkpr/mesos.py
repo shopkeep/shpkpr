@@ -17,7 +17,7 @@ class MesosClient(dcos_mesos.DCOSClient):
         self._dcos_url = None
         self._timeout = 5
         self._mesos_master_url = mesos_master_url
-        self._mesos_master = dcos_mesos.Master(self.get_master_state())
+        self._mesos_master = MesosMaster(self.get_master_state(), self)
 
     def get_tasks(self, fltr, completed=False):
         """Return tasks from mesos that match the given filter
@@ -38,6 +38,42 @@ class MesosClient(dcos_mesos.DCOSClient):
         A fltr value of "1231234" will only match the rails task.
         """
         return self._mesos_master.tasks(completed=completed, fltr=fltr)
+
+
+class MesosMaster(dcos_mesos.Master):
+    """Custom MesosMaster object to allow overriding the creation of Slave
+    objects
+    """
+
+    def __init__(self, state, mesos_client):
+        self._state = state
+        self._frameworks = {}
+        self._slaves = {}
+        self._mesos_client = mesos_client
+
+    def _slave_obj(self, slave):
+        """Returns the Slave object corresponding to the provided `slave`
+        dict.  Creates it if it doesn't exist already.
+        """
+        if slave['id'] not in self._slaves:
+            self._slaves[slave['id']] = MesosSlave(slave, None, self)
+        return self._slaves[slave['id']]
+
+
+class MesosSlave(dcos_mesos.Slave):
+    """Mesos Slave Model
+
+    Overriding to avoid creating a DCOSClient instance directly.
+    """
+
+    def state(self):
+        """Get the slave's state.json object.  Fetch it if it's not already
+        an instance variable.
+        """
+        if not self._state:
+            self._state = self._master._mesos_client.get_slave_state(self['id'],
+                                                                     self.http_url())
+        return self._state
 
 
 def _mesos_files(tasks, file_, client):
