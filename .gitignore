@@ -1,6 +1,7 @@
+build
+dist
+.cache
 *.egg-info
 *.pyc
 *.pyo
-
-.cache
-__pycache__
+tests/__pycache__
