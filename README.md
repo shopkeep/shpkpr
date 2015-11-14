@@ -200,3 +200,8 @@ $ shpkpr logs -a my-app-1 -n 100
 $ shpkpr logs -a my-app-1 -n 100 --completed
 $ shpkpr logs -a my-app-1 --follow
 ```
+
+
+## Licensing
+
+Except where otherwise explicitly noted, all code is released under the [MIT License](https://tldrlegal.com/license/mit-license). See [LICENSE.txt](LICENSE.txt) for further details.
