@@ -6,3 +6,4 @@ dist
 *.pyo
 tests/__pycache__
 .tox
+.coverage
