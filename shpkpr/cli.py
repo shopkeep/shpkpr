@@ -18,18 +18,26 @@ class Context(object):
     def __init__(self):
         self.marathon_url = None
         self.mesos_master_url = None
+        self._marathon_client = None
+        self._mesos_client = None
 
     @property
     def marathon_client(self):
         if not self.marathon_url:
             raise click.exceptions.UsageError("Missing option \"--marathon_url\".")
-        return MarathonClient(self.marathon_url)
+
+        if self._marathon_client is None:
+            self._marathon_client = MarathonClient(self.marathon_url)
+        return self._marathon_client
 
     @property
     def mesos_client(self):
         if not self.mesos_master_url:
             raise click.exceptions.UsageError("Missing option \"--mesos_master_url\".")
-        return MesosClient(self.mesos_master_url)
+
+        if self._mesos_client is None:
+            self._mesos_client = MesosClient(self.mesos_master_url)
+        return self._mesos_client
 
     def log(self, msg, *args):
         """Logs a message to stdout."""
