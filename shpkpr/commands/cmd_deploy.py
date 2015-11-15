@@ -12,6 +12,7 @@ from marathon.models import MarathonApp
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
+from shpkpr.marathon import DeploymentFailed
 
 
 @click.command('deploy', short_help='Deploy application from template.', context_settings=CONTEXT_SETTINGS)
@@ -72,4 +73,8 @@ def cli(ctx, template, instances, mem, cpus, application_id):
     # set the application ID to the value specified on the command line (unconditionally)
     application.id = application_id
 
-    ctx.marathon_client.deploy_application(application)
+    deployment = ctx.marathon_client.deploy_application(application)
+    try:
+        deployment.wait()
+    except DeploymentFailed as e:
+        raise click.ClickException(str(e))

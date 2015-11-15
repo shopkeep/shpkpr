@@ -5,6 +5,7 @@ import click
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
+from shpkpr.marathon import DeploymentFailed
 
 
 def _update_property_if_changed(application, prop_name, value):
@@ -35,4 +36,8 @@ def cli(ctx, instances, mem, cpus, application_id):
             updated = True
 
     if updated:
-        ctx.marathon_client.deploy_application(application)
+        deployment = ctx.marathon_client.deploy_application(application)
+        try:
+            deployment.wait()
+        except DeploymentFailed as e:
+            raise click.ClickException(str(e))
