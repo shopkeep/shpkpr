@@ -1,10 +1,5 @@
-# stdlib imports
-import json
-import os
-
 # third-party imports
 import click
-from jinja2 import Template
 from marathon.exceptions import NotFoundError
 from marathon.models import MarathonApp
 
