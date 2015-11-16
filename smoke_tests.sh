@@ -39,6 +39,8 @@ function invoke {
 
 invoke "shpkpr --help"
 invoke "shpkpr list"
+invoke "shpkpr deploy -t tests/test.json.tmpl"
+invoke "shpkpr list"
 invoke "shpkpr show"
 invoke "shpkpr scale --instances=3 --cpus=0.1 --mem=512"
 invoke "shpkpr show"
