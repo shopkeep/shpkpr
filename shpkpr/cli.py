@@ -16,6 +16,7 @@ CONTEXT_SETTINGS = dict(auto_envvar_prefix='SHPKPR')
 class Context(object):
 
     def __init__(self):
+        self.buffer = sys.stdout
         self.marathon_url = None
         self.mesos_master_url = None
         self._marathon_client = None
@@ -43,7 +44,7 @@ class Context(object):
         """Logs a message to stdout."""
         if args:
             msg %= args
-        click.echo(msg, file=sys.stdout, **kwargs)
+        click.echo(msg, file=self.buffer, **kwargs)
 
     def style(self, msg, *args, **kwargs):
         """Wrapper around click.style to allow modules to access this
