@@ -101,11 +101,14 @@ def _output(ctx, file_id, lines, prefixes):
     """
     if lines:
         for line in lines:
-            ctx.log(
-                '%s %s',
-                ctx.style('[{}]'.format(prefixes[file_id][0]), fg=prefixes[file_id][1]),
-                line,
-            )
+            if not prefixes.get(file_id, [None])[0]:
+                ctx.log(line)
+            else:
+                ctx.log(
+                    '%s %s',
+                    ctx.style('[{}]'.format(prefixes[file_id][0]), fg=prefixes[file_id][1]),
+                    line,
+                )
 
 
 # A liberal estimate of a line size.  Used to estimate how much data
