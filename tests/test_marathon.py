@@ -42,48 +42,32 @@ def test_deploy_application(mock_deployment_check, mock_update_app):
     assert deployment.wait() == True
 
 
-@mock.patch('shpkpr.marathon.MarathonClient.get_application')
-def test_deployment_wait(mock_get_application):
+@mock.patch('shpkpr.marathon.Deployment.check')
+def test_deployment_wait(mock_deployment_check):
     """ Test that deployment.wait() spins until a deployment succeeds.
     """
-    app_state_pending = marathon.models.app.MarathonApp(
-        deployments=[{'id': '1234'}],
-        version='1',
-        tasks_unhealthy=0
-    )
-    app_state_success = marathon.models.app.MarathonApp(
-        deployments=[],
-        version='2',
-        tasks_unhealthy=0
-    )
-    mock_get_application.side_effect = [app_state_pending, app_state_pending, app_state_pending, app_state_pending,
-                                        app_state_pending, app_state_pending, app_state_pending, app_state_pending,
-                                        app_state_pending, app_state_pending, app_state_pending, app_state_pending,
-                                        app_state_pending, app_state_pending, app_state_pending, app_state_pending,
-                                        app_state_pending, app_state_pending, app_state_pending, app_state_success]
+    mock_deployment_check.side_effect = [False, False, False, False, False,
+                                         False, False, False, False, False,
+                                         False, False, False, False, False,
+                                         False, False, False, False, True]
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
     deployment = Deployment(client, "", '1234', '2')
     deployment.wait(check_interval_secs=0.01)
-    assert mock_get_application.call_count == 20
+    assert mock_deployment_check.call_count == 20
 
 
-@mock.patch('shpkpr.marathon.MarathonClient.get_application')
-def test_deployment_wait_with_timeout(mock_get_application):
+@mock.patch('shpkpr.marathon.Deployment.check')
+def test_deployment_wait_with_timeout(mock_deployment_check):
     """ Test that deployment.wait() spins until a deployment succeeds.
     """
-    app_state_pending = marathon.models.app.MarathonApp(
-        deployments=[{'id': '1234'}],
-        version='1',
-        tasks_unhealthy=0
-    )
-    mock_get_application.side_effect = [app_state_pending, app_state_pending, app_state_pending]
+    mock_deployment_check.side_effect = [False, False, False]
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
     deployment = Deployment(client, "", '1234', '2')
     with pytest.raises(DeploymentFailed):
         deployment.wait(timeout=1, check_interval_secs=0.5)
-    assert mock_get_application.call_count == 3
+    assert mock_deployment_check.call_count == 3
 
 
 @mock.patch('shpkpr.marathon.MarathonClient.get_application')
