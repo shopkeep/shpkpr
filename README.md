@@ -136,7 +136,15 @@ $ tox -e py27
 $ tox -e py34
 ```
 
-**NOTE:** In future, the tests will make use of [Docker](http://docker.com) to provide a consistent environment for testing and build purposes.
+If you have Docker installed, the tests can also be run in containers to test easily against different versions of Python:
+
+```bash
+# To test all supported versions of Python
+$ make test
+
+# To test only a single version of Python (PyPy in this case)
+$ make test.pypy
+```
 
 
 ## Examples
