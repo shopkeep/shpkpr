@@ -59,7 +59,7 @@ def _line_prefixes(mesos_files):
 
     prefixes = {}
     colours = itertools.cycle(["red", "green", "yellow", "blue", "magenta", "cyan"])
-    for f, colour in itertools.izip(mesos_files, colours):
+    for f, colour in zip(mesos_files, colours):
         prefixes[str(f)] = (
             str(f).replace(common_prefix, "").replace(common_suffix, ""),
             colour,

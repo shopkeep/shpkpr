@@ -1,6 +1,8 @@
 shpkpr
 ======
 
+[![Build Status](https://travis-ci.org/shopkeep/shpkpr.svg?branch=master)](https://travis-ci.org/shopkeep/shpkpr)
+
 shpkpr is a tool for controlling and observing applications running on Mesos/Marathon. shpkpr is designed to provide a simple command-line interface to Marathon (similiar to the `heroku` command-line tool) for use both manually and with CI tools like jenkins.
 
 
@@ -134,7 +136,15 @@ $ tox -e py27
 $ tox -e py34
 ```
 
-**NOTE:** In future, the tests will make use of [Docker](http://docker.com) to provide a consistent environment for testing and build purposes.
+If you have Docker installed, the tests can also be run in containers to test easily against different versions of Python:
+
+```bash
+# To test all supported versions of Python
+$ make test
+
+# To test only a single version of Python (PyPy in this case)
+$ make test.pypy
+```
 
 
 ## Examples
