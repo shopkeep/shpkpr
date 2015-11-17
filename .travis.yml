@@ -1,0 +1,14 @@
+sudo: required
+
+services:
+  - docker
+
+env:
+  - TEST_TARGET=test.2.7
+  - TEST_TARGET=test.3.3
+  - TEST_TARGET=test.3.4
+  - TEST_TARGET=test.3.5
+  - TEST_TARGET=test.pypy
+
+script:
+  - make $TEST_TARGET
