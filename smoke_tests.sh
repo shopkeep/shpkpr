@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # smoke_tests.sh
 #
-# To run these tests, you'll need to set 3 environment variables:
+# To run these tests, you'll need to set 6 environment variables:
 # 
 #     # URL of the Marathon API to use
 #     export SHPKPR_MARATHON_URL=http://marathon.somedomain.com:8080
@@ -13,6 +13,19 @@
 #     # Marathon prior to running the tests
 #     export SHPKPR_APPLICATION=my-dummy-application-for-testing
 # 
+#     # Docker repotag of the container that should be deployed to Marathon.
+#     # This container must be pullable by the mesos cluster; for testing
+#     # purposes it's probably easiest to use a container from the public
+#     # Docker hub.
+#     export SHPKPR_DOCKER_REPOTAG=goexample/outyet:latest
+#
+#     # Port that should be exposed from the Docker container
+#     export SHPKPR_DOCKER_EXPOSED_PORT=8080
+#
+#     # An arbitrary label to be injected into the deploy template. This can
+#     # be any non-empty string for testing.
+#     export SHPKPR_DEPLOY_DOMAIN=somedomain.com
+#
 # Once set, just run the script:
 # 
 #     ./smoke_tests.sh

@@ -11,7 +11,7 @@
       "network": "BRIDGE",
       "portMappings": [
         {
-          "containerPort": 80,
+          "containerPort": {{DOCKER_EXPOSED_PORT}},
           "hostPort": 0,
           "protocol": "tcp"
         }
@@ -24,8 +24,8 @@
       "protocol": "HTTP",
       "portIndex": 0,
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 30,
-      "timeoutSeconds": 20,
+      "intervalSeconds": 20,
+      "timeoutSeconds": 10,
       "maxConsecutiveFailures": 3
     }
   ],
@@ -45,5 +45,8 @@
   "labels": {
     "HAPROXY_MODE": "http",
     "DOMAIN": "{{DEPLOY_DOMAIN}}"
+  },
+  "env": {
+    "TESTKEY": "testval"
   }
 }
