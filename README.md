@@ -1,6 +1,8 @@
 shpkpr
 ======
 
+[![Build Status](https://travis-ci.org/shopkeep/shpkpr.svg?branch=master)](https://travis-ci.org/shopkeep/shpkpr)
+
 shpkpr is a tool for controlling and observing applications running on Mesos/Marathon. shpkpr is designed to provide a simple command-line interface to Marathon (similiar to the `heroku` command-line tool) for use both manually and with CI tools like jenkins.
 
 
