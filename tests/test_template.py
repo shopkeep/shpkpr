@@ -1,5 +1,8 @@
 # stdlib imports
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 # third-party imports
 import pytest
@@ -59,7 +62,7 @@ def test_load_environment_vars_with_prefix_with_trailing_underscore(monkeypatch)
 
 
 def test_render_json_template_valid(monkeypatch):
-    template_file = StringIO.StringIO('{"type_of_muffin": "{{ MUFFIN_TYPE }}"}')
+    template_file = StringIO('{"type_of_muffin": "{{ MUFFIN_TYPE }}"}')
 
     rendered_template = render_json_template(template_file, **{"MUFFIN_TYPE": "banana"})
     assert "type_of_muffin" in rendered_template
@@ -67,14 +70,14 @@ def test_render_json_template_valid(monkeypatch):
 
 
 def test_render_json_template_invalid_json_unquoted_string():
-    template_file = StringIO.StringIO('{"type_of_muffin": {{ MUFFIN_TYPE }}}')
+    template_file = StringIO('{"type_of_muffin": {{ MUFFIN_TYPE }}}')
 
     with pytest.raises(ValueError):
         render_json_template(template_file, **{"MUFFIN_TYPE": "banana"})
 
 
 def test_render_json_template_invalid_json_missing_value(monkeypatch):
-    template_file = StringIO.StringIO('{"type_of_muffin": {{ MUFFIN_TYPE }}}')
+    template_file = StringIO('{"type_of_muffin": {{ MUFFIN_TYPE }}}')
 
     with pytest.raises(ValueError):
         render_json_template(template_file, **{})
