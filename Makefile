@@ -1,4 +1,4 @@
-.PHONY: help test.2.7 test.3.3 test.3.4 test.3.5 test.pypy test
+.PHONY: clean clean.build clean.pyc clean.test help test.2.7 test.3.3 test.3.4 test.3.5 test.pypy test
 
 
 default: help
@@ -26,3 +26,25 @@ test.3.5: ## Run Python 3.5 tests inside Docker
 
 test.pypy: ## Run PyPy 2 tests inside Docker
 	$(call test_with_docker,dockerfiles/Dockerfile-pypy-2-4.0,shpkpr-pypy-2,pypy)
+
+
+clean: clean.build clean.pyc clean.test ## Remove all build, test, coverage and Python artifacts
+
+clean.build: ## Remove build artifacts
+	rm -fr build/
+	rm -fr dist/
+	rm -fr .eggs/
+	find . -name '*.egg-info' -exec rm -fr {} +
+	find . -name '*.egg' -exec rm -f {} +
+
+clean.pyc: ## Remove Python file artifacts
+	find . -name '*.pyc' -exec rm -f {} +
+	find . -name '*.pyo' -exec rm -f {} +
+	find . -name '*~' -exec rm -f {} +
+	find . -name '__pycache__' -exec rm -fr {} +
+
+clean.test: ## Remove test and coverage artifacts
+	rm -fr .cache/
+	rm -fr .tox/
+	rm -f .coverage
+	rm -fr htmlcov/
