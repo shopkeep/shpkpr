@@ -1,10 +1,18 @@
-.PHONY: clean clean.build clean.pyc clean.test help test.2.7 test.3.3 test.3.4 test.3.5 test.pypy test
+.PHONY: clean clean.build clean.pyc clean.test docs.watch docs help test.2.7 test.3.3 test.3.4 test.3.5 test.pypy test
 
 
 default: help
 
 help: ## Show this help
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -Ee 's/([a-z.]*):[^#]*##(.*)/\1##\2/' | sort | column -t -s "##"
+
+
+docs: ## Generate Sphinx HTML documentation
+	$(MAKE) -C docs clean
+	$(MAKE) -C docs html
+
+docs.watch: docs ## Watch for file changes and regenerate documentation as required
+	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 
 
 test: test.2.7 test.3.3 test.3.4 test.3.5 test.pypy ## Run tests against all supported Python versions (2.7, 3.3, 3.4, 3.5 and pypy) inside Docker
