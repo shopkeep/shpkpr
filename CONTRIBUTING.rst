@@ -59,7 +59,7 @@ Ready to contribute? Here's how to set up ``shpkpr`` for local development.
 
     $ git clone git@github.com:your_name_here/shpkpr.git
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
+3. Install your local copy into a virtualenv. Assuming you have `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/en/latest/>`_ installed, this is how you set up your fork for local development::
 
     $ mkvirtualenv shpkpr
     $ cd shpkpr/
@@ -71,7 +71,7 @@ Ready to contribute? Here's how to set up ``shpkpr`` for local development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass the tests, including testing other Python versions with tox::
+5. When you're done making changes, check that your changes pass the tests, including testing other Python versions with `tox <https://pypi.python.org/pypi/tox>`_::
 
     $ tox
 
@@ -85,13 +85,25 @@ Ready to contribute? Here's how to set up ``shpkpr`` for local development.
 
     $ ./smoke_tests.sh
 
-6. Commit your changes and push your branch to GitHub::
+6. If your changes are user-facing, you should update the documentation to reflect the changes you've made. shpkpr's documentation is built with `Sphinx <http://sphinx-doc.org/>`_ and can be built using the ``make``::
+
+    $ pip install Sphinx
+    $ make docs
+
+   While developing, you can watch the documentation for changes and rebuild as required by installing `watchdog <https://pypi.python.org/pypi/watchdog>`_::
+
+    $ pip install watchdog
+    $ make docs.watch
+
+   The built documentation is output to the ``_build/html/`` folder. The simplest way to view these docs is with Python's built-in static webserver ``python -m SimpleHTTPServer``.
+
+7. Commit your changes and push your branch to GitHub::
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
     $ git push origin name-of-your-bugfix-or-feature
 
-7. Submit a pull request through the GitHub website.
+8. Submit a pull request through the GitHub website.
 
 Pull Request Guidelines
 -----------------------
