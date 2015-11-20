@@ -1,0 +1,12 @@
+.. include:: ../README.rst
+
+Contents
+--------
+
+.. toctree::
+   :glob:
+   :maxdepth: 2
+
+   installation
+   usage/index
+   contributing
