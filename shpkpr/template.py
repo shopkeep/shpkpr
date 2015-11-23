@@ -5,7 +5,14 @@ import json
 import os
 
 # third-party imports
-from jinja2 import Template
+import jinja2
+
+
+class UndefinedError(Exception):
+    """Raised when a template contains a placeholder for a variable that
+    wasn't included in the context dictionary passed in at render time.
+    """
+    pass
 
 
 def load_values_from_environment(prefix=""):
@@ -32,10 +39,16 @@ def render_json_template(template_file, **values):
     dictionary. If the template is not valid JSON after rendering then an
     exception will be raised.
 
+    If a template defines a placeholder for a variable that is not included in
+    `values` an `UndefinedError` will be raised.
+
     ``template_file`` should be a file-like object, opened for reading.
     ``values`` should be regular keyword arguments to the function which will
     be passed to the template at render time.
     """
-    template = Template(template_file.read())
-    rendered_template = template.render(**values)
+    template = jinja2.Template(template_file.read(), undefined=jinja2.StrictUndefined)
+    try:
+        rendered_template = template.render(**values)
+    except jinja2.UndefinedError as e:
+        raise UndefinedError(e.message)
     return json.loads(rendered_template)
