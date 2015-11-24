@@ -11,6 +11,16 @@ import jinja2
 from shpkpr import exceptions
 
 
+class InvalidJSONError(exceptions.ShpkprException):
+    """Raised when a template can be rendered successfully but does not parse
+    as valid JSON afterwards.
+    """
+    exit_code = 2
+
+    def format_message(self):
+        return 'Unable to parse rendered template as JSON, check variables'
+
+
 class UndefinedError(exceptions.ShpkprException):
     """Raised when a template contains a placeholder for a variable that
     wasn't included in the context dictionary passed in at render time.
@@ -38,6 +48,7 @@ def load_values_from_environment(prefix=""):
     return values
 
 
+@exceptions.rewrap(ValueError, InvalidJSONError)
 @exceptions.rewrap(jinja2.UndefinedError, UndefinedError)
 def render_json_template(template_file, **values):
     """Initialise a jinja2 template and render it with the passed-in values.
