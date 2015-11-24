@@ -53,10 +53,7 @@ def cli(ctx, template_file, instances, mem, cpus, application_id):
     """
     # read and render deploy template using values from the environment
     values = load_values_from_environment(prefix=CONTEXT_SETTINGS['auto_envvar_prefix'])
-    try:
-        rendered_template = render_json_template(template_file, **values)
-    except ValueError as e:
-        raise click.ClickException("Invalid JSON: " + str(e))
+    rendered_template = render_json_template(template_file, **values)
     application = MarathonApp.from_json(rendered_template)
 
     # load existing config from marathon if available
