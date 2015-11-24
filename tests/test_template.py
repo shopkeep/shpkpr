@@ -8,6 +8,7 @@ except ImportError:
 import pytest
 
 # local imports
+from shpkpr.template import UndefinedError
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
 
@@ -80,4 +81,11 @@ def test_render_json_template_invalid_json_missing_value(monkeypatch):
     template_file = StringIO('{"type_of_muffin": {{ MUFFIN_TYPE }}}')
 
     with pytest.raises(ValueError):
+        render_json_template(template_file, **{"MUFFIN_TYPE": ""})
+
+
+def test_render_json_template_missing_value_raises(monkeypatch):
+    template_file = StringIO('{"type_of_muffin": "{{ MUFFIN_TYPE }}"}')
+
+    with pytest.raises(UndefinedError):
         render_json_template(template_file, **{})
