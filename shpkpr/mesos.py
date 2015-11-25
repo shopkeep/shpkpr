@@ -3,6 +3,7 @@
 (mostly extracted from the dcos/dcoscli library)
 """
 # third-party imports
+import requests
 from dcos import mesos as dcos_mesos
 from dcos import util
 from dcos.errors import DCOSException
@@ -16,8 +17,27 @@ class MesosClient(dcos_mesos.DCOSClient):
     def __init__(self, mesos_master_url):
         self._dcos_url = None
         self._timeout = 5
-        self._mesos_master_url = mesos_master_url
-        self._mesos_master = MesosMaster(self.get_master_state(), self)
+        self._master_url = mesos_master_url
+        self._leader_url = None
+        self._master = None
+
+    @property
+    def _mesos_master(self):
+        """Lazily load and cache a MesosMaster instance
+        """
+        if self._master is None:
+            self._master = MesosMaster(self.get_master_state(), self)
+        return self._master
+
+    @property
+    def _mesos_master_url(self):
+        """Override _mesos_master_url to ensure that we always return a leader
+        URL, regardless of whether the master URL passed in at init time is a
+        leader or not.
+        """
+        if self._leader_url is None:
+            self._leader_url = resolve_leader_url(self._master_url)
+        return self._leader_url
 
     def get_tasks(self, fltr, completed=False):
         """Return tasks from mesos that match the given filter
@@ -74,6 +94,19 @@ class MesosSlave(dcos_mesos.Slave):
             self._state = self._master._mesos_client.get_slave_state(self['id'],
                                                                      self.http_url())
         return self._state
+
+
+def resolve_leader_url(master_url):
+    """Given the URL of a Mesos master node, make a HTTP HEAD request to
+    `/master/redirect` to find the leader node and return its address:port.
+    """
+    url = master_url.rstrip("/") + "/master/redirect"
+    response = requests.head(url, allow_redirects=True)
+
+    # requests will follow redirects and the `url` attribute of the response
+    # object contains the final URL, which in this case will be our Mesos
+    # leader.
+    return response.url
 
 
 def _mesos_files(tasks, file_, client):
