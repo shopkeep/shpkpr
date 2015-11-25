@@ -47,12 +47,17 @@ def _update_property_with_defaults(application, existing_application, prop_name,
               type=click.File("r"),
               required=True,
               help="Path of the template to use for deployment.")
+@click.option('-e',
+              '--env_prefix',
+              'env_prefix',
+              default=CONTEXT_SETTINGS['auto_envvar_prefix'],
+              help="Path of the template to use for deployment.")
 @pass_context
-def cli(ctx, template_file, instances, mem, cpus, application_id):
+def cli(ctx, env_prefix, template_file, instances, mem, cpus, application_id):
     """Deploy application from template.
     """
     # read and render deploy template using values from the environment
-    values = load_values_from_environment(prefix=CONTEXT_SETTINGS['auto_envvar_prefix'])
+    values = load_values_from_environment(prefix=env_prefix)
     rendered_template = render_json_template(template_file, **values)
     application = MarathonApp.from_json(rendered_template)
 
