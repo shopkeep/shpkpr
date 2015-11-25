@@ -5,6 +5,7 @@ dist
 *.pyc
 *.pyo
 tests/__pycache__
+tests/commands/__pycache__
 .tox
 .coverage
 docs/_build
