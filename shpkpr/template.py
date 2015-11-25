@@ -7,12 +7,28 @@ import os
 # third-party imports
 import jinja2
 
+# local imports
+from shpkpr import exceptions
 
-class UndefinedError(Exception):
+
+class InvalidJSONError(exceptions.ShpkprException):
+    """Raised when a template can be rendered successfully but does not parse
+    as valid JSON afterwards.
+    """
+    exit_code = 2
+
+    def format_message(self):
+        return 'Unable to parse rendered template as JSON, check variables'
+
+
+class UndefinedError(exceptions.ShpkprException):
     """Raised when a template contains a placeholder for a variable that
     wasn't included in the context dictionary passed in at render time.
     """
-    pass
+    exit_code = 2
+
+    def format_message(self):
+        return 'Unable to render template: %s' % self.message
 
 
 def load_values_from_environment(prefix=""):
@@ -32,6 +48,8 @@ def load_values_from_environment(prefix=""):
     return values
 
 
+@exceptions.rewrap(ValueError, InvalidJSONError)
+@exceptions.rewrap(jinja2.UndefinedError, UndefinedError)
 def render_json_template(template_file, **values):
     """Initialise a jinja2 template and render it with the passed-in values.
 
@@ -47,8 +65,5 @@ def render_json_template(template_file, **values):
     be passed to the template at render time.
     """
     template = jinja2.Template(template_file.read(), undefined=jinja2.StrictUndefined)
-    try:
-        rendered_template = template.render(**values)
-    except jinja2.UndefinedError as e:
-        raise UndefinedError(e.message)
+    rendered_template = template.render(**values)
     return json.loads(rendered_template)
