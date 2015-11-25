@@ -7,7 +7,7 @@
     "type": "DOCKER",
     "docker": {
       "image": "{{DOCKER_REPOTAG}}",
-      "forcePullImage": true,
+      "forcePullImage": false,
       "network": "BRIDGE",
       "portMappings": [
         {
@@ -24,8 +24,8 @@
       "protocol": "HTTP",
       "portIndex": 0,
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 20,
-      "timeoutSeconds": 10,
+      "intervalSeconds": 10,
+      "timeoutSeconds": 5,
       "maxConsecutiveFailures": 3
     }
   ],
@@ -39,8 +39,8 @@
     ]
   ],
   "upgradeStrategy": {
-      "minimumHealthCapacity": 0.7,
-      "maximumOverCapacity": 0.8
+      "minimumHealthCapacity": 1,
+      "maximumOverCapacity": 1
   },
   "labels": {
     "HAPROXY_MODE": "http",
