@@ -25,7 +25,6 @@ def _pretty_print(ctx, application):
     ctx.log("RAM:          %s", application.mem)
     ctx.log("Instances:    %s", application.instances)
     ctx.log("Docker Image: %s", application.container.docker.image)
-    ctx.log("Domain:       %s", application.labels.get("DOMAIN"))
     ctx.log("Version:      %s", application.version)
     ctx.log("Status:       %s", _task_status(application))
 
