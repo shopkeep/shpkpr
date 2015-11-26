@@ -20,22 +20,22 @@ def cli(ctx, application_id):
 def _pretty_print(ctx, application):
     """Pretty print application details to stdout
     """
-    ctx.log("ID:           %s", application.id.lstrip('/'))
-    ctx.log("CPUs:         %s", application.cpus)
-    ctx.log("RAM:          %s", application.mem)
-    ctx.log("Instances:    %s", application.instances)
-    ctx.log("Docker Image: %s", application.container.docker.image)
-    ctx.log("Version:      %s", application.version)
+    ctx.log("ID:           %s", application['id'].lstrip('/'))
+    ctx.log("CPUs:         %s", application['cpus'])
+    ctx.log("RAM:          %s", application['mem'])
+    ctx.log("Instances:    %s", application['instances'])
+    ctx.log("Docker Image: %s", application['container']['docker']['image'])
+    ctx.log("Version:      %s", application['version'])
     ctx.log("Status:       %s", _task_status(application))
 
 
 def _task_status(application):
     """Returns a nicely formatted string we can use to display application health on the CLI.
     """
-    if len(application.deployments) > 0:
+    if len(application['deployments']) > 0:
         return click.style("DEPLOYING", fg='yellow')
-    if application.tasks_running == 0:
+    if application['tasksRunning'] == 0:
         return click.style("SUSPENDED", fg='blue')
-    if application.tasks_unhealthy > 0:
+    if application['tasksUnhealthy'] > 0:
         return click.style("UNHEALTHY", fg='red')
     return click.style("HEALTHY", fg='green')

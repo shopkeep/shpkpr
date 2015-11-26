@@ -10,7 +10,6 @@ setup(
         'click==6.0',
         'dcos==0.2.0',
         'jinja2==2.8',
-        'marathon==0.7.2',
         'six>=1.10.0',
         'requests>=2.0.0',
     ],

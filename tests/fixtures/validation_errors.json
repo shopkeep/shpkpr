@@ -1,0 +1,9 @@
+{
+  "message": "Bean is not valid",
+  "errors": [
+    {
+      "attribute": "upgradeStrategy.minimumHealthCapacity",
+      "error": "is greater than 1"
+    }
+  ]
+}
