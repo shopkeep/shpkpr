@@ -7,6 +7,7 @@ import click
 
 # local imports
 from shpkpr.marathon import MarathonClient
+from shpkpr.marathon import default_schema
 from shpkpr.mesos import MesosClient
 
 
@@ -19,6 +20,7 @@ class Context(object):
         self.buffer = sys.stdout
         self.marathon_url = None
         self.mesos_master_url = None
+        self.schema_path = None
         self._marathon_client = None
         self._mesos_client = None
 
@@ -28,7 +30,7 @@ class Context(object):
             raise click.exceptions.UsageError("Missing option \"--marathon_url\".")
 
         if self._marathon_client is None:
-            self._marathon_client = MarathonClient(self.marathon_url)
+            self._marathon_client = MarathonClient(self.marathon_url, self.schema_path)
         return self._marathon_client
 
     @property
@@ -80,10 +82,12 @@ class ShpkprCLI(click.MultiCommand):
 
 
 @click.command(cls=ShpkprCLI, context_settings=CONTEXT_SETTINGS)
+@click.option('--schema_path', help="Path of a marathon application schema to use.", default=default_schema())
 @click.option('--marathon_url', help="URL of the Marathon API to use.")
 @click.option('--mesos_master_url', help="URL of the Mesos master to use.")
 @pass_context
-def cli(ctx, mesos_master_url, marathon_url):
+def cli(ctx, mesos_master_url, marathon_url, schema_path):
     """A tool to manage applications running on Marathon."""
     ctx.marathon_url = marathon_url
     ctx.mesos_master_url = mesos_master_url
+    ctx.schema_path = schema_path

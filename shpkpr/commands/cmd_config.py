@@ -5,7 +5,6 @@ import click
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
-from shpkpr.marathon import DeploymentFailed
 
 
 @click.group('config', short_help='Manage application configuration', context_settings=CONTEXT_SETTINGS)
@@ -39,11 +38,7 @@ def set(ctx, application_id, env_vars):
         application.env[k] = v
 
     # redeploy the reconfigured application
-    deployment = ctx.marathon_client.deploy_application(application)
-    try:
-        deployment.wait()
-    except DeploymentFailed as e:
-        raise click.ClickException(str(e))
+    ctx.marathon_client.deploy_application(application).wait()
 
 
 @cli.command('unset', short_help='Unset application configuration.', context_settings=CONTEXT_SETTINGS)
@@ -61,8 +56,4 @@ def unset(ctx, application_id, keys):
             pass
 
     # redeploy the reconfigured application
-    deployment = ctx.marathon_client.deploy_application(application)
-    try:
-        deployment.wait()
-    except DeploymentFailed as e:
-        raise click.ClickException(str(e))
+    ctx.marathon_client.deploy_application(application).wait()
