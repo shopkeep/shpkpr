@@ -22,12 +22,12 @@ from shpkpr.template import render_json_template
               default=CONTEXT_SETTINGS['auto_envvar_prefix'],
               help="Path of the template to use for deployment.")
 @pass_context
-def cli(ctx, env_prefix, template_file, application_id):
+def cli(ctx, env_prefix, template_file):
     """Deploy application from template.
     """
     # read and render deploy template using values from the environment
     values = load_values_from_environment(prefix=env_prefix)
     rendered_template = render_json_template(template_file, **values)
 
-    application = MarathonApplication(rendered_template)
+    application = MarathonApplication(rendered_template, ctx.marathon_client.application_schema)
     ctx.marathon_client.deploy_application(application).wait()

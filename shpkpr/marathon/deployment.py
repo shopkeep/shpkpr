@@ -33,16 +33,16 @@ class MarathonDeployment(object):
         application = self._client.get_application(self._application_id)
 
         # if the deployment is in progress then return False
-        if self._deployment_id in [x.id for x in application.deployments]:
+        if self._deployment_id in [x['id'] for x in application['deployments']]:
             return False
 
         # check that the application's version is as we expect
-        if not self._expected_version == application.version:
-            raise DeploymentFailed("Version mismatch: %s != %s" % (self._expected_version, application.version))
+        if not self._expected_version == application['version']:
+            raise DeploymentFailed("Version mismatch: %s != %s" % (self._expected_version, application['version']))
 
         # check that the application's tasks are healthy (if appropriate)
-        if application.tasks_unhealthy > 0:
-            raise DeploymentFailed("Tasks Unhealthy: %d" % application.tasks_unhealthy)
+        if application['tasksUnhealthy'] > 0:
+            raise DeploymentFailed("Tasks Unhealthy: %d" % application['tasksUnhealthy'])
 
         # if the application isn't deploying, has the right version and is
         # healthy, then we can consider the deployment as completed

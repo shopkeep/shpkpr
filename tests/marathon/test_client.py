@@ -28,15 +28,15 @@ def test_get_application():
 
     client = MarathonClient("http://marathon.somedomain.com:8080", default_schema())
     application = client.get_application('test-app')
-    assert application.id == "/test-app"
-    assert len(application.tasks) == 2
-    assert application.tasks[1].host == '10.210.51.111'
-    application.tasks[1].host = '10.210.51'
-    assert application.tasks[1].host == '10.210.51'
-    assert application.env.IM_AN_ENV_VAR == "AND_IM_A_VALUE"
-    assert application.container.docker.image == "my-docker-registry.com/test_app:master-be96e6"
-    application.container.docker.image = "my-docker-registry.com/test_app:latest"
-    assert application.container.docker.image == "my-docker-registry.com/test_app:latest"
+    assert application['id'] == "/test-app"
+    assert len(application['tasks']) == 2
+    assert application['tasks'][1]['host'] == '10.210.51.111'
+    application['tasks'][1]['host'] = '10.210.51'
+    assert application['tasks'][1]['host'] == '10.210.51'
+    assert application['env']['IM_AN_ENV_VAR'] == "AND_IM_A_VALUE"
+    assert application['container']['docker']['image'] == "my-docker-registry.com/test_app:master-be96e6"
+    application['container']['docker']['image'] = "my-docker-registry.com/test_app:latest"
+    assert application['container']['docker']['image'] == "my-docker-registry.com/test_app:latest"
 
 
 @responses.activate
@@ -55,12 +55,12 @@ def test_list_application_ids():
 @mock.patch('shpkpr.marathon.MarathonDeployment.check')
 def test_deploy_application(mock_deployment_check):
     responses.add(responses.PUT,
-                  'http://marathon.somedomain.com:8080/v2/apps',
-                  status=200,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=201,
                   json=_load_json_fixture("deployment"))
     mock_deployment_check.return_value = True
 
     client = MarathonClient("http://marathon.somedomain.com:8080", default_schema())
-    application = MarathonApplication(client._parse_response('{"id": "test-app"}'), client.application_schema)
+    application = MarathonApplication({"id": "test-app"}, client.application_schema)
     deployment = client.deploy_application(application)
     assert deployment.wait() == True

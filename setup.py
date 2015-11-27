@@ -8,7 +8,6 @@ setup(
     install_requires=[
         'click==5.1',
         'dcos==0.2.0',
-        'dotmap==1.1.2',
         'jinja2==2.8',
         'six>=1.10.0',
         'requests>=2.0.0',

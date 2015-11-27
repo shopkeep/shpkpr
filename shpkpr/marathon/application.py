@@ -30,6 +30,9 @@ class ApplicationError(exceptions.ShpkprException):
 
 class MarathonApplication(object):
 
+    READ_ONLY_PROPERTIES = ['tasks', 'tasksUnhealthy', 'deployments',
+                            'tasksStaged', 'tasksRunning', 'tasksHealthy']
+
     def __init__(self, application_json=None, application_schema=None):
         self._application = None
         self._schema = None
@@ -50,16 +53,33 @@ class MarathonApplication(object):
             return None
         if self._application is None:
             jsonschema.validate({}, self._schema)
-        jsonschema.validate(self._application, self._schema)
+        jsonschema.validate(self.to_json(), self._schema)
 
-    def to_json(self):
-        return self._application
+        # since we use the PUT::/v2/apps/ endpoint for updates we need to ensure that
+        # an application always has its ID set in the JSON to be posted.
+        try:
+            self['id']
+        except KeyError:
+            raise ValidationError('Missing `id` field.')
 
-    def __getattr__(self, value):
-        return getattr(self._application, value)
+    def to_json(self, minimal=True):
+        _out = {}
+        for k, v in self._application.items():
+            if minimal and v is None:
+                continue
+            if k in self.READ_ONLY_PROPERTIES:
+                continue
+            _out[k] = v
+        return _out
 
-    def __setattr__(self, key, value):
-        if key.startswith('_'):
-            self.__dict__[key] = value
-        else:
-            setattr(self._application, key, value)
+    def get(self, key, default=None):
+        try:
+            return self._application[key]
+        except KeyError:
+            return default
+
+    def __getitem__(self, key):
+        return self._application[key]
+
+    def __setitem__(self, key, value):
+        self._application[key] = value

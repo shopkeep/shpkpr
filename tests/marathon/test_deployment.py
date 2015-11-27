@@ -43,11 +43,11 @@ def test_deployment_check_with_deployment_in_progress(mock_get_application):
     """ Test that deployment.check() returns False when the app has a deployment in progress.
     """
     client = MarathonClient("http://marathon.somedomian.com:8080", default_schema())
-    app_state_failure = MarathonApplication(client._parse_response('''{
+    app_state_failure = MarathonApplication({
         "deployments": [{"id": "1234"}],
         "version": "2",
-        "tasks_unhealthy": 0
-    }'''))
+        "tasksUnhealthy": 0
+    })
     mock_get_application.return_value = app_state_failure
 
     deployment = MarathonDeployment(client, "", '1234', '2')
@@ -60,11 +60,11 @@ def test_deployment_check_with_failing_deploy(mock_get_application):
     wrong version following a deployment.
     """
     client = MarathonClient("http://marathon.somedomian.com:8080", default_schema())
-    app_state_failure = MarathonApplication(client._parse_response('''{
+    app_state_failure = MarathonApplication({
         "deployments": [],
         "version": "1",
-        "tasks_unhealthy": 0
-    }'''))
+        "tasksUnhealthy": 0
+    })
     mock_get_application.return_value = app_state_failure
 
     deployment = MarathonDeployment(client, "", '1234', '2')
@@ -78,11 +78,11 @@ def test_deployment_check_with_unhealthy_tasks(mock_get_application):
     unhealthy tasks following a deployment.
     """
     client = MarathonClient("http://marathon.somedomian.com:8080", default_schema())
-    app_state_unhealthy = MarathonApplication(client._parse_response('''{
+    app_state_unhealthy = MarathonApplication({
         "deployments": [],
         "version": "2",
-        "tasks_unhealthy": 1
-    }'''))
+        "tasksUnhealthy": 1
+    })
     mock_get_application.return_value = app_state_unhealthy
 
     deployment = MarathonDeployment(client, "", '1234', '2')
