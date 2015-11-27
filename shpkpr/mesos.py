@@ -4,6 +4,7 @@
 """
 # third-party imports
 import requests
+from cached_property import cached_property
 from dcos import mesos as dcos_mesos
 from dcos import util
 from dcos.errors import DCOSException
@@ -21,23 +22,19 @@ class MesosClient(dcos_mesos.DCOSClient):
         self._leader_url = None
         self._master = None
 
-    @property
+    @cached_property
     def _mesos_master(self):
         """Lazily load and cache a MesosMaster instance
         """
-        if self._master is None:
-            self._master = MesosMaster(self.get_master_state(), self)
-        return self._master
+        return MesosMaster(self.get_master_state(), self)
 
-    @property
+    @cached_property
     def _mesos_master_url(self):
         """Override _mesos_master_url to ensure that we always return a leader
         URL, regardless of whether the master URL passed in at init time is a
         leader or not.
         """
-        if self._leader_url is None:
-            self._leader_url = resolve_leader_url(self._master_url)
-        return self._leader_url
+        return resolve_leader_url(self._master_url)
 
     def get_tasks(self, fltr, completed=False):
         """Return tasks from mesos that match the given filter

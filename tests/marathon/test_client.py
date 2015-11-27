@@ -9,7 +9,6 @@ import responses
 # local imports
 from shpkpr.marathon import MarathonApplication
 from shpkpr.marathon import MarathonClient
-from shpkpr.marathon import default_schema
 
 
 def _load_json_fixture(name):
@@ -26,7 +25,7 @@ def test_get_application():
                   status=200,
                   json=_load_json_fixture("valid_app"))
 
-    client = MarathonClient("http://marathon.somedomain.com:8080", default_schema())
+    client = MarathonClient("http://marathon.somedomain.com:8080")
     application = client.get_application('test-app')
     assert application['id'] == "/test-app"
     assert len(application['tasks']) == 2
@@ -46,7 +45,7 @@ def test_list_application_ids():
                   status=200,
                   json=_load_json_fixture("valid_apps"))
 
-    client = MarathonClient("http://marathon.somedomain.com:8080", default_schema())
+    client = MarathonClient("http://marathon.somedomain.com:8080")
     application_ids = client.list_application_ids()
     assert application_ids == ['test-app-a', 'test-app-b', 'test-app-c']
 
@@ -60,7 +59,7 @@ def test_deploy_application(mock_deployment_check):
                   json=_load_json_fixture("deployment"))
     mock_deployment_check.return_value = True
 
-    client = MarathonClient("http://marathon.somedomain.com:8080", default_schema())
-    application = MarathonApplication({"id": "test-app"}, client.application_schema)
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    application = MarathonApplication({"id": "test-app"})
     deployment = client.deploy_application(application)
     assert deployment.wait() == True

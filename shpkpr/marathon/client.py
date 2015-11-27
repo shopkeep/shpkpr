@@ -3,9 +3,6 @@
 # future imports
 from __future__ import absolute_import
 
-# stdlib imports
-import json
-
 # third-party imports
 import requests
 
@@ -23,9 +20,8 @@ class MarathonClient(object):
     """A thin wrapper around marathon.MarathonClient for internal use
     """
 
-    def __init__(self, marathon_url, schema_path):
+    def __init__(self, marathon_url):
         self._marathon_url = marathon_url
-        self._schema_path = schema_path
 
     def _build_url(self, path):
         return self._marathon_url.rstrip("/") + path
@@ -44,12 +40,6 @@ class MarathonClient(object):
             "app.taskStats",
         ]
 
-    @property
-    def application_schema(self):
-        with open(self._schema_path, 'r') as f:
-            schema = json.loads(f.read())
-        return schema
-
     def get_application(self, application_id):
         """Returns detailed information for a single application.
         """
@@ -60,7 +50,7 @@ class MarathonClient(object):
         # return a new MarathonApplication instance that wraps the returned
         # application data
         if response.status_code == 200:
-            return MarathonApplication(response.json()['app'], self.application_schema)
+            return MarathonApplication(response.json()['app'])
 
         # raise an appropriate error if something went wrong
         if response.status_code == 404:
@@ -79,7 +69,7 @@ class MarathonClient(object):
         # application data
         if response.status_code == 200:
             apps = response.json()['apps']
-            return [MarathonApplication(app, self.application_schema) for app in apps]
+            return [MarathonApplication(app) for app in apps]
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
 

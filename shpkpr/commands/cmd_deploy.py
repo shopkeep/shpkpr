@@ -29,5 +29,5 @@ def cli(ctx, env_prefix, template_file):
     values = load_values_from_environment(prefix=env_prefix)
     rendered_template = render_json_template(template_file, **values)
 
-    application = MarathonApplication(rendered_template, ctx.marathon_client.application_schema)
+    application = MarathonApplication(rendered_template)
     ctx.marathon_client.deploy_application(application).wait()

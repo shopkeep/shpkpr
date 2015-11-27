@@ -1,9 +1,10 @@
 # stdlib imports
-import collections
+import json
 import os
 
 # third-party imports
 import jsonschema
+from cached_property import cached_property
 
 # local imports
 from shpkpr import exceptions
@@ -11,10 +12,9 @@ from shpkpr import exceptions
 
 def default_schema():
     """Path to the default schema used to validate application definitions
-    before sending to marathon. The user can override this location on the
-    command line.
+    before sending to marathon.
     """
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "schema.json")
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "schema", "app.json")
 
 
 class ValidationError(exceptions.ShpkprException):
@@ -30,30 +30,26 @@ class ApplicationError(exceptions.ShpkprException):
 
 class MarathonApplication(object):
 
-    READ_ONLY_PROPERTIES = ['tasks', 'tasksUnhealthy', 'deployments',
-                            'tasksStaged', 'tasksRunning', 'tasksHealthy']
+    DEFAULT_SCHEMA_PATH = default_schema()
 
-    def __init__(self, application_json=None, application_schema=None):
-        self._application = None
-        self._schema = None
+    def __init__(self, application_json, application_schema=None):
+        self._application = application_json
+        self._schema = application_schema
 
-        if application_json is not None:
-            if not isinstance(application_json, collections.Mapping):
-                raise ApplicationError("`application_json` is not of type collections.Mapping")
-            self._application = application_json
+    @cached_property
+    def schema(self):
+        """Returns a JSON schema as a dictionary.
 
-        if application_schema is not None:
-            if not isinstance(application_schema, collections.Mapping):
-                raise ApplicationError("`application_schema` is not of type collections.Mapping")
-            self._schema = application_schema
+        If no schema was passed in, the default schema is loaded from disk.
+        """
+        if self._schema is not None:
+            return self._schema
+        with open(self.DEFAULT_SCHEMA_PATH, 'r') as f:
+            return json.loads(f.read())
 
     @exceptions.rewrap(jsonschema.ValidationError, ValidationError)
     def validate(self):
-        if self._schema is None:
-            return None
-        if self._application is None:
-            jsonschema.validate({}, self._schema)
-        jsonschema.validate(self.to_json(), self._schema)
+        jsonschema.validate(self._application, self.schema)
 
         # since we use the PUT::/v2/apps/ endpoint for updates we need to ensure that
         # an application always has its ID set in the JSON to be posted.
@@ -62,15 +58,8 @@ class MarathonApplication(object):
         except KeyError:
             raise ValidationError('Missing `id` field.')
 
-    def to_json(self, minimal=True):
-        _out = {}
-        for k, v in self._application.items():
-            if minimal and v is None:
-                continue
-            if k in self.READ_ONLY_PROPERTIES:
-                continue
-            _out[k] = v
-        return _out
+    def to_json(self):
+        return self._application
 
     def get(self, key, default=None):
         try:

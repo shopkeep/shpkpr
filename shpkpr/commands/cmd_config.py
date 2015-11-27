@@ -34,7 +34,7 @@ def set(ctx, application_id, env_vars):
     """Set application configuration.
     """
     existing_application = ctx.marathon_client.get_application(application_id)
-    application = MarathonApplication({'id': application_id}, ctx.marathon_client.application_schema)
+    application = MarathonApplication({'id': application_id})
     application['env'] = existing_application['env']
 
     env_vars = dict([(x[0], x[1]) for x in [y.split('=') for y in env_vars]])
@@ -53,7 +53,7 @@ def unset(ctx, application_id, keys):
     """Unset application configuration.
     """
     existing_application = ctx.marathon_client.get_application(application_id)
-    application = MarathonApplication({'id': application_id}, ctx.marathon_client.application_schema)
+    application = MarathonApplication({'id': application_id})
     application['env'] = existing_application['env']
 
     for key in keys:
