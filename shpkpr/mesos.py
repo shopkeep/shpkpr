@@ -19,8 +19,6 @@ class MesosClient(dcos_mesos.DCOSClient):
         self._dcos_url = None
         self._timeout = 5
         self._master_url = mesos_master_url
-        self._leader_url = None
-        self._master = None
 
     @cached_property
     def _mesos_master(self):
