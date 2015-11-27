@@ -7,7 +7,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'cached-property==1.3.0',
-        'click==5.1',
+        'click==6.0',
         'dcos==0.2.0',
         'jinja2==2.8',
         'marathon==0.7.2',
