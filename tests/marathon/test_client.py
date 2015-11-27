@@ -4,9 +4,11 @@ import os
 
 # third-party imports
 import mock
+import pytest
 import responses
 
 # local imports
+from shpkpr.marathon import ClientError
 from shpkpr.marathon import MarathonApplication
 from shpkpr.marathon import MarathonClient
 
@@ -28,14 +30,31 @@ def test_get_application():
     client = MarathonClient("http://marathon.somedomain.com:8080")
     application = client.get_application('test-app')
     assert application['id'] == "/test-app"
-    assert len(application['tasks']) == 2
     assert application['tasks'][1]['host'] == '10.210.51.111'
-    application['tasks'][1]['host'] = '10.210.51'
-    assert application['tasks'][1]['host'] == '10.210.51'
-    assert application['env']['IM_AN_ENV_VAR'] == "AND_IM_A_VALUE"
-    assert application['container']['docker']['image'] == "my-docker-registry.com/test_app:master-be96e6"
-    application['container']['docker']['image'] = "my-docker-registry.com/test_app:latest"
-    assert application['container']['docker']['image'] == "my-docker-registry.com/test_app:latest"
+
+
+@responses.activate
+def test_get_application_not_found():
+    responses.add(responses.GET,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=404,
+                  json={"message": "App '/test-app' does not exist"})
+
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    with pytest.raises(ClientError):
+        client.get_application('test-app')
+
+
+@responses.activate
+def test_get_application_internal_server_error():
+    responses.add(responses.GET,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=500,
+                  body="Internal Server Error")
+
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    with pytest.raises(ClientError):
+        client.get_application('test-app')
 
 
 @responses.activate
@@ -51,6 +70,18 @@ def test_list_application_ids():
 
 
 @responses.activate
+def test_list_application_ids_internal_server_error():
+    responses.add(responses.GET,
+                  'http://marathon.somedomain.com:8080/v2/apps',
+                  status=500,
+                  body="Internal Server Error")
+
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    with pytest.raises(ClientError):
+        client.list_application_ids()
+
+
+@responses.activate
 @mock.patch('shpkpr.marathon.MarathonDeployment.check')
 def test_deploy_application(mock_deployment_check):
     responses.add(responses.PUT,
@@ -63,3 +94,29 @@ def test_deploy_application(mock_deployment_check):
     application = MarathonApplication({"id": "test-app"})
     deployment = client.deploy_application(application)
     assert deployment.wait() == True
+
+
+@responses.activate
+def test_deploy_application_conflict():
+    responses.add(responses.PUT,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=409,
+                  json=_load_json_fixture("deployment_in_progress"))
+
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    application = MarathonApplication({"id": "test-app"})
+    with pytest.raises(ClientError):
+        client.deploy_application(application)
+
+
+@responses.activate
+def test_deploy_application_unprocessable_entity():
+    responses.add(responses.PUT,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=422,
+                  json=_load_json_fixture("validation_errors"))
+
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    application = MarathonApplication({"id": "test-app"})
+    with pytest.raises(ClientError):
+        client.deploy_application(application)
