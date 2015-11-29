@@ -68,9 +68,10 @@ def render_json_template(template_file, **values):
     # build a new Jinja2 environment so we can inject some custom filters into
     # the template we're rendering.
     template_env = jinja2.Environment(undefined=jinja2.StrictUndefined)
+    template_env.filters['filter_items'] = template_filters.filter_items
     template_env.filters['require_int'] = template_filters.require_int
     template_env.filters['require_float'] = template_filters.require_float
 
     template = template_env.from_string(template_file.read())
-    rendered_template = template.render(**values)
+    rendered_template = template.render(_all_env=values, **values)
     return json.loads(rendered_template)
