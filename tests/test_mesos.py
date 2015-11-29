@@ -43,17 +43,18 @@ def test_mesos_client_resolves_leader_url():
     # testing private members of a class isn't usually encouraged, however, in
     # this case the private members under test are the parts we've overridden
     # from dcos.mesos.DCOSClient and we need to test our implementation.
-    assert client._leader_url is None
     assert client._mesos_master_url == "http://leader.example.com:5050"
-    assert client._leader_url == "http://leader.example.com:5050"
 
 
 @responses.activate
 def test_mesos_client_caches_leader_url():
+    _mock_valid_redirect()
+
+    client = MesosClient('http://master.example.com:5050')
+    assert client._mesos_master_url == "http://leader.example.com:5050"
+
     # reset all response mocks to ensure the mesos client will raise an
     # exception if it tries to hit any remote URLs.
     responses.reset()
 
-    client = MesosClient('http://master.example.com:5050')
-    client._leader_url = "http://leader.example.com:5050"
     assert client._mesos_master_url == "http://leader.example.com:5050"
