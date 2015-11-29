@@ -1,18 +1,15 @@
 # third-party imports
 import click
-from marathon.models import MarathonApp
 
 # local imports
-from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
-from shpkpr.marathon import DeploymentFailed
+from shpkpr.marathon import MarathonApplication
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
 
 
 @click.command('deploy', short_help='Deploy application from template.', context_settings=CONTEXT_SETTINGS)
-@params.application
 @click.option('-t',
               '--template',
               'template_file',
@@ -25,21 +22,12 @@ from shpkpr.template import render_json_template
               default=CONTEXT_SETTINGS['auto_envvar_prefix'],
               help="Path of the template to use for deployment.")
 @pass_context
-def cli(ctx, env_prefix, template_file, application_id):
+def cli(ctx, env_prefix, template_file):
     """Deploy application from template.
     """
     # read and render deploy template using values from the environment
     values = load_values_from_environment(prefix=env_prefix)
     rendered_template = render_json_template(template_file, **values)
-    application = MarathonApp.from_json(rendered_template)
 
-    # set the application ID to the value specified on the command line (if
-    # not already set, as marathon requires this)
-    if not application.id:
-        application.id = application_id
-
-    deployment = ctx.marathon_client.deploy_application(application)
-    try:
-        deployment.wait()
-    except DeploymentFailed as e:
-        raise click.ClickException(str(e))
+    application = MarathonApplication(rendered_template)
+    ctx.marathon_client.deploy_application(application).wait()

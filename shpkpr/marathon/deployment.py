@@ -1,21 +1,16 @@
-"""A collection of marathon-related utils
-"""
-# future imports
-from __future__ import absolute_import
-
 # stdlib imports
 import datetime
 import time
 
-# third-party imports
-from marathon import MarathonClient as MaraClient
+# local imports
+from shpkpr import exceptions
 
 
-class DeploymentFailed(Exception):
+class DeploymentFailed(exceptions.ShpkprException):
     pass
 
 
-class Deployment(object):
+class MarathonDeployment(object):
     """Marathon deployment object.
 
     Allows the caller to check a deployment's status and cancel or rollback a
@@ -38,16 +33,16 @@ class Deployment(object):
         application = self._client.get_application(self._application_id)
 
         # if the deployment is in progress then return False
-        if self._deployment_id in [x.id for x in application.deployments]:
+        if self._deployment_id in [x['id'] for x in application['deployments']]:
             return False
 
         # check that the application's version is as we expect
-        if not self._expected_version == application.version:
-            raise DeploymentFailed("Version mismatch: %s != %s" % (self._expected_version, application.version))
+        if not self._expected_version == application['version']:
+            raise DeploymentFailed("Version mismatch: %s != %s" % (self._expected_version, application['version']))
 
         # check that the application's tasks are healthy (if appropriate)
-        if application.tasks_unhealthy > 0:
-            raise DeploymentFailed("Tasks Unhealthy: %d" % application.tasks_unhealthy)
+        if application['tasksUnhealthy'] > 0:
+            raise DeploymentFailed("Tasks Unhealthy: %d" % application['tasksUnhealthy'])
 
         # if the application isn't deploying, has the right version and is
         # healthy, then we can consider the deployment as completed
@@ -79,27 +74,3 @@ class Deployment(object):
                 raise DeploymentFailed('Timed out: %d seconds' % timeout)
 
             time.sleep(check_interval_secs)
-
-
-class MarathonClient(object):
-    """A thin wrapper around marathon.MarathonClient for internal use
-    """
-
-    def __init__(self, marathon_url):
-        self.client = MaraClient(marathon_url)
-
-    def get_application(self, application_id):
-        """Returns detailed information for a single application.
-        """
-        return self.client.get_app(application_id)
-
-    def list_application_ids(self):
-        """Returns ids of all applications currently deployed to marathon.
-        """
-        return sorted([app.id.lstrip('/') for app in self.client.list_apps()])
-
-    def deploy_application(self, application):
-        """Deploys the given application to Marathon.
-        """
-        _d = self.client.update_app(application.id, application)
-        return Deployment(self, application.id, _d['deploymentId'], _d['version'])
