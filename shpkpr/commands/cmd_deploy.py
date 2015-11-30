@@ -23,7 +23,7 @@ from shpkpr.template import render_json_template
               '--env_prefix',
               'env_prefix',
               default=CONTEXT_SETTINGS['auto_envvar_prefix'],
-              help="Path of the template to use for deployment.")
+              help="Prefix used to restrict environment vars used for templating.")
 @pass_context
 def cli(ctx, env_prefix, template_file, application_id):
     """Deploy application from template.
