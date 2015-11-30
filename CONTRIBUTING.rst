@@ -81,9 +81,38 @@ Ready to contribute? Here's how to set up ``shpkpr`` for local development.
 
     $ make test
 
-   You should also run the smoke tests against a live marathon instance to manually verify that the tool still works as expected. Read the comments in the file and set the environment variables as appropriate, then::
+   You should also run the integration tests against a live marathon instance to manually verify that the tool still works as expected. Set the necessary environment variables as appropriate::
 
-    $ ./smoke_tests.sh
+    # URL of the Marathon API to use
+    export SHPKPR_MARATHON_URL=http://marathon.somedomain.com:8080
+
+    # URL of the Mesos master to use
+    export SHPKPR_MESOS_MASTER_URL=http://mesos.somedomain.com:5050
+
+    # An application ID to use for testing, this should not exist on
+    # Marathon prior to running the tests
+    export SHPKPR_APPLICATION=my-dummy-application-for-testing
+
+    # Docker repotag of the container that should be deployed to Marathon.
+    # This container must be pullable by the mesos cluster; for testing
+    # purposes it's probably easiest to use a container from the public
+    # Docker hub.
+    export SHPKPR_DOCKER_REPOTAG=goexample/outyet:latest
+
+    # Port that should be exposed from the Docker container
+    export SHPKPR_DOCKER_EXPOSED_PORT=8080
+
+    # An arbitrary label to be injected into the deploy template. This can
+    # be any non-empty string for testing.
+    export SHPKPR_DEPLOY_DOMAIN=somedomain.com
+
+   Then::
+
+    $ tox -e integration
+
+   Or::
+
+    $ make test.integration
 
 6. If your changes are user-facing, you should update the documentation to reflect the changes you've made. shpkpr's documentation is built with `Sphinx <http://sphinx-doc.org/>`_ and can be built using the ``make``::
 
