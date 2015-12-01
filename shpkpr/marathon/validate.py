@@ -30,7 +30,6 @@ class SchemaValidator(object):
 
     @exceptions.rewrap(jsonschema.ValidationError, ValidationError)
     def __call__(self, application):
-        application = self.preprocess(application)
         jsonschema.validate(application, self._schema)
 
     def _read_schema_from_file(self, path):
@@ -38,15 +37,6 @@ class SchemaValidator(object):
             schema = f.read()
         return json.loads(schema)
 
-    def preprocess(self, application):
-        return application
 
-
-class AppValidator(SchemaValidator):
-
-    def preprocess(self, application):
-        return dict([x for x in application.items() if x[1] is not None])
-
-
-validate_app = AppValidator(load_schema("app"))
+validate_app = SchemaValidator(load_schema("app"))
 validate_deploy = SchemaValidator(load_schema("deploy"))
