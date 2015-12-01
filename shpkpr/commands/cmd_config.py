@@ -5,7 +5,6 @@ import click
 from shpkpr import params
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
-from shpkpr.marathon import MarathonApplication
 
 
 @click.group('config', short_help='Manage application configuration', context_settings=CONTEXT_SETTINGS)
@@ -34,8 +33,7 @@ def set(ctx, application_id, env_vars):
     """Set application configuration.
     """
     existing_application = ctx.marathon_client.get_application(application_id)
-    application = MarathonApplication({'id': application_id})
-    application['env'] = existing_application['env']
+    application = {'id': application_id, 'env': existing_application['env']}
 
     env_vars = dict([(x[0], x[1]) for x in [y.split('=') for y in env_vars]])
     for k, v in env_vars.items():
@@ -53,8 +51,7 @@ def unset(ctx, application_id, keys):
     """Unset application configuration.
     """
     existing_application = ctx.marathon_client.get_application(application_id)
-    application = MarathonApplication({'id': application_id})
-    application['env'] = existing_application['env']
+    application = {'id': application_id, 'env': existing_application['env']}
 
     for key in keys:
         try:

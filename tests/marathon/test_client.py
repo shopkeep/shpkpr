@@ -9,7 +9,6 @@ import responses
 
 # local imports
 from shpkpr.marathon import ClientError
-from shpkpr.marathon import MarathonApplication
 from shpkpr.marathon import MarathonClient
 
 
@@ -91,8 +90,7 @@ def test_deploy_application(mock_deployment_check):
     mock_deployment_check.return_value = True
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
-    application = MarathonApplication({"id": "test-app"})
-    deployment = client.deploy_application(application)
+    deployment = client.deploy_application({"id": "test-app"})
     assert deployment.wait() == True
 
 
@@ -104,9 +102,8 @@ def test_deploy_application_conflict():
                   json=_load_json_fixture("deployment_in_progress"))
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
-    application = MarathonApplication({"id": "test-app"})
     with pytest.raises(ClientError):
-        client.deploy_application(application)
+        client.deploy_application({"id": "test-app"})
 
 
 @responses.activate
@@ -117,6 +114,5 @@ def test_deploy_application_unprocessable_entity():
                   json=_load_json_fixture("validation_errors"))
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
-    application = MarathonApplication({"id": "test-app"})
     with pytest.raises(ClientError):
-        client.deploy_application(application)
+        client.deploy_application({"id": "test-app"})

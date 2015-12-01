@@ -4,7 +4,6 @@ import pytest
 
 # local imports
 from shpkpr.marathon import DeploymentFailed
-from shpkpr.marathon import MarathonApplication
 from shpkpr.marathon import MarathonClient
 from shpkpr.marathon import MarathonDeployment
 
@@ -41,11 +40,11 @@ def test_deployment_wait_with_timeout(mock_deployment_check):
 def test_deployment_check(mock_get_application):
     """ Test that deployment.check() returns False when the app has a deployment in progress.
     """
-    app_state_failure = MarathonApplication({
+    app_state_failure = {
         "deployments": [],
         "version": "2",
         "tasksUnhealthy": 0
-    })
+    }
     mock_get_application.return_value = app_state_failure
 
     client = MarathonClient("http://marathon.somedomian.com:8080")
@@ -57,11 +56,11 @@ def test_deployment_check(mock_get_application):
 def test_deployment_check_with_deployment_in_progress(mock_get_application):
     """ Test that deployment.check() returns False when the app has a deployment in progress.
     """
-    app_state_failure = MarathonApplication({
+    app_state_failure = {
         "deployments": [{"id": "1234"}],
         "version": "2",
         "tasksUnhealthy": 0
-    })
+    }
     mock_get_application.return_value = app_state_failure
 
     client = MarathonClient("http://marathon.somedomian.com:8080")
@@ -74,11 +73,11 @@ def test_deployment_check_with_failing_deploy(mock_get_application):
     """ Test that deployment.check() raises an exception when the app has the
     wrong version following a deployment.
     """
-    app_state_failure = MarathonApplication({
+    app_state_failure = {
         "deployments": [],
         "version": "1",
         "tasksUnhealthy": 0
-    })
+    }
     mock_get_application.return_value = app_state_failure
 
     client = MarathonClient("http://marathon.somedomian.com:8080")
@@ -92,11 +91,11 @@ def test_deployment_check_with_unhealthy_tasks(mock_get_application):
     """ Test that deployment.check() raises an exception when the app has
     unhealthy tasks following a deployment.
     """
-    app_state_unhealthy = MarathonApplication({
+    app_state_unhealthy = {
         "deployments": [],
         "version": "2",
         "tasksUnhealthy": 1
-    })
+    }
     mock_get_application.return_value = app_state_unhealthy
 
     client = MarathonClient("http://marathon.somedomian.com:8080")

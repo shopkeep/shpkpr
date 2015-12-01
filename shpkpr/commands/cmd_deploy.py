@@ -4,7 +4,6 @@ import click
 # local imports
 from shpkpr.cli import CONTEXT_SETTINGS
 from shpkpr.cli import pass_context
-from shpkpr.marathon import MarathonApplication
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
 
@@ -29,5 +28,4 @@ def cli(ctx, env_prefix, template_file):
     values = load_values_from_environment(prefix=env_prefix)
     rendered_template = render_json_template(template_file, **values)
 
-    application = MarathonApplication(rendered_template)
-    ctx.marathon_client.deploy_application(application).wait()
+    ctx.marathon_client.deploy_application(rendered_template).wait()

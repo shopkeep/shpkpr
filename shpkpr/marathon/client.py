@@ -7,8 +7,9 @@ from __future__ import absolute_import
 import requests
 
 # local imports
-from .application import MarathonApplication
 from .deployment import MarathonDeployment
+from .validate import validate_app
+from .validate import validate_deploy
 from shpkpr import exceptions
 
 
@@ -47,10 +48,10 @@ class MarathonClient(object):
         params = {"embed": self.embed_params}
         response = self._make_request('GET', path, params=params)
 
-        # return a new MarathonApplication instance that wraps the returned
-        # application data
         if response.status_code == 200:
-            return MarathonApplication(response.json()['app'])
+            application = response.json()['app']
+            validate_app(application)
+            return application
 
         # raise an appropriate error if something went wrong
         if response.status_code == 404:
@@ -65,11 +66,11 @@ class MarathonClient(object):
         params = {"embed": self.embed_params}
         response = self._make_request('GET', path, params=params)
 
-        # return a new MarathonApplication instance that wraps the returned
-        # application data
         if response.status_code == 200:
-            apps = response.json()['apps']
-            return [MarathonApplication(app) for app in apps]
+            applications = response.json()['apps']
+            for application in applications:
+                validate_app(application)
+            return applications
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
 
@@ -82,12 +83,11 @@ class MarathonClient(object):
     def deploy_application(self, application, force=False):
         """Deploys the given application to Marathon.
         """
-        application.validate()
+        validate_deploy(application)
 
         path = "/v2/apps/" + application['id']
         params = {"force": force}
-        data = application.to_json()
-        response = self._make_request('PUT', path, params=params, json=data)
+        response = self._make_request('PUT', path, params=params, json=application)
 
         if response.status_code in [200, 201]:
             deployment = response.json()

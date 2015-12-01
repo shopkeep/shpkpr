@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "definitions": {
     "pathType": {
       "pattern": "^(\\/?((\\.{2})|([a-z0-9][a-z0-9\\-.]*[a-z0-9]+)|([a-z0-9]*))($|\\/))+$",
