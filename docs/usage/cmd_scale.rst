@@ -25,7 +25,7 @@ Required Configuration
 
     URL of the Marathon API to use, e.g. ``http://marathon.mydomain.com:8080``
 
-    * Evironment variable: ``SHPKPR_MARATHON_URL``
+    * Environment variable: ``SHPKPR_MARATHON_URL``
     * Command-line flag: ``--marathon_url``
 
 **Application ID:**
@@ -42,7 +42,7 @@ Optional Configuration
 
     The number of CPU`s this application needs per instance. This number does not have to be integer, but can be a fraction. e.g. ``0.5``
 
-    * Evironment variable: ``SHPKPR_CPUS``
+    * Environment variable: ``SHPKPR_CPUS``
     * Command-line flag: ``--cpus``
 
 **Memory/RAM:**

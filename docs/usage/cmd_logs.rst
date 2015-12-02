@@ -24,7 +24,7 @@ Required Configuration
 
     URL of the Mesos master to connect to to retrieve logs, e.g. ``http://mesos-master.mydomain.com:5050``
 
-    * Evironment variable: ``SHPKPR_MESOS_MASTER_URL``
+    * Environment variable: ``SHPKPR_MESOS_MASTER_URL``
     * Command-line flag: ``--mesos_master_url``
 
 **Application ID:**
@@ -41,7 +41,7 @@ Optional Configuration
 
     The number of log lines to show in the output (per instance), e.g. ``5``
 
-    * Evironment variable: ``SHPKPR_LINES``
+    * Environment variable: ``SHPKPR_LINES``
     * Command-line flag: ``--lines``
     * Default: ``10``
 
