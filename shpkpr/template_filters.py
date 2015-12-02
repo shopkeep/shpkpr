@@ -2,6 +2,28 @@
 from shpkpr import exceptions
 
 
+def filter_items(value, startswith=None, strip_prefix=False):
+    """Jinja2 filter used to filter a dictionary's keys by specifying a
+    required prefix.
+
+    Returns a list of key/value tuples.
+
+    Usage:
+        {{ my_dict|filter_items }}
+        {{ my_dict|filter_items("MY_PREFIX_") }}
+        {{ my_dict|filter_items("MY_PREFIX_", True) }}
+    """
+    if startswith is not None:
+        value = [x for x in value.items() if x[0].startswith(startswith)]
+    else:
+        value = value.items()
+
+    if startswith is not None and strip_prefix:
+        value = [(x[0].replace(startswith, "", 1), x[1]) for x in value]
+
+    return value
+
+
 class IntegerRequired(exceptions.ShpkprException):
     exit_code = 2
 

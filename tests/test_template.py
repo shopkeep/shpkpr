@@ -98,6 +98,29 @@ def test_render_json_template_missing_value_raises():
         render_json_template(template_file, **{})
 
 
+def test_render_json_template_all_env():
+    template_file = StringIO('''
+        {
+            "types_of_muffin": {
+                {% for k, v in _all_env|filter_items("MUFFIN_", True) %}
+                "{{ k.lower() }}": {{ v }}{% if loop.last == False %},{% endif %}
+                {% endfor %}
+            }
+        }
+    ''')
+
+    rendered_template = render_json_template(template_file, **{
+        "MUFFIN_BLUEBERRY": 4,
+        "MUFFIN_BANANA": 7,
+        "MUFFIN_CHOCOLATE": 12,
+        "DONUT_STRAWBERRY": 9,
+    })
+    assert "types_of_muffin" in rendered_template
+    assert rendered_template["types_of_muffin"]["blueberry"] == 4
+    assert rendered_template["types_of_muffin"]["banana"] == 7
+    assert rendered_template["types_of_muffin"]["chocolate"] == 12
+
+
 def test_render_json_template_require_int():
     template_file = StringIO('{"muffin_count": {{ MUFFIN_COUNT|require_int }}}')
 

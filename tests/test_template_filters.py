@@ -5,6 +5,34 @@ import pytest
 from shpkpr import template_filters
 
 
+def test_filter_items():
+    values = template_filters.filter_items({"X": "a", "Y": "b", "Z": "c"})
+    assert ("X", "a") in values
+    assert ("Y", "b") in values
+    assert ("Z", "c") in values
+
+
+def test_filter_items_with_startswith():
+    values = template_filters.filter_items({"_X": "a", "_Y": "b", "Z": "c"}, startswith="_")
+    assert ("_X", "a") in values
+    assert ("_Y", "b") in values
+    assert ("Z", "c") not in values
+
+
+def test_filter_items_with_startswith_strip_prefix():
+    values = template_filters.filter_items({"_X": "a", "_Y": "b", "Z": "c"}, startswith="_", strip_prefix=True)
+    assert ("X", "a") in values
+    assert ("Y", "b") in values
+    assert ("Z", "c") not in values
+
+
+def test_filter_items_with_strip_prefix():
+    values = template_filters.filter_items({"_X": "a", "_Y": "b", "Z": "c"}, strip_prefix=True)
+    assert ("_X", "a") in values
+    assert ("_Y", "b") in values
+    assert ("Z", "c") in values
+
+
 def test_require_int():
     i = template_filters.require_int("1")
     assert i == 1
