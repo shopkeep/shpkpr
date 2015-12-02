@@ -31,21 +31,20 @@ class MarathonClient(object):
         request = getattr(requests, method.lower())
         return request(self._build_url(path), **kwargs)
 
-    @property
-    def embed_params(self):
+    def embed_params(self, entity_type):
         return [
-            "app.tasks",
-            "app.counts",
-            "app.deployments",
-            "app.lastTaskFailure",
-            "app.taskStats",
+            "{0}.tasks".format(entity_type),
+            "{0}.counts".format(entity_type),
+            "{0}.deployments".format(entity_type),
+            "{0}.lastTaskFailure".format(entity_type),
+            "{0}.taskStats".format(entity_type),
         ]
 
     def get_application(self, application_id):
         """Returns detailed information for a single application.
         """
         path = "/v2/apps/" + application_id
-        params = {"embed": self.embed_params}
+        params = {"embed": self.embed_params("app")}
         response = self._make_request('GET', path, params=params)
 
         if response.status_code == 200:
@@ -63,7 +62,7 @@ class MarathonClient(object):
         """Return a list of all applications currently deployed to marathon.
         """
         path = "/v2/apps"
-        params = {"embed": self.embed_params}
+        params = {"embed": self.embed_params("apps")}
         response = self._make_request('GET', path, params=params)
 
         if response.status_code == 200:
