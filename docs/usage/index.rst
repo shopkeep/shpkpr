@@ -33,4 +33,5 @@ For more detailed usage instructions use the sections linked below:
    cmd_show
    cmd_config
    cmd_scale
+   cmd_deploy
    cmd_logs

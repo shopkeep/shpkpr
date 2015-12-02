@@ -40,7 +40,7 @@ Required Configuration
 
     URL of the Marathon API to use, e.g. ``http://marathon.mydomain.com:8080``
 
-    * Evironment variable: ``SHPKPR_MARATHON_URL``
+    * Environment variable: ``SHPKPR_MARATHON_URL``
     * Command-line flag: ``--marathon_url``
 
 **Application ID:**
@@ -89,7 +89,7 @@ Required Configuration
 
     URL of the Marathon API to use, e.g. ``http://marathon.mydomain.com:8080``
 
-    * Evironment variable: ``SHPKPR_MARATHON_URL``
+    * Environment variable: ``SHPKPR_MARATHON_URL``
     * Command-line flag: ``--marathon_url``
 
 **Application ID:**
@@ -133,7 +133,7 @@ Required Configuration
 
     URL of the Marathon API to use, e.g. ``http://marathon.mydomain.com:8080``
 
-    * Evironment variable: ``SHPKPR_MARATHON_URL``
+    * Environment variable: ``SHPKPR_MARATHON_URL``
     * Command-line flag: ``--marathon_url``
 
 **Application ID:**
