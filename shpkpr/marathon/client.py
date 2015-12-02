@@ -5,11 +5,13 @@ from __future__ import absolute_import
 
 # third-party imports
 import requests
+from cached_property import cached_property
 
 # local imports
 from .deployment import MarathonDeployment
-from .validate import validate_app
-from .validate import validate_deploy
+from .validate import Schema
+from .validate import schema_path
+from .validate import read_schema_from_file
 from shpkpr import exceptions
 
 
@@ -21,8 +23,10 @@ class MarathonClient(object):
     """A thin wrapper around marathon.MarathonClient for internal use
     """
 
-    def __init__(self, marathon_url):
+    def __init__(self, marathon_url, app_schema_path=None, deploy_schema_path=None):
         self._marathon_url = marathon_url
+        self._app_schema_path = app_schema_path
+        self._deploy_schema_path = deploy_schema_path
 
     def _build_url(self, path):
         return self._marathon_url.rstrip("/") + path
@@ -40,6 +44,20 @@ class MarathonClient(object):
             "{0}.taskStats".format(entity_type),
         ]
 
+    @cached_property
+    def app_schema(self):
+        if self._app_schema_path is None:
+            self._app_schema_path = schema_path("app")
+        raw_schema = read_schema_from_file(self._app_schema_path)
+        return Schema(raw_schema)
+
+    @cached_property
+    def deploy_schema(self):
+        if self._deploy_schema_path is None:
+            self._deploy_schema_path = schema_path("deploy")
+        raw_schema = read_schema_from_file(self._deploy_schema_path)
+        return Schema(raw_schema)
+
     def get_application(self, application_id):
         """Returns detailed information for a single application.
         """
@@ -49,7 +67,8 @@ class MarathonClient(object):
 
         if response.status_code == 200:
             application = response.json()['app']
-            return validate_app(application)
+            self.app_schema.validate(application)
+            return self.app_schema.strip(application)
 
         # raise an appropriate error if something went wrong
         if response.status_code == 404:
@@ -66,7 +85,11 @@ class MarathonClient(object):
 
         if response.status_code == 200:
             applications = response.json()['apps']
-            return [validate_app(app) for app in applications]
+            stripped_applications = []
+            for app in applications:
+                self.app_schema.validate(app)
+                stripped_applications.append(self.app_schema.strip(app))
+            return stripped_applications
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
 
@@ -79,7 +102,7 @@ class MarathonClient(object):
     def deploy_application(self, application, force=False):
         """Deploys the given application to Marathon.
         """
-        application = validate_deploy(application)
+        self.deploy_schema.validate(application)
 
         path = "/v2/apps/" + application['id']
         params = {"force": force}
