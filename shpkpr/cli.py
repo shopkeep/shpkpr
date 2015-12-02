@@ -20,8 +20,6 @@ class Context(object):
         self.buffer = sys.stdout
         self.marathon_url = None
         self.mesos_master_url = None
-        self._marathon_client = None
-        self._mesos_client = None
 
     @cached_property
     def marathon_client(self):
