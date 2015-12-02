@@ -6,6 +6,8 @@ dist
 *.pyo
 tests/__pycache__
 tests/commands/__pycache__
+tests/integration/__pycache__
 .tox
 .coverage
+.env
 docs/_build
