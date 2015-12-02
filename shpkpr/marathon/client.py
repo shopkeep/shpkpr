@@ -49,8 +49,7 @@ class MarathonClient(object):
 
         if response.status_code == 200:
             application = response.json()['app']
-            validate_app(application)
-            return application
+            return validate_app(application)
 
         # raise an appropriate error if something went wrong
         if response.status_code == 404:
@@ -67,9 +66,7 @@ class MarathonClient(object):
 
         if response.status_code == 200:
             applications = response.json()['apps']
-            for application in applications:
-                validate_app(application)
-            return applications
+            return [validate_app(app) for app in applications]
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
 
@@ -82,7 +79,7 @@ class MarathonClient(object):
     def deploy_application(self, application, force=False):
         """Deploys the given application to Marathon.
         """
-        validate_deploy(application)
+        application = validate_deploy(application)
 
         path = "/v2/apps/" + application['id']
         params = {"force": force}
