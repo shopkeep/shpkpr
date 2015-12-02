@@ -4,6 +4,7 @@ import sys
 
 # third-party imports
 import click
+from cached_property import cached_property
 
 # local imports
 from shpkpr.marathon import MarathonClient
@@ -19,26 +20,20 @@ class Context(object):
         self.buffer = sys.stdout
         self.marathon_url = None
         self.mesos_master_url = None
-        self._marathon_client = None
-        self._mesos_client = None
 
-    @property
+    @cached_property
     def marathon_client(self):
         if not self.marathon_url:
             raise click.exceptions.UsageError("Missing option \"--marathon_url\".")
 
-        if self._marathon_client is None:
-            self._marathon_client = MarathonClient(self.marathon_url)
-        return self._marathon_client
+        return MarathonClient(self.marathon_url)
 
-    @property
+    @cached_property
     def mesos_client(self):
         if not self.mesos_master_url:
             raise click.exceptions.UsageError("Missing option \"--mesos_master_url\".")
 
-        if self._mesos_client is None:
-            self._mesos_client = MesosClient(self.mesos_master_url)
-        return self._mesos_client
+        return MesosClient(self.mesos_master_url)
 
     def log(self, msg, *args, **kwargs):
         """Logs a message to stdout."""
