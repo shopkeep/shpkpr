@@ -38,18 +38,18 @@ def test_deployment_wait_with_timeout(mock_deployment_check):
 
 @mock.patch('shpkpr.marathon.MarathonClient.get_application')
 def test_deployment_check(mock_get_application):
-    """ Test that deployment.check() returns False when the app has a deployment in progress.
+    """ Test that deployment.check() returns True when the app has deployed successfully.
     """
-    app_state_failure = {
+    app_state_success = {
         "deployments": [],
         "version": "2",
         "tasksUnhealthy": 0
     }
-    mock_get_application.return_value = app_state_failure
+    mock_get_application.return_value = app_state_success
 
     client = MarathonClient("http://marathon.somedomian.com:8080")
     deployment = MarathonDeployment(client, "", '1234', '2')
-    assert deployment.check() == True
+    assert deployment.check()
 
 
 @mock.patch('shpkpr.marathon.MarathonClient.get_application')
@@ -65,7 +65,7 @@ def test_deployment_check_with_deployment_in_progress(mock_get_application):
 
     client = MarathonClient("http://marathon.somedomian.com:8080")
     deployment = MarathonDeployment(client, "", '1234', '2')
-    assert deployment.check() == False
+    assert not deployment.check()
 
 
 @mock.patch('shpkpr.marathon.MarathonClient.get_application')
