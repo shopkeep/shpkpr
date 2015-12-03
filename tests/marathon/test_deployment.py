@@ -33,7 +33,7 @@ def test_deployment_wait_with_timeout(mock_deployment_check):
     deployment = MarathonDeployment(client, "", '1234', '2')
     with pytest.raises(DeploymentFailed):
         deployment.wait(timeout=1, check_interval_secs=0.5)
-    assert mock_deployment_check.call_count == 3
+    assert mock_deployment_check.call_count == 2
 
 
 @mock.patch('shpkpr.marathon.MarathonClient.get_application')

@@ -91,7 +91,7 @@ def test_deploy_application(mock_deployment_check):
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
     deployment = client.deploy_application({"id": "test-app"})
-    assert deployment.wait() == True
+    assert deployment.wait(check_interval_secs=0.1)
 
 
 @responses.activate
