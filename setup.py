@@ -41,6 +41,7 @@ setup(
     author_email='developers@shopkeep.com',
     url='https://github.com/shopkeep/shpkpr',
     packages=['shpkpr', 'shpkpr.commands', 'shpkpr.marathon'],
+    package_data={'shpkpr': ['marathon/schema/*.json']},
     include_package_data=True,
     install_requires=[
         'cached-property==1.3.0',
