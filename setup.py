@@ -40,7 +40,7 @@ setup(
     author='ShopKeep.com Inc.',
     author_email='developers@shopkeep.com',
     url='https://github.com/shopkeep/shpkpr',
-    packages=['shpkpr', 'shpkpr.commands'],
+    packages=['shpkpr', 'shpkpr.commands', 'shpkpr.marathon'],
     include_package_data=True,
     install_requires=[
         'cached-property==1.3.0',
