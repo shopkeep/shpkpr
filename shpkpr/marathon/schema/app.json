@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "definitions": {
     "pathType": {
       "pattern": "^(\\/?((\\.{2})|([a-z0-9][a-z0-9\\-.]*[a-z0-9]+)|([a-z0-9]*))($|\\/))+$",
@@ -12,18 +12,8 @@
       "items": {
         "type": ["string", "null"]
       },
-      "type": "array",
+      "type": ["array", "null"],
       "description": "An array of strings that represents an alternative mode of specifying the command to run. This was motivated by safe usage of containerizer features like a custom Docker ENTRYPOINT. This args field may be used in place of cmd even when using the default command executor. This change mirrors API and semantics changes in the Mesos CommandInfo protobuf message starting with version `0.20.0`.  Either `cmd` or `args` must be supplied. It is invalid to supply both `cmd` and `args` in the same app."
-    },
-    "backoffFactor": {
-      "minimum": 1.0,
-      "type": "number",
-      "description": "Configures exponential backoff behavior when launching potentially sick apps. This prevents sandboxes associated with consecutively failing tasks from filling up the hard disk on Mesos slaves. The backoff period is multiplied by the factor for each consecutive failure until it reaches maxLaunchDelaySeconds. This applies also to tasks that are killed due to failing too many health checks."
-    },
-    "backoffSeconds": {
-      "description": "Configures exponential backoff behavior when launching potentially sick apps. This prevents sandboxes associated with consecutively failing tasks from filling up the hard disk on Mesos slaves. The backoff period is multiplied by the factor for each consecutive failure until it reaches maxLaunchDelaySeconds. This applies also to tasks that are killed due to failing too many health checks.",
-      "minimum": 0,
-      "type": "integer"
     },
     "cmd": {
       "description": "The command that is executed.  This value is wrapped by Mesos via `/bin/sh -c ${app.cmd}`.  Either `cmd` or `args` must be supplied. It is invalid to supply both `cmd` and `args` in the same app.",
@@ -132,12 +122,6 @@
       "minimum": 0,
       "type": "number"
     },
-    "dependencies": {
-      "items": {
-        "$ref": "#/definitions/pathType"
-      },
-      "type": "array"
-    },
     "deployments": {
       "items": {
         "additionalProperties": false,
@@ -150,10 +134,6 @@
       },
       "type": "array"
     },
-    "disk": {
-      "minimum": 0,
-      "type": "number"
-    },
     "env": {
       "patternProperties": {
         ".*": {
@@ -161,59 +141,6 @@
         }
       },
       "type": "object"
-    },
-    "executor": {
-      "pattern": "^(|\\/\\/cmd|\\/?[^\\/]+(\\/[^\\/]+)*)$",
-      "type": "string"
-    },
-    "healthChecks": {
-      "items": {
-        "additionalProperties": false,
-        "properties": {
-          "command": {
-            "type": "object",
-            "items": {
-              "additionalProperties": false,
-              "properties": {
-                "value": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "gracePeriodSeconds": {
-            "minimum": 0,
-            "type": "integer"
-          },
-          "ignoreHttp1xx": {
-            "type": "boolean"
-          },
-          "intervalSeconds": {
-            "minimum": 0,
-            "type": "integer"
-          },
-          "maxConsecutiveFailures": {
-            "minimum": 0,
-            "type": "integer"
-          },
-          "path": {
-            "type": "string"
-          },
-          "portIndex": {
-            "minimum": 0,
-            "type": "integer"
-          },
-          "protocol": {
-            "type": "string"
-          },
-          "timeoutSeconds": {
-            "minimum": 0,
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "type": "array"
     },
     "id": {
       "$ref": "#/definitions/pathType",
@@ -223,141 +150,7 @@
       "minimum": 0,
       "type": "integer"
     },
-    "labels": {
-      "additionalProperties": {
-        "type": "string"
-      },
-      "type": "object"
-    },
-    "lastTaskFailure": {
-      "additionalProperties": false,
-      "properties": {
-        "appId": {
-          "type": "string"
-        },
-        "host": {
-          "type": "string"
-        },
-        "message": {
-          "type": "string"
-        },
-        "state": {
-          "type": "string"
-        },
-        "taskId": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "string"
-        },
-        "version": {
-          "type": "string"
-        }
-      },
-      "type": ["object", "null"]
-    },
-    "maxLaunchDelaySeconds": {
-      "minimum": 0,
-      "type": "integer"
-    },
     "mem": {
-      "minimum": 0,
-      "type": "number"
-    },
-    "ports": {
-      "items": {
-        "maximum": 65535,
-        "minimum": 0,
-        "type": "integer"
-      },
-      "type": "array",
-      "uniqueItems": true
-    },
-    "requirePorts": {
-      "type": "boolean"
-    },
-    "storeUrls": {
-      "items": {
-        "type": "string"
-      },
-      "type": "array"
-    },
-    "tasks": {
-      "items": {
-        "additionalProperties": false,
-        "properties": {
-          "command": {
-            "type": "object",
-            "items": {
-              "additionalProperties": false,
-              "properties": {
-                "value": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "appId": {
-            "type": "string"
-          },
-
-          "healthCheckResults": {
-            "items": {
-              "additionalProperties": false,
-              "properties": {
-                "alive": {
-                  "type": "boolean"
-                },
-                "consecutiveFailures": {
-                  "type": "number"
-                },
-                "firstSuccess": {
-                  "type": ["string", "null"]
-                },
-                "lastFailure": {
-                  "type": ["string", "null"]
-                },
-                "lastSuccess": {
-                  "type": ["string", "null"]
-                },
-                "taskId": {
-                  "type": "string"
-                }
-              },
-              "type": "object"
-            },
-            "type": "array"
-          },
-          "host": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "ports": {
-            "items": {
-              "maximum": 65535,
-              "minimum": 0,
-              "type": "integer"
-            },
-            "type": "array",
-            "uniqueItems": true
-          },
-          "stagedAt": {
-            "type": "string"
-          },
-          "startedAt": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "type": "array"
-    },
-    "tasksStaged": {
       "minimum": 0,
       "type": "number"
     },
@@ -365,38 +158,9 @@
       "minimum": 0,
       "type": "number"
     },
-    "tasksHealthy": {
-      "minimum": 0,
-      "type": "number"
-    },
     "tasksUnhealthy": {
       "minimum": 0,
       "type": "number"
-    },
-    "upgradeStrategy": {
-      "additionalProperties": false,
-      "properties": {
-        "maximumOverCapacity": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "type": "number"
-        },
-        "minimumHealthCapacity": {
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "type": "number"
-        }
-      },
-      "type": "object"
-    },
-    "uris": {
-      "items": {
-        "type": "string"
-      },
-      "type": "array"
-    },
-    "user": {
-      "type": ["string", "null"]
     },
     "version": {
       "format": "date-time",
@@ -405,35 +169,17 @@
   },
   "required": [
     "args",
-    "backoffFactor",
-    "backoffSeconds",
     "cmd",
     "constraints",
     "container",
     "cpus",
-    "dependencies",
     "deployments",
-    "disk",
     "env",
-    "executor",
-    "healthChecks",
     "id",
     "instances",
-    "labels",
-    "lastTaskFailure",
-    "maxLaunchDelaySeconds",
     "mem",
-    "ports",
-    "requirePorts",
-    "storeUrls",
-    "tasks",
-    "tasksStaged",
     "tasksRunning",
-    "tasksHealthy",
     "tasksUnhealthy",
-    "upgradeStrategy",
-    "uris",
-    "user",
     "version"
   ],
   "type": "object"

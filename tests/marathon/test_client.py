@@ -29,7 +29,7 @@ def test_get_application():
     client = MarathonClient("http://marathon.somedomain.com:8080")
     application = client.get_application('test-app')
     assert application['id'] == "/test-app"
-    assert application['tasks'][1]['host'] == '10.210.51.111'
+    assert application['cmd'] is None
 
 
 @responses.activate
