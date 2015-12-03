@@ -64,6 +64,9 @@ class MarathonDeployment(object):
         _started = datetime.datetime.utcnow()
 
         while True:
+
+            time.sleep(check_interval_secs)
+
             # check if the deployment has completed, if it has we return True
             if self.check():
                 return True
@@ -72,5 +75,3 @@ class MarathonDeployment(object):
             delta = datetime.datetime.utcnow() - _started
             if delta.total_seconds() > timeout:
                 raise DeploymentFailed('Timed out: %d seconds' % timeout)
-
-            time.sleep(check_interval_secs)
