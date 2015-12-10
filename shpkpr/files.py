@@ -24,13 +24,13 @@ def _no_file_exception():
     return DCOSException('No files exist. Exiting.')
 
 
-def log_files(ctx, mesos_files, follow, lines):
+def log_files(logger, mesos_files, follow, lines):
     """Print the contents of the given `mesos_files`.  Behaves like unix
     tail.
     """
     line_prefixes = _line_prefixes(mesos_files)
     fn = functools.partial(_read_last_lines, lines)
-    mesos_files = _stream_files(ctx, fn, mesos_files, line_prefixes)
+    mesos_files = _stream_files(logger, fn, mesos_files, line_prefixes)
     if not mesos_files:
         raise _no_file_exception()
 
@@ -41,7 +41,7 @@ def log_files(ctx, mesos_files, follow, lines):
         # pipe, never see the data
         sys.stdout.flush()
 
-        mesos_files = _stream_files(ctx,
+        mesos_files = _stream_files(logger,
                                     _read_rest,
                                     mesos_files,
                                     line_prefixes)
@@ -68,7 +68,7 @@ def _line_prefixes(mesos_files):
     return prefixes
 
 
-def _stream_files(ctx, fn, mesos_files, line_prefixes):
+def _stream_files(logger, fn, mesos_files, line_prefixes):
     """Apply `fn` in parallel to each file in `mesos_files`.  `fn` must
     return a list of strings, and these strings are then printed
     serially as separate lines.
@@ -88,7 +88,7 @@ def _stream_files(ctx, fn, mesos_files, line_prefixes):
             continue
 
         if lines:
-            _output(ctx,
+            _output(logger,
                     str(mesos_file),
                     lines,
                     line_prefixes)
@@ -96,17 +96,17 @@ def _stream_files(ctx, fn, mesos_files, line_prefixes):
     return reachable_files
 
 
-def _output(ctx, file_id, lines, prefixes):
+def _output(logger, file_id, lines, prefixes):
     """Prints a sequence of lines.
     """
     if lines:
         for line in lines:
             if not prefixes.get(file_id, [None])[0]:
-                ctx.log(line)
+                logger.log(line)
             else:
-                ctx.log(
+                logger.log(
                     '%s %s',
-                    ctx.style('[{}]'.format(prefixes[file_id][0]), fg=prefixes[file_id][1]),
+                    logger.style('[{}]'.format(prefixes[file_id][0]), fg=prefixes[file_id][1]),
                     line,
                 )
 

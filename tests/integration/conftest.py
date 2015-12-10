@@ -7,7 +7,7 @@ import pytest
 from click.testing import CliRunner
 
 # local imports
-from shpkpr.cli import cli
+from shpkpr.cli.entrypoint import cli
 
 
 @pytest.fixture(scope="session")
