@@ -11,12 +11,12 @@ from dcos.errors import DCOSException
 from dcos.mesos import MesosFile
 
 # local imports
-from shpkpr.cli import Context
+from shpkpr.cli import logger
 from shpkpr.files import log_files
 from shpkpr.mesos import MesosClient
 
 
-class MockContext(Context):
+class MockLogger(logger.Logger):
 
     def __init__(self):
         self.buffer = StringIO()
@@ -39,7 +39,7 @@ class MockFutureException(object):
 
 
 def test_log_files_no_mesos_files():
-    ctx = MockContext()
+    ctx = MockLogger()
     with pytest.raises(DCOSException):
         log_files(ctx, [], False, 10)
 
@@ -47,7 +47,7 @@ def test_log_files_no_mesos_files():
 @mock.patch('shpkpr.mesos.MesosClient.get_master_state')
 @mock.patch('dcos.util.stream')
 def test_log_files_single_mesos_file(mock_util_stream, mock_get_master_state):
-    ctx = MockContext()
+    ctx = MockLogger()
     _file = MesosFile("TestFile", dcos_client=MesosClient(""))
 
     # mock out the parts of `dcos` that make remote API calls.
@@ -63,7 +63,7 @@ def test_log_files_single_mesos_file(mock_util_stream, mock_get_master_state):
 @mock.patch('shpkpr.mesos.MesosClient.get_master_state')
 @mock.patch('dcos.util.stream')
 def test_log_files_unreachable_mesos_file(mock_util_stream, mock_get_master_state):
-    ctx = MockContext()
+    ctx = MockLogger()
     _file_1 = MesosFile("TestFile_1", dcos_client=MesosClient(""))
     _file_2 = MesosFile("TestFile_2", dcos_client=MesosClient(""))
 

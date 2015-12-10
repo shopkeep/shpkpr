@@ -2,40 +2,41 @@
 import click
 
 # local imports
-from shpkpr import params
-from shpkpr.cli import CONTEXT_SETTINGS
-from shpkpr.cli import pass_context
+from shpkpr.cli import options
+from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
+from shpkpr.cli.logger import pass_logger
 
 
 @click.command('show', short_help='Show application details.', context_settings=CONTEXT_SETTINGS)
-@params.application
-@pass_context
-def cli(ctx, application_id):
+@options.application_id
+@options.marathon_client
+@pass_logger
+def cli(logger, marathon_client, application_id):
     """Shows detailed information for a single application.
     """
-    application = ctx.marathon_client.get_application(application_id)
-    _pretty_print(ctx, application)
+    application = marathon_client.get_application(application_id)
+    _pretty_print(logger, application)
 
 
-def _pretty_print(ctx, application):
+def _pretty_print(logger, application):
     """Pretty print application details to stdout
     """
-    ctx.log("ID:           %s", application['id'].lstrip('/'))
-    ctx.log("CPUs:         %s", application['cpus'])
-    ctx.log("RAM:          %s", application['mem'])
-    ctx.log("Instances:    %s", application['instances'])
-    ctx.log("Docker Image: %s", application['container']['docker']['image'])
-    ctx.log("Version:      %s", application['version'])
-    ctx.log("Status:       %s", _task_status(application))
+    logger.log("ID:           %s", application['id'].lstrip('/'))
+    logger.log("CPUs:         %s", application['cpus'])
+    logger.log("RAM:          %s", application['mem'])
+    logger.log("Instances:    %s", application['instances'])
+    logger.log("Docker Image: %s", application['container']['docker']['image'])
+    logger.log("Version:      %s", application['version'])
+    logger.log("Status:       %s", _task_status(logger, application))
 
 
-def _task_status(application):
+def _task_status(logger, application):
     """Returns a nicely formatted string we can use to display application health on the CLI.
     """
     if len(application['deployments']) > 0:
-        return click.style("DEPLOYING", fg='yellow')
+        return logger.style("DEPLOYING", fg='yellow')
     if application['tasksRunning'] == 0:
-        return click.style("SUSPENDED", fg='blue')
+        return logger.style("SUSPENDED", fg='blue')
     if application['tasksUnhealthy'] > 0:
-        return click.style("UNHEALTHY", fg='red')
-    return click.style("HEALTHY", fg='green')
+        return logger.style("UNHEALTHY", fg='red')
+    return logger.style("HEALTHY", fg='green')

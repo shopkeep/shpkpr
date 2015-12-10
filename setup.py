@@ -40,7 +40,7 @@ setup(
     author='ShopKeep.com Inc.',
     author_email='developers@shopkeep.com',
     url='https://github.com/shopkeep/shpkpr',
-    packages=['shpkpr', 'shpkpr.commands', 'shpkpr.marathon'],
+    packages=['shpkpr', 'shpkpr.cli', 'shpkpr.commands', 'shpkpr.marathon'],
     package_data={'shpkpr': ['marathon/schema/*.json']},
     include_package_data=True,
     install_requires=[
@@ -69,7 +69,7 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        shpkpr=shpkpr.cli:cli
+        shpkpr=shpkpr.cli.entrypoint:cli
     ''',
     tests_require=['tox'],
     cmdclass={'test': Tox},

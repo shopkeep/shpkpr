@@ -2,21 +2,22 @@
 import click
 
 # local imports
-from shpkpr import params
-from shpkpr.cli import CONTEXT_SETTINGS
-from shpkpr.cli import pass_context
+from shpkpr.cli import options
+from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
+from shpkpr.cli.logger import pass_logger
 
 
 @click.command('scale', short_help='Scale application resources.', context_settings=CONTEXT_SETTINGS)
-@params.application
-@params.cpus
-@params.mem
-@params.instances
-@pass_context
-def cli(ctx, instances, mem, cpus, application_id):
+@options.application_id
+@options.cpus
+@options.mem
+@options.instances
+@options.marathon_client
+@pass_logger
+def cli(logger, marathon_client, instances, mem, cpus, application_id):
     """Scale application resources to specified levels.
     """
-    existing_application = ctx.marathon_client.get_application(application_id)
+    existing_application = marathon_client.get_application(application_id)
     application = {'id': application_id}
 
     updated = False
@@ -26,4 +27,4 @@ def cli(ctx, instances, mem, cpus, application_id):
             application[k] = v
 
     if updated:
-        ctx.marathon_client.deploy_application(application).wait()
+        marathon_client.deploy_application(application).wait()
