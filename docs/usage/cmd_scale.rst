@@ -59,6 +59,12 @@ Optional Configuration
     * Environment variable: ``SHPKPR_INSTANCES``
     * Command-line flag: ``--instances``
 
+**Force:**
+
+    Using the force flag allows the user to initiate scaling even if another deployment is currently in progress. This option should only be used in the case of a previous failed deployment as it *may* leave the app in an inconsistent state if anything goes wrong.
+
+    * Command-line flag: ``--force``
+
 Examples
 ^^^^^^^^
 

@@ -37,6 +37,12 @@ Required Configuration
 Optional Configuration
 ^^^^^^^^^^^^^^^^^^^^^^
 
+**Force:**
+
+    Using the force flag allows the user to initiate a deployment even if another deployment is currently in progress. This option should only be used in the case of a previous failed deployment as it *may* leave the app in an inconsistent state if anything goes wrong.
+
+    * Command-line flag: ``--force``
+
 **Environment Variable Prefix:**
 
     When reading variables from the environment to inject into the template at render time, only those variables which begin with the specified prefix are considered. The prefix is stripped from the variable names before injecting into the template context.
