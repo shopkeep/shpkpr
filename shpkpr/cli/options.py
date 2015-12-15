@@ -52,6 +52,13 @@ follow = click.option(
 )
 
 
+force = click.option(
+    '--force',
+    is_flag=True,
+    help='Force update even if a deployment is in progress.',
+)
+
+
 instances = click.option(
     '-i', '--instances',
     type=int,
