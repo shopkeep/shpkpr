@@ -105,7 +105,10 @@ class MarathonClient(object):
         self.deploy_schema.validate(application)
 
         path = "/v2/apps/" + application['id']
-        params = {"force": force}
+        if force:
+            params = {"force": "true"}
+        else:
+            params = {}
         response = self._make_request('PUT', path, params=params, json=application)
 
         if response.status_code in [200, 201]:
