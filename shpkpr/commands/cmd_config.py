@@ -30,9 +30,10 @@ def list(logger, marathon_client, application_id):
 @cli.command('set', short_help='Set application configuration.', context_settings=CONTEXT_SETTINGS)
 @arguments.env_pairs
 @options.application_id
+@options.force
 @options.marathon_client
 @pass_logger
-def set(logger, marathon_client, application_id, env_pairs):
+def set(logger, marathon_client, force, application_id, env_pairs):
     """Set application configuration.
     """
     existing_application = marathon_client.get_application(application_id)
@@ -43,15 +44,16 @@ def set(logger, marathon_client, application_id, env_pairs):
         application['env'][k] = v
 
     # redeploy the reconfigured application
-    marathon_client.deploy_application(application).wait()
+    marathon_client.deploy_application(application, force=force).wait()
 
 
 @cli.command('unset', short_help='Unset application configuration.', context_settings=CONTEXT_SETTINGS)
 @arguments.env_keys
 @options.application_id
+@options.force
 @options.marathon_client
 @pass_logger
-def unset(logger, marathon_client, application_id, env_keys):
+def unset(logger, marathon_client, force, application_id, env_keys):
     """Unset application configuration.
     """
     existing_application = marathon_client.get_application(application_id)
@@ -64,4 +66,4 @@ def unset(logger, marathon_client, application_id, env_keys):
             pass
 
     # redeploy the reconfigured application
-    marathon_client.deploy_application(application).wait()
+    marathon_client.deploy_application(application, force=force).wait()

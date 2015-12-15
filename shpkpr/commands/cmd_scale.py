@@ -9,12 +9,13 @@ from shpkpr.cli.logger import pass_logger
 
 @click.command('scale', short_help='Scale application resources.', context_settings=CONTEXT_SETTINGS)
 @options.application_id
+@options.force
 @options.cpus
 @options.mem
 @options.instances
 @options.marathon_client
 @pass_logger
-def cli(logger, marathon_client, instances, mem, cpus, application_id):
+def cli(logger, marathon_client, instances, mem, cpus, force, application_id):
     """Scale application resources to specified levels.
     """
     existing_application = marathon_client.get_application(application_id)
@@ -27,4 +28,4 @@ def cli(logger, marathon_client, instances, mem, cpus, application_id):
             application[k] = v
 
     if updated:
-        marathon_client.deploy_application(application).wait()
+        marathon_client.deploy_application(application, force=force).wait()
