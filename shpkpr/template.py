@@ -32,6 +32,15 @@ class UndefinedError(exceptions.ShpkprException):
         return 'Unable to render template: %s' % self.message
 
 
+class MissingTemplateError(exceptions.ShpkprException):
+    """Raised when a template cannot be loaded for any reason.
+    """
+    exit_code = 2
+
+    def format_message(self):
+        return 'Unable to load template from disk: %s' % self.message
+
+
 def load_values_from_environment(prefix=""):
     """Reads values from the environment.
 
@@ -51,7 +60,8 @@ def load_values_from_environment(prefix=""):
 
 @exceptions.rewrap(ValueError, InvalidJSONError)
 @exceptions.rewrap(jinja2.UndefinedError, UndefinedError)
-def render_json_template(template_file, **values):
+@exceptions.rewrap(jinja2.TemplateNotFound, MissingTemplateError)
+def render_json_template(template_path, template_name, **values):
     """Initialise a jinja2 template and render it with the passed-in values.
 
     The template, once rendered is treated as JSON and converted into a python
@@ -61,17 +71,22 @@ def render_json_template(template_file, **values):
     If a template defines a placeholder for a variable that is not included in
     `values` an `UndefinedError` will be raised.
 
-    ``template_file`` should be a file-like object, opened for reading.
+    ``template_path`` should be the base directory in which your templates are
+    stored.
+    ``template_name`` is the name (path) of the template being used to render.
     ``values`` should be regular keyword arguments to the function which will
     be passed to the template at render time.
     """
     # build a new Jinja2 environment so we can inject some custom filters into
     # the template we're rendering.
-    template_env = jinja2.Environment(undefined=jinja2.StrictUndefined)
+    template_env = jinja2.Environment(
+        undefined=jinja2.StrictUndefined,
+        loader=jinja2.FileSystemLoader(template_path),
+    )
     template_env.filters['filter_items'] = template_filters.filter_items
     template_env.filters['require_int'] = template_filters.require_int
     template_env.filters['require_float'] = template_filters.require_float
 
-    template = template_env.from_string(template_file.read())
+    template = template_env.get_template(template_name)
     rendered_template = template.render(_all_env=values, **values)
     return json.loads(rendered_template)

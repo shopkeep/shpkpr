@@ -10,12 +10,14 @@ Deploying a new application config
       Deploy application from template.
 
     Options:
-      -t, --template FILENAME  Path of the template to use for deployment.
-                               [required]
-      -e, --env_prefix TEXT    Prefix used to restrict environment vars used
-                               for templating.
-      --help                   Show this message and exit.
-
+      --force                Force update even if a deployment is in progress.
+      -t, --template TEXT    Name of the template to use for deployment.
+                             [required]
+      --template_dir TEXT    Base directory in which your templates are stored (default: `pwd`).
+      -e, --env_prefix TEXT  Prefix used to restrict environment vars used for
+                             templating.
+      --marathon_url TEXT    URL of the Marathon API to use.  [required]
+      --help                 Show this message and exit.
 
 Required Configuration
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -27,9 +29,9 @@ Required Configuration
     * Environment variable: ``SHPKPR_MARATHON_URL``
     * Command-line flag: ``--marathon_url``
 
-**JSON Template Path:**
+**JSON Template Name:**
 
-    Path of the JSON template to use for deployment, e.g. ``/some/path/to/a/template.json.tmpl`` or ``./my-template.json.tmpl``
+    Name of the JSON template to use for deployment, e.g. ``a/template.json.tmpl`` or ``my-template.json.tmpl``. This path should always be relative to the template base directory defined by ``--template-dir`` (``pwd`` by default).
 
     * Environment variable: ``SHPKPR_TEMPLATE``
     * Command-line flag: ``--template``
@@ -53,6 +55,11 @@ Optional Configuration
     * Command-line flag: ``--env_prefix``
     * Default: ``SHPKPR_``
 
+**Base Template Directory:**
+
+    Absolute path to the base directory in which templates are stored. By default this is ``pwd`` but can be overridden to allow reading templates from any location on the filesystem. This setting is useful when using templates not found in ``pwd`` or controlling exactly how template inheritance should work. The specified directory is passed to a ``jinja2.FilesystemLoader`` within ``shpkpr``.
+
+    * Command-line flag: ``--template_dir``
 
 Examples
 ^^^^^^^^
