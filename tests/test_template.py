@@ -3,6 +3,7 @@ import pytest
 
 # local imports
 from shpkpr.template import InvalidJSONError
+from shpkpr.template import MissingTemplateError
 from shpkpr.template import UndefinedError
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
@@ -258,3 +259,37 @@ def test_render_json_template_require_float_max_constraint_raises(tmpdir):
 
     with pytest.raises(FloatTooLarge):
         render_json_template(template_path, template_name, **{"MUFFIN_COUNT": "60"})
+
+
+def test_render_json_template_with_inheritance_valid(tmpdir):
+    _write_template_to_disk(
+        tmpdir.mkdir('bases'), 'base.json',
+        '{"type_of_muffin": "{% block MUFFIN_TYPE_PLACEHOLDER %}{{ MUFFIN_TYPE }}{% endblock %}"}',
+    )
+    template_path, template_name = _write_template_to_disk(
+        tmpdir, 'template.json',
+        '''
+        {% extends "bases/base.json" %}
+        {% block MUFFIN_TYPE_PLACEHOLDER %}{{ ALT_MUFFIN_TYPE }}{% endblock %}
+        ''',
+    )
+
+    rendered_template = render_json_template(template_path, template_name, **{
+        "MUFFIN_TYPE": "banana",
+        "ALT_MUFFIN_TYPE": "blueberry",
+    })
+    assert "type_of_muffin" in rendered_template
+    assert rendered_template["type_of_muffin"] == "blueberry"
+
+
+def test_render_json_template_with_inheritance_no_parent(tmpdir):
+    template_path, template_name = _write_template_to_disk(
+        tmpdir, 'template.json',
+        '''
+        {% extends "bases/base.json" %}
+        {% block MUFFIN_TYPE_PLACEHOLDER %}{{ ALT_MUFFIN_TYPE }}{% endblock %}
+        ''',
+    )
+
+    with pytest.raises(MissingTemplateError):
+        render_json_template(template_path, template_name, **{})

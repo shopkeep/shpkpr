@@ -32,6 +32,15 @@ class UndefinedError(exceptions.ShpkprException):
         return 'Unable to render template: %s' % self.message
 
 
+class MissingTemplateError(exceptions.ShpkprException):
+    """Raised when a template cannot be loaded for any reason.
+    """
+    exit_code = 2
+
+    def format_message(self):
+        return 'Unable to load template from disk: %s' % self.message
+
+
 def load_values_from_environment(prefix=""):
     """Reads values from the environment.
 
@@ -51,6 +60,7 @@ def load_values_from_environment(prefix=""):
 
 @exceptions.rewrap(ValueError, InvalidJSONError)
 @exceptions.rewrap(jinja2.UndefinedError, UndefinedError)
+@exceptions.rewrap(jinja2.TemplateNotFound, MissingTemplateError)
 def render_json_template(template_path, template_name, **values):
     """Initialise a jinja2 template and render it with the passed-in values.
 
