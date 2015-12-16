@@ -5,6 +5,9 @@ define their options directly, instead all options should be defined here and
 imported as required. This helps maintain consistency where a single option is
 used for multiple commands.
 """
+# stdlib imports
+import os
+
 # third-party imports
 import click
 
@@ -110,11 +113,21 @@ stream = click.option(
 )
 
 
-template_file = click.option(
+template_path = click.option(
+    '--template_dir',
+    'template_path',
+    envvar="{0}_TEMPLATE_DIR".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    type=str,
+    default=os.getcwd(),
+    help="Base directory in which your templates are stored.",
+)
+
+
+template_name = click.option(
     '-t', '--template',
-    'template_file',
+    'template_name',
     envvar="{0}_TEMPLATE".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
-    type=click.File("r"),
+    type=str,
     required=True,
     help="Path of the template to use for deployment.",
 )

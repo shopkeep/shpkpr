@@ -1,15 +1,6 @@
-# stdlib imports
-import os
-
 # third-party imports
 import mock
 import responses
-
-
-def _test_template_path():
-    """Returns an absolute path to our test template
-    """
-    return os.path.abspath(os.path.join('tests', 'test.json.tmpl'))
 
 
 def test_no_args(runner):
@@ -44,7 +35,7 @@ def test_no_force(mock_deployment_wait, runner, json_fixture):
         'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
         'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
     }
-    result = runner(['deploy', '--template', _test_template_path()], env=env)
+    result = runner(['deploy', '--template', 'tests/test.json.tmpl'], env=env)
 
     assert result.exit_code == 0
 
@@ -66,6 +57,6 @@ def test_force(mock_deployment_wait, runner, json_fixture):
         'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
         'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
     }
-    result = runner(['deploy', '--template', _test_template_path(), '--force'], env=env)
+    result = runner(['deploy', '--template', 'tests/test.json.tmpl', '--force'], env=env)
 
     assert result.exit_code == 0

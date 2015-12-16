@@ -11,15 +11,16 @@ from shpkpr.template import render_json_template
 
 @click.command('deploy', short_help='Deploy application from template.', context_settings=CONTEXT_SETTINGS)
 @options.force
-@options.template_file
+@options.template_name
+@options.template_path
 @options.env_prefix
 @options.marathon_client
 @pass_logger
-def cli(logger, marathon_client, env_prefix, template_file, force):
+def cli(logger, marathon_client, env_prefix, template_path, template_name, force):
     """Deploy application from template.
     """
     # read and render deploy template using values from the environment
     values = load_values_from_environment(prefix=env_prefix)
-    rendered_template = render_json_template(template_file, **values)
+    rendered_template = render_json_template(template_path, template_name, **values)
 
     marathon_client.deploy_application(rendered_template, force=force).wait()
