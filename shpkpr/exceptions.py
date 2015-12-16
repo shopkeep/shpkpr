@@ -37,6 +37,8 @@ def rewrap(exceptions_to_catch, exception_to_rewrap_with=ShpkprException):
                 if six.PY2:
                     six.reraise(exception_to_rewrap_with, ei.message, tb)
                 else:
-                    six.reraise(exception_to_rewrap_with, exception_to_rewrap_with(*ei.args), tb)
+                    ei_args = ei.args if ei.args else (ei.message,) if hasattr(ei, "message") else None
+                    ei_args = ei_args if ei_args is not None else (str(ei),)
+                    six.reraise(exception_to_rewrap_with, exception_to_rewrap_with(*ei_args), tb)
         return wrapper
     return real_decorator
