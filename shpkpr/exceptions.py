@@ -18,6 +18,18 @@ class ShpkprException(ClickException):
     pass
 
 
+def _args_from_exception(exception):
+    """In Python 3 we can't guarantee that an exception will have a `message`
+    property. This function ensures that we can extract *args and have it
+    include at least one argument, regardless of the exception type passed-in.
+    """
+    if exception.args:
+        return exception.args
+    if hasattr(exception, "message"):
+        return (exception.message,)
+    return (str(exception),)
+
+
 def rewrap(exceptions_to_catch, exception_to_rewrap_with=ShpkprException):
     """Decorator that catches exceptions of type `exceptions_to_catch` (can be
     a list) and rewraps them with the given `exception_to_rewrap_with` type
@@ -37,8 +49,7 @@ def rewrap(exceptions_to_catch, exception_to_rewrap_with=ShpkprException):
                 if six.PY2:
                     six.reraise(exception_to_rewrap_with, ei.message, tb)
                 else:
-                    ei_args = ei.args if ei.args else (ei.message,) if hasattr(ei, "message") else None
-                    ei_args = ei_args if ei_args is not None else (str(ei),)
+                    ei_args = _args_from_exception(ei)
                     six.reraise(exception_to_rewrap_with, exception_to_rewrap_with(*ei_args), tb)
         return wrapper
     return real_decorator
