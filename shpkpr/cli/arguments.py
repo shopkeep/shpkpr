@@ -9,9 +9,23 @@ argument is used for multiple commands.
 import click
 
 
+def _env_pairs_to_dict(ctx, param, value):
+    """Converts a space-seperated list of key=value pairs into a Python
+    dictionary.
+    """
+    d = {}
+    for pair in [x.split('=', 1) for x in value]:
+        if len(pair) == 1:
+            d[pair[0]] = ''
+        else:
+            d[pair[0]] = pair[1]
+    return d
+
+
 env_pairs = click.argument(
     'env_pairs',
     nargs=-1,
+    callback=_env_pairs_to_dict,
 )
 
 

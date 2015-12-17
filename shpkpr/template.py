@@ -41,20 +41,35 @@ class MissingTemplateError(exceptions.ShpkprException):
         return 'Unable to load template from disk: %s' % self.message
 
 
-def load_values_from_environment(prefix=""):
+def load_values_from_environment(prefix="", overrides=None):
     """Reads values from the environment.
 
     If ``prefix`` is a non-empty string, only environment variables with the
     given prefix will be returned. The prefix, if given, will be stripped from
     any returned keys.
+
+    If ``overrides`` is a dict-like object, the key/value pairs it contains
+    will be added to the returned dictionary. Any values specified by
+    overrides will take precedence over values pulled from the environment
+    where the key names clash.
     """
+    values = {}
+
     # add a trailing underscore to the prefix if there isn't one
     prefix = prefix + "_" if prefix and not prefix.endswith("_") else prefix
 
-    values = {}
+    # load values from the environment
     for k, v in os.environ.items():
         if k.startswith(prefix):
             values[k.replace(prefix, "", 1)] = v
+
+    # add override values if any passed in
+    try:
+        for k, v in overrides.items():
+            values[k] = v
+    except AttributeError:
+        pass
+
     return values
 
 
