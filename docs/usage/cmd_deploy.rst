@@ -5,7 +5,7 @@ Deploying a new application config
 ``shpkpr deploy`` allows you to deploy a new (or changes to an existing) application configuration by rendering and POSTing a JSON template to Marathon::
 
     $ shpkpr deploy --help
-    Usage: shpkpr deploy [OPTIONS]
+    Usage: shpkpr deploy [OPTIONS] [ENV_PAIRS]...
 
       Deploy application from template.
 
@@ -18,6 +18,8 @@ Deploying a new application config
                              templating.
       --marathon_url TEXT    URL of the Marathon API to use.  [required]
       --help                 Show this message and exit.
+
+Additional template values can be passed on the command line in a KEY=VALUE format. Any number of key/value pairs can be passed. See below for a few examples.
 
 Required Configuration
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -74,7 +76,8 @@ Examples
       "mem": 512,
       "instances": {{INSTANCES|require_int(min=1, max=16)}},
       "labels": {
-        "DOMAIN": "{{LABEL_DOMAIN}}"
+        "DOMAIN": "{{LABEL_DOMAIN}}",
+        "RANDOM_LABEL": "{{RANDOM_LABEL}}"
       }
     }
 
@@ -84,7 +87,7 @@ Examples
     $ export SHPKPR_CMD="sleep 60"
     $ export SHPKPR_LABEL_DOMAIN=mydomain.com
 
-    $ shpkpr deploy -t deploy.json.tmpl
+    $ shpkpr deploy -t deploy.json.tmpl RANDOM_LABEL=my_value
 
     # Would result in the following output sent to Marathon
     # {
@@ -94,7 +97,8 @@ Examples
     #   "mem": 512,
     #   "instances": 2,
     #   "labels": {
-    #     "DOMAIN": "mydomain.com"
+    #     "DOMAIN": "mydomain.com",
+    #     "RANDOM_LABEL": "my_value"
     #   }
     # }
 ::

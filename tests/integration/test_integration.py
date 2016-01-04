@@ -30,7 +30,7 @@ def test_list(runner, env):
 
 @pytest.mark.integration
 def test_deploy(runner, env):
-    result = runner(["deploy", "-t", "tests/test.json.tmpl"], env=env)
+    result = runner(["deploy", "-t", "tests/test.json.tmpl", "RANDOM_LABEL=some_value"], env=env)
     _check_exits_zero(result)
 
 

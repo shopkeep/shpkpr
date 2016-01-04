@@ -39,7 +39,6 @@ def set(logger, marathon_client, force, application_id, env_pairs):
     existing_application = marathon_client.get_application(application_id)
     application = {'id': application_id, 'env': existing_application['env']}
 
-    env_pairs = dict([(x[0], x[1]) for x in [y.split('=') for y in env_pairs]])
     for k, v in env_pairs.items():
         application['env'][k] = v
 

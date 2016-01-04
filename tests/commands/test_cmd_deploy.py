@@ -35,7 +35,7 @@ def test_no_force(mock_deployment_wait, runner, json_fixture):
         'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
         'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
     }
-    result = runner(['deploy', '--template', 'tests/test.json.tmpl'], env=env)
+    result = runner(['deploy', '--template', 'tests/test.json.tmpl', 'RANDOM_LABEL=some_value'], env=env)
 
     assert result.exit_code == 0
 
@@ -57,6 +57,6 @@ def test_force(mock_deployment_wait, runner, json_fixture):
         'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
         'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
     }
-    result = runner(['deploy', '--template', 'tests/test.json.tmpl', '--force'], env=env)
+    result = runner(['deploy', '--template', 'tests/test.json.tmpl', '--force', 'RANDOM_LABEL=some_value'], env=env)
 
     assert result.exit_code == 0
