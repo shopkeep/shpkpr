@@ -8,6 +8,7 @@ import requests
 from cached_property import cached_property
 
 # local imports
+from .deployment import DeploymentNotFound
 from .deployment import MarathonDeployment
 from .validate import Schema
 from .validate import schema_path
@@ -113,10 +114,23 @@ class MarathonClient(object):
 
         if response.status_code in [200, 201]:
             deployment = response.json()
-            return MarathonDeployment(self, application['id'], deployment['deploymentId'], deployment['version'])
+            return MarathonDeployment(self, deployment['deploymentId'])
 
         # raise an appropriate error if something went wrong
         if response.status_code == 409:
             raise ClientError("App is locked by one or more deployments: %s" % response.json()['deployments'][0]['id'])
+
+        raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
+
+    def get_deployment(self, deployment_id):
+        """Returns detailed information for a single deploy
+        """
+        response = self._make_request('GET', "/v2/deployments")
+
+        if response.status_code == 200:
+            for deployment in response.json():
+                if deployment['id'] == deployment_id:
+                    return deployment
+            raise DeploymentNotFound(deployment_id)
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
