@@ -28,4 +28,4 @@ def cli(logger, marathon_client, instances, mem, cpus, force, application_id):
             application[k] = v
 
     if updated:
-        marathon_client.deploy_application(application, force=force).wait()
+        marathon_client.deploy(application, force=force).wait()
