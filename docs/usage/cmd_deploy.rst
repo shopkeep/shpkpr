@@ -38,6 +38,8 @@ Required Configuration
     * Environment variable: ``SHPKPR_TEMPLATE``
     * Command-line flag: ``--template``
 
+    **NOTE:** When running Marathon >0.13.0 it is possible to deploy multiple applications at the same time either by specifying the ``--template`` option multiple times, or by using a single template which contains a list of individual applications.
+
 Optional Configuration
 ^^^^^^^^^^^^^^^^^^^^^^
 
