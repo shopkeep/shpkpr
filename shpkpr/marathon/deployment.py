@@ -10,6 +10,10 @@ class DeploymentFailed(exceptions.ShpkprException):
     pass
 
 
+class DeploymentNotFound(exceptions.ShpkprException):
+    pass
+
+
 class MarathonDeployment(object):
     """Marathon deployment object.
 
@@ -17,37 +21,25 @@ class MarathonDeployment(object):
     deployment.
     """
 
-    def __init__(self, client, application_id, deployment_id, expected_version):
+    def __init__(self, client, deployment_id):
         self._client = client
-        self._application_id = application_id
         self._deployment_id = deployment_id
-        self._expected_version = expected_version
 
     def check(self):
         """Check if this deployment has completed.
 
-        If the deployment is in progress, return False, if the deployment
-        completes successfully return True. If the deployment fails for any
-        reason then a DeploymentFailed exception is raised.
+        This method returns a True when a deployment is complete, False when a
+        deployment is in progress.
         """
-        application = self._client.get_application(self._application_id)
+        try:
+            self._client.get_deployment(self._deployment_id)
+        except DeploymentNotFound:
+            # if the deployment isn't listed, then we can consider the deployment as completed
+            # successfully and return True. According to the marathon docs: "If the deployment
+            # is gone from the list of deployments, then this means it is finished."
+            return True
 
-        # if the deployment is in progress then return False
-        if self._deployment_id in [x['id'] for x in application['deployments']]:
-            return False
-
-        # check that the application's version is as we expect
-        if not self._expected_version == application['version']:
-            raise DeploymentFailed("Version mismatch: %s != %s" % (self._expected_version, application['version']))
-
-        # check that the application's tasks are healthy (if appropriate)
-        if application['tasksUnhealthy'] > 0:
-            raise DeploymentFailed("Tasks Unhealthy: %d" % application['tasksUnhealthy'])
-
-        # if the application isn't deploying, has the right version and is
-        # healthy, then we can consider the deployment as completed
-        # successfully and return True
-        return True
+        return False
 
     def wait(self, timeout=900, check_interval_secs=5):
         """Waits for a deployment to finish

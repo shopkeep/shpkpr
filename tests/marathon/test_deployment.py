@@ -4,6 +4,7 @@ import pytest
 
 # local imports
 from shpkpr.marathon import DeploymentFailed
+from shpkpr.marathon import DeploymentNotFound
 from shpkpr.marathon import MarathonClient
 from shpkpr.marathon import MarathonDeployment
 
@@ -18,7 +19,7 @@ def test_deployment_wait(mock_deployment_check):
                                          False, False, False, False, True]
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
-    deployment = MarathonDeployment(client, "", '1234', '2')
+    deployment = MarathonDeployment(client, '1234')
     deployment.wait(check_interval_secs=0.01)
     assert mock_deployment_check.call_count == 20
 
@@ -30,75 +31,56 @@ def test_deployment_wait_with_timeout(mock_deployment_check):
     mock_deployment_check.side_effect = [False, False, False]
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
-    deployment = MarathonDeployment(client, "", '1234', '2')
+    deployment = MarathonDeployment(client, '1234')
     with pytest.raises(DeploymentFailed):
         deployment.wait(timeout=1, check_interval_secs=0.5)
     assert mock_deployment_check.call_count == 2
 
 
-@mock.patch('shpkpr.marathon.MarathonClient.get_application')
-def test_deployment_check(mock_get_application):
+@mock.patch('shpkpr.marathon.MarathonClient.get_deployment')
+def test_deployment_check(mock_get_deployment):
     """ Test that deployment.check() returns True when the app has deployed successfully.
     """
-    app_state_success = {
-        "deployments": [],
-        "version": "2",
-        "tasksUnhealthy": 0
-    }
-    mock_get_application.return_value = app_state_success
+    mock_get_deployment.side_effect = DeploymentNotFound("1234")
 
     client = MarathonClient("http://marathon.somedomian.com:8080")
-    deployment = MarathonDeployment(client, "", '1234', '2')
+    deployment = MarathonDeployment(client, '1234')
     assert deployment.check()
 
 
-@mock.patch('shpkpr.marathon.MarathonClient.get_application')
-def test_deployment_check_with_deployment_in_progress(mock_get_application):
+@mock.patch('shpkpr.marathon.MarathonClient.get_deployment')
+def test_deployment_check_with_deployment_in_progress(mock_get_deployment):
     """ Test that deployment.check() returns False when the app has a deployment in progress.
     """
-    app_state_failure = {
-        "deployments": [{"id": "1234"}],
-        "version": "2",
-        "tasksUnhealthy": 0
+    deploy_in_progress = {
+        "id": "97c136bf-5a28-4821-9d94-480d9fbb01c8",
+        "version": "2015-09-30T09:09:17.614Z",
+        "affectedApps": ["/foo"],
+        "steps": [
+            [
+                {
+                    "action": "StartApplication",
+                    "app": "/foo"
+                }
+            ],
+            [
+                {
+                    "action": "ScaleApplication",
+                    "app": "/foo"
+                }
+            ]
+        ],
+        "currentActions": [
+            {
+                "action": "ScaleApplication",
+                "app": "/foo"
+            }
+        ],
+        "currentStep": 2,
+        "totalSteps": 2
     }
-    mock_get_application.return_value = app_state_failure
+    mock_get_deployment.return_value = deploy_in_progress
 
     client = MarathonClient("http://marathon.somedomian.com:8080")
-    deployment = MarathonDeployment(client, "", '1234', '2')
+    deployment = MarathonDeployment(client, "97c136bf-5a28-4821-9d94-480d9fbb01c8")
     assert not deployment.check()
-
-
-@mock.patch('shpkpr.marathon.MarathonClient.get_application')
-def test_deployment_check_with_failing_deploy(mock_get_application):
-    """ Test that deployment.check() raises an exception when the app has the
-    wrong version following a deployment.
-    """
-    app_state_failure = {
-        "deployments": [],
-        "version": "1",
-        "tasksUnhealthy": 0
-    }
-    mock_get_application.return_value = app_state_failure
-
-    client = MarathonClient("http://marathon.somedomian.com:8080")
-    deployment = MarathonDeployment(client, "", '1234', '2')
-    with pytest.raises(DeploymentFailed):
-        deployment.check()
-
-
-@mock.patch('shpkpr.marathon.MarathonClient.get_application')
-def test_deployment_check_with_unhealthy_tasks(mock_get_application):
-    """ Test that deployment.check() raises an exception when the app has
-    unhealthy tasks following a deployment.
-    """
-    app_state_unhealthy = {
-        "deployments": [],
-        "version": "2",
-        "tasksUnhealthy": 1
-    }
-    mock_get_application.return_value = app_state_unhealthy
-
-    client = MarathonClient("http://marathon.somedomian.com:8080")
-    deployment = MarathonDeployment(client, "", '1234', '2')
-    with pytest.raises(DeploymentFailed):
-        deployment.check()
