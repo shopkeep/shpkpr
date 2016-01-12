@@ -100,17 +100,28 @@ class MarathonClient(object):
 
         return sorted([app['id'].lstrip('/') for app in self.list_applications()])
 
-    def deploy_application(self, application, force=False):
-        """Deploys the given application to Marathon.
+    def deploy(self, application_payload, force=False):
+        """Deploys the given application(s) to Marathon.
         """
-        self.deploy_schema.validate(application)
+        # if the payload is a list and is one element long then we extract it
+        # as we want to treat single app deploys differently. Doing this here
+        # helps keep the cmd implementation clean.
+        if isinstance(application_payload, (list, tuple)) and len(application_payload) == 1:
+            application_payload = application_payload[0]
 
-        path = "/v2/apps/" + application['id']
-        if force:
-            params = {"force": "true"}
+        # if at this point our payload is a dict then we treat it as a single
+        # app, otherwise we treat it as a list of multiple applications to be
+        # deployed together.
+        if isinstance(application_payload, (list, tuple)):
+            for application in application_payload:
+                self.deploy_schema.validate(application)
+            path = "/v2/apps/"
         else:
-            params = {}
-        response = self._make_request('PUT', path, params=params, json=application)
+            self.deploy_schema.validate(application_payload)
+            path = "/v2/apps/" + application_payload['id']
+
+        params = {"force": "true"} if force else {}
+        response = self._make_request('PUT', path, params=params, json=application_payload)
 
         if response.status_code in [200, 201]:
             deployment = response.json()
@@ -118,7 +129,8 @@ class MarathonClient(object):
 
         # raise an appropriate error if something went wrong
         if response.status_code == 409:
-            raise ClientError("App is locked by one or more deployments: %s" % response.json()['deployments'][0]['id'])
+            deployment_ids = ', '.join([x['id'] for x in response.json()['deployments']])
+            raise ClientError("App(s) locked by one or more deployments: %s" % deployment_ids)
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
 

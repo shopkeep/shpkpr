@@ -123,11 +123,12 @@ template_path = click.option(
 )
 
 
-template_name = click.option(
+template_names = click.option(
     '-t', '--template',
-    'template_name',
-    envvar="{0}_TEMPLATE".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    'template_names',
+    envvar="{0}_TEMPLATES".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     type=str,
     required=True,
     help="Path of the template to use for deployment.",
+    multiple=True,
 )

@@ -9,6 +9,7 @@ import responses
 
 # local imports
 from shpkpr.marathon import ClientError
+from shpkpr.marathon import DeploymentNotFound
 from shpkpr.marathon import MarathonClient
 
 
@@ -82,7 +83,7 @@ def test_list_application_ids_internal_server_error():
 
 @responses.activate
 @mock.patch('shpkpr.marathon.MarathonDeployment.check')
-def test_deploy_application(mock_deployment_check):
+def test_deploy(mock_deployment_check):
     responses.add(responses.PUT,
                   'http://marathon.somedomain.com:8080/v2/apps/test-app',
                   status=201,
@@ -90,12 +91,40 @@ def test_deploy_application(mock_deployment_check):
     mock_deployment_check.return_value = True
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
-    deployment = client.deploy_application({"id": "test-app"})
+    deployment = client.deploy({"id": "test-app"})
     assert deployment.wait(check_interval_secs=0.1)
 
 
 @responses.activate
-def test_deploy_application_conflict():
+@mock.patch('shpkpr.marathon.MarathonDeployment.check')
+def test_deploy_multiple(mock_deployment_check):
+    responses.add(responses.PUT,
+                  'http://marathon.somedomain.com:8080/v2/apps/',
+                  status=201,
+                  json=_load_json_fixture("deployment"))
+    mock_deployment_check.return_value = True
+
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    deployment = client.deploy([{"id": "test-app"}, {"id": "test-app-2"}])
+    assert deployment.wait(check_interval_secs=0.1)
+
+
+@responses.activate
+@mock.patch('shpkpr.marathon.MarathonDeployment.check')
+def test_deploy_single_app_list(mock_deployment_check):
+    responses.add(responses.PUT,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=201,
+                  json=_load_json_fixture("deployment"))
+    mock_deployment_check.return_value = True
+
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    deployment = client.deploy([{"id": "test-app"}])
+    assert deployment.wait(check_interval_secs=0.1)
+
+
+@responses.activate
+def test_deploy_conflict():
     responses.add(responses.PUT,
                   'http://marathon.somedomain.com:8080/v2/apps/test-app',
                   status=409,
@@ -103,11 +132,11 @@ def test_deploy_application_conflict():
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
     with pytest.raises(ClientError):
-        client.deploy_application({"id": "test-app"})
+        client.deploy({"id": "test-app"})
 
 
 @responses.activate
-def test_deploy_application_unprocessable_entity():
+def test_deploy_unprocessable_entity():
     responses.add(responses.PUT,
                   'http://marathon.somedomain.com:8080/v2/apps/test-app',
                   status=422,
@@ -115,4 +144,29 @@ def test_deploy_application_unprocessable_entity():
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
     with pytest.raises(ClientError):
-        client.deploy_application({"id": "test-app"})
+        client.deploy({"id": "test-app"})
+
+
+@responses.activate
+def test_get_deployment():
+    responses.add(responses.GET,
+                  'http://marathon.somedomain.com:8080/v2/deployments',
+                  status=200,
+                  json=_load_json_fixture("deployments"))
+
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    deployment = client.get_deployment("97c136bf-5a28-4821-9d94-480d9fbb01c8")
+    assert deployment is not None
+    assert deployment['id'] == "97c136bf-5a28-4821-9d94-480d9fbb01c8"
+
+
+@responses.activate
+def test_get_deployment_not_found():
+    responses.add(responses.GET,
+                  'http://marathon.somedomain.com:8080/v2/deployments',
+                  status=200,
+                  json=_load_json_fixture("deployments"))
+
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    with pytest.raises(DeploymentNotFound):
+        client.get_deployment("1234")
