@@ -129,7 +129,8 @@ class MarathonClient(object):
 
         # raise an appropriate error if something went wrong
         if response.status_code == 409:
-            raise ClientError("App(s) locked by one or more deployments: %s" % response.json()['deployments'][0]['id'])
+            deployment_ids = ', '.join([x['id'] for x in response.json()['deployments']])
+            raise ClientError("App(s) locked by one or more deployments: %s" % deployment_ids)
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
 
