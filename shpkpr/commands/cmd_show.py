@@ -27,10 +27,16 @@ def _pretty_print(logger, application):
     logger.log("Instances:    %s", application['instances'])
     logger.log("Docker Image: %s", application['container']['docker']['image'])
     logger.log("Version:      %s", application['version'])
-    logger.log("Status:       %s", _task_status(logger, application))
+    logger.log("Status:       %s", _app_status(logger, application))
+    logger.log("")
+    logger.log("Tasks:")
+    for task in application['tasks']:
+        logger.log("- ID:   %s", task['id'])
+        for port in task['ports']:
+            logger.log("  Host: %s:%d", task['host'], port)
 
 
-def _task_status(logger, application):
+def _app_status(logger, application):
     """Returns a nicely formatted string we can use to display application health on the CLI.
     """
     if len(application['deployments']) > 0:

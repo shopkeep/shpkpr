@@ -162,6 +162,30 @@
       "minimum": 0,
       "type": "number"
     },
+    "tasks": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "hosts": {
+            "type": "string"
+          },
+          "ports": {
+            "items": {
+              "maximum": 65535,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "type": "object"
+      },
+      "type": "array"
+    },
     "version": {
       "format": "date-time",
       "type": "string"
@@ -180,6 +204,7 @@
     "mem",
     "tasksRunning",
     "tasksUnhealthy",
+    "tasks",
     "version"
   ],
   "type": "object"
