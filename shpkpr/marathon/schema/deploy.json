@@ -252,8 +252,7 @@
         "minimum": 0,
         "type": "integer"
       },
-      "type": "array",
-      "uniqueItems": true
+      "type": "array"
     },
     "requirePorts": {
       "type": "boolean"
