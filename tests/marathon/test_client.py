@@ -10,6 +10,7 @@ import responses
 # local imports
 from shpkpr.marathon import ClientError
 from shpkpr.marathon import DeploymentNotFound
+from shpkpr.marathon import DryRun
 from shpkpr.marathon import MarathonClient
 
 
@@ -132,6 +133,14 @@ def test_deploy_conflict():
 
     client = MarathonClient("http://marathon.somedomain.com:8080")
     with pytest.raises(ClientError):
+        client.deploy({"id": "test-app"})
+
+
+@responses.activate
+def test_deploy_dry_run():
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    client.dry_run = True
+    with pytest.raises(DryRun):
         client.deploy({"id": "test-app"})
 
 

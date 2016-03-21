@@ -20,6 +20,10 @@ class ClientError(exceptions.ShpkprException):
     pass
 
 
+class DryRun(exceptions.ShpkprException):
+    exit_code = 0
+
+
 class MarathonClient(object):
     """A thin wrapper around marathon.MarathonClient for internal use
     """
@@ -28,11 +32,14 @@ class MarathonClient(object):
         self._marathon_url = marathon_url
         self._app_schema_path = app_schema_path
         self._deploy_schema_path = deploy_schema_path
+        self.dry_run = False
 
     def _build_url(self, path):
         return self._marathon_url.rstrip("/") + path
 
     def _make_request(self, method, path, **kwargs):
+        if self.dry_run:
+            raise DryRun("Exiting as --dry-run requested")
         request = getattr(requests, method.lower())
         return request(self._build_url(path), **kwargs)
 
