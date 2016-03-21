@@ -11,6 +11,8 @@ Deploying a new application config
 
     Options:
       --force                Force update even if a deployment is in progress.
+      --dry-run              Enables dry-run mode. Shpkpr will not attempt to
+                             contact Marathon when this is enabled.
       -t, --template TEXT    Name of the template to use for deployment.
                              [required]
       --template_dir TEXT    Base directory in which your templates are stored (default: `pwd`).
@@ -48,6 +50,12 @@ Optional Configuration
     Using the force flag allows the user to initiate a deployment even if another deployment is currently in progress. This option should only be used in the case of a previous failed deployment as it *may* leave the app in an inconsistent state if anything goes wrong.
 
     * Command-line flag: ``--force``
+
+**Dry Run:**
+
+    Using the dry-run flag allows the user to test a deployment before performing it against a live Marathon instance. When enabled, shpkpr will not attempt to contact the configured Marathon server.
+
+    * Command-line flag: ``--dry-run``
 
 **Environment Variable Prefix:**
 

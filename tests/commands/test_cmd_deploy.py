@@ -84,3 +84,31 @@ def test_multiple_templates(mock_deployment_wait, runner, json_fixture):
     result = runner(['deploy', '--template', 'tests/test.json.tmpl', '--template', 'tests/test-2.json.tmpl'], env=env)
 
     assert result.exit_code == 0
+
+
+@responses.activate
+def test_dry_run(runner, json_fixture):
+    env = {
+        'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
+        'SHPKPR_APPLICATION': 'test-app',
+        'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
+        'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
+        'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
+    }
+    result = runner(['deploy', '--dry-run', '--template', 'tests/test.json.tmpl', 'RANDOM_LABEL=some_value'], env=env)
+
+    assert result.exit_code == 0
+    assert '--dry-run' in result.output
+
+
+@responses.activate
+def test_dry_run_fail(runner, json_fixture):
+    env = {
+        'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
+        'SHPKPR_APPLICATION': 'test-app',
+        'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
+        'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
+    }
+    result = runner(['deploy', '--dry-run', '--template', 'tests/test.json.tmpl', 'RANDOM_LABEL=some_value'], env=env)
+
+    assert not result.exit_code == 0

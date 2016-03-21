@@ -40,6 +40,13 @@ cpus = click.option(
 )
 
 
+dry_run = click.option(
+    '--dry-run',
+    is_flag=True,
+    help='Enables dry-run mode. Shpkpr will not attempt to contact Marathon when this is enabled.',
+)
+
+
 env_prefix = click.option(
     '-e', '--env_prefix',
     'env_prefix',
