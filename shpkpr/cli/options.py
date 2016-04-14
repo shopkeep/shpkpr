@@ -139,3 +139,10 @@ template_names = click.option(
     help="Path of the template to use for deployment.",
     multiple=True,
 )
+
+chronos_url = click.option(
+    '--chronos_url',
+    envvar="{0}_CHRONOS_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    required=True,
+    help='URL of the Chronos endpoint to use',
+)
