@@ -14,10 +14,11 @@ def cli(logger):
     """
 
 
-@cli.command('test', short_help='Test Command', context_settings=CONTEXT_SETTINGS)
+@cli.command('list', short_help='List names all jobs in Chronos', context_settings=CONTEXT_SETTINGS)
 @options.chronos_url
 @pass_logger
-def list(logger, chronos_url):
+def list(logger, chronos_client):
     """List application configuration.
     """
-    logger.log(chronos_url)
+    for job in chronos_client.list():
+        logger.log(job['name'])
