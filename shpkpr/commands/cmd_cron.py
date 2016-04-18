@@ -34,7 +34,7 @@ def show(logger, chronos_client, job_name):
         logger.log(_pretty_print(_find_job(jobs, job_name)))
 
 
-@cli.command('set', short_help='Add a job to chronos', context_settings=CONTEXT_SETTINGS)
+@cli.command('set', short_help='Add or Update a chronos job', context_settings=CONTEXT_SETTINGS)
 @arguments.env_pairs
 @options.chronos_url
 @options.env_prefix
