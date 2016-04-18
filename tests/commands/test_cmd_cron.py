@@ -116,3 +116,15 @@ def test_delete_tasks(mock_chronos_client, runner):
 
     mock_chronos_client.assert_called_with('test-job')
     assert result.exit_code == 0
+
+
+@mock.patch.object(chronos.ChronosClient, 'run')
+def test_run(mock_chronos_client, runner):
+    mock_chronos_client.return_value = True
+
+    result = runner(["cron", "run", "test-job"], env={
+        'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+    })
+
+    mock_chronos_client.assert_called_with('test-job')
+    assert result.exit_code == 0

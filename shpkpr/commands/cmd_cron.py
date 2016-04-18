@@ -69,6 +69,13 @@ def delete_tasks(chronos_client, job_name):
     chronos_client.delete_tasks(job_name)
 
 
+@cli.command('run', short_help='Runs a job via chronos', context_settings=CONTEXT_SETTINGS)
+@arguments.job_name
+@options.chronos_url
+def run(chronos_client, job_name):
+    chronos_client.run(job_name)
+
+
 def _pretty_print(dict):
     """Pretty print a dict as a json structure
     """
