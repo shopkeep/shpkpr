@@ -52,6 +52,7 @@ def test_set(mock_chronos_add, mock_chronos_list, runner, json_fixture):
 
     result = runner(['cron', 'set', '--template', 'tests/test-chronos.json.tmpl'], env={
         'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+        'SHPKPR_CHRONOS_JOB_NAME': 'shpkpr-test-job',
     })
 
     assert mock_chronos_add.called
@@ -70,6 +71,8 @@ def test_set_multiple(mock_chronos_add, mock_chronos_list, runner):
          '--template', 'tests/test-chronos-2.json.tmpl'],
         env={
             'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+            'SHPKPR_CHRONOS_JOB_NAME': 'shpkpr-test-job',
+            'SHPKPR_CHRONOS_JOB_2_NAME': 'shpkpr-test-job-2',
         },
     )
 
@@ -86,6 +89,7 @@ def test_set_update(mock_chronos_add, mock_chronos_update, mock_chronos_list, ru
 
     result = runner(['cron', 'set', '--template', 'tests/test-chronos.json.tmpl'], env={
         'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+        'SHPKPR_CHRONOS_JOB_NAME': 'shpkpr-test-job',
     })
 
     mock_chronos_add.assert_not_called()
