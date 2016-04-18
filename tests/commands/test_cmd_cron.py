@@ -56,7 +56,7 @@ def test_add(mock_chronos_client, runner, json_fixture):
 
 
 @mock.patch.object(chronos.ChronosClient, 'add')
-def test_add_multiple(mock_chronos_client, runner, json_fixture):
+def test_add_multiple(mock_chronos_client, runner):
     mock_chronos_client.return_value = True
 
     result = runner(
@@ -68,4 +68,16 @@ def test_add_multiple(mock_chronos_client, runner, json_fixture):
         },
     )
 
+    assert result.exit_code == 0
+
+
+@mock.patch.object(chronos.ChronosClient, 'delete')
+def test_rm(mock_chronos_client, runner):
+    mock_chronos_client.return_value = True
+
+    result = runner(["cron", "delete", "test-job"], env={
+        'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+    })
+
+    mock_chronos_client.assert_called_with('test-job')
     assert result.exit_code == 0

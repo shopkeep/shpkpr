@@ -41,13 +41,19 @@ def show(logger, chronos_client, job_name):
 @options.template_names
 @options.template_path
 @options.env_prefix
-@pass_logger
-def add(logger, chronos_client, template_path, template_names, env_prefix, env_pairs):
+def add(chronos_client, template_path, template_names, env_prefix, env_pairs):
     """Add a job to chronos.
     """
     values = load_values_from_environment(prefix=env_prefix, overrides=env_pairs)
     for template_name in template_names:
         chronos_client.add(render_json_template(template_path, template_name, **values))
+
+
+@cli.command('delete', short_help='Deletes a job from chronos', context_settings=CONTEXT_SETTINGS)
+@arguments.job_name
+@options.chronos_url
+def delete(chronos_client, job_name):
+    chronos_client.delete(job_name)
 
 
 def _pretty_print(dict):
