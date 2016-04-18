@@ -19,14 +19,26 @@ def test_help(runner):
 
 
 @mock.patch.object(chronos.ChronosClient, 'list')
-def test_list(mock_chronos_client, runner):
+def test_show(mock_chronos_client, runner, json_fixture):
+    mock_chronos_client.return_value = json_fixture("chronos_jobs")
 
-    mock_chronos_client.return_value = [{'name': 'foo'}, {'name': 'bar'}]
-
-    result = runner(['cron', 'list'], env={
+    result = runner(['cron', 'show'], env={
         'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
     })
 
-    assert 'foo' in result.output
-    assert 'bar' in result.output
+    assert '"name": "foo-job"' in result.output
+    assert '"name": "bar-job"' in result.output
+    assert result.exit_code == 0
+
+
+@mock.patch.object(chronos.ChronosClient, 'list')
+def test_show_job_name(mock_chronos_client, runner, json_fixture):
+    mock_chronos_client.return_value = json_fixture("chronos_jobs")
+
+    result = runner(['cron', 'show', '--job-name', 'foo-job'], env={
+        'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+    })
+
+    assert '"name": "foo-job"' in result.output
+    assert '"name": "bar-job"' not in result.output
     assert result.exit_code == 0

@@ -149,3 +149,9 @@ chronos_url = click.option(
     help='URL of the Chronos endpoint to use',
     callback=lambda c, p, v: chronos.connect([v]),
 )
+
+job_name = click.option(
+    '-j', '--job-name',
+    type=str,
+    help='Restrict command to specific job.',
+)

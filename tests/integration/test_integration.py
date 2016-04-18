@@ -121,6 +121,6 @@ def test_logs(runner, env):
 
 
 @pytest.mark.integration
-def test_cron_list(runner, env):
-    result = runner(["cron", "list"], env=env)
+def test_cron_show(runner, env):
+    result = runner(["cron", "show"], env=env)
     _check_exits_zero(result)
