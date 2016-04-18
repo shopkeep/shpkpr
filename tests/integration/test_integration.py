@@ -118,3 +118,9 @@ def test_config_list_yet_again(runner, env):
 def test_logs(runner, env):
     result = runner(["logs", "-n", "10"], env=env)
     _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_cron_list(runner, env):
+    result = runner(["cron", "list"], env=env)
+    _check_exits_zero(result)
