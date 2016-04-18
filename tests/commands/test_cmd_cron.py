@@ -42,3 +42,30 @@ def test_show_job_name(mock_chronos_client, runner, json_fixture):
     assert '"name": "foo-job"' in result.output
     assert '"name": "bar-job"' not in result.output
     assert result.exit_code == 0
+
+
+@mock.patch.object(chronos.ChronosClient, 'add')
+def test_add(mock_chronos_client, runner, json_fixture):
+    mock_chronos_client.return_value = True
+
+    result = runner(['cron', 'add', '--template', 'tests/test-chronos.json.tmpl'], env={
+        'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+    })
+
+    assert result.exit_code == 0
+
+
+@mock.patch.object(chronos.ChronosClient, 'add')
+def test_add_multiple(mock_chronos_client, runner, json_fixture):
+    mock_chronos_client.return_value = True
+
+    result = runner(
+        ['cron', 'add',
+         '--template', 'tests/test-chronos.json.tmpl',
+         '--template', 'tests/test-chronos-2.json.tmpl'],
+        env={
+            'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+        },
+    )
+
+    assert result.exit_code == 0

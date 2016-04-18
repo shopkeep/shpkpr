@@ -124,3 +124,9 @@ def test_logs(runner, env):
 def test_cron_show(runner, env):
     result = runner(["cron", "show"], env=env)
     _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_cron_add(runner, env):
+    result = runner(["cron", "add", "--template-dir", "tests/", "--template", "test-chronos.json.tmpl"], env=env)
+    _check_exits_zero(result)
