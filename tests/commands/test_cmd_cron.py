@@ -72,10 +72,22 @@ def test_add_multiple(mock_chronos_client, runner):
 
 
 @mock.patch.object(chronos.ChronosClient, 'delete')
-def test_rm(mock_chronos_client, runner):
+def test_delete(mock_chronos_client, runner):
     mock_chronos_client.return_value = True
 
     result = runner(["cron", "delete", "test-job"], env={
+        'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+    })
+
+    mock_chronos_client.assert_called_with('test-job')
+    assert result.exit_code == 0
+
+
+@mock.patch.object(chronos.ChronosClient, 'delete_tasks')
+def test_delete_tasks(mock_chronos_client, runner):
+    mock_chronos_client.return_value = True
+
+    result = runner(["cron", "delete-tasks", "test-job"], env={
         'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
     })
 
