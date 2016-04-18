@@ -31,22 +31,28 @@ def show(logger, chronos_client, job_name):
     if job_name is None:
         logger.log(_pretty_print(jobs))
     else:
-        logger.log(_pretty_print(filter(lambda j: job_name == j['name'], jobs)))
+        logger.log(_pretty_print(_find_job(jobs, job_name)))
 
 
-@cli.command('add', short_help='Add a job to chronos', context_settings=CONTEXT_SETTINGS)
+@cli.command('set', short_help='Add a job to chronos', context_settings=CONTEXT_SETTINGS)
 @arguments.env_pairs
 @options.chronos_url
 @options.env_prefix
 @options.template_names
 @options.template_path
 @options.env_prefix
-def add(chronos_client, template_path, template_names, env_prefix, env_pairs):
-    """Add a job to chronos.
+def set(chronos_client, template_path, template_names, env_prefix, env_pairs):
+    """Add or Update a job in chronos.
     """
     values = load_values_from_environment(prefix=env_prefix, overrides=env_pairs)
+    current_jobs = chronos_client.list()
+
     for template_name in template_names:
-        chronos_client.add(render_json_template(template_path, template_name, **values))
+        rendered_template = render_json_template(template_path, template_name, **values)
+        if _find_job(current_jobs, rendered_template['name']):
+            chronos_client.update(rendered_template)
+        else:
+            chronos_client.add(rendered_template)
 
 
 @cli.command('delete', short_help='Deletes a job from chronos', context_settings=CONTEXT_SETTINGS)
@@ -67,3 +73,7 @@ def _pretty_print(dict):
     """Pretty print a dict as a json structure
     """
     return json.dumps(dict, indent=4, sort_keys=True, separators=(',', ': '))
+
+
+def _find_job(jobs, job_name):
+    return filter(lambda j: job_name == j["name"], jobs)

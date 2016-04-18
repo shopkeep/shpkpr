@@ -44,23 +44,28 @@ def test_show_job_name(mock_chronos_client, runner, json_fixture):
     assert result.exit_code == 0
 
 
+@mock.patch.object(chronos.ChronosClient, 'list')
 @mock.patch.object(chronos.ChronosClient, 'add')
-def test_add(mock_chronos_client, runner, json_fixture):
-    mock_chronos_client.return_value = True
+def test_set(mock_chronos_add, mock_chronos_list, runner, json_fixture):
+    mock_chronos_list.return_value = []
+    mock_chronos_add.return_value = True
 
-    result = runner(['cron', 'add', '--template', 'tests/test-chronos.json.tmpl'], env={
+    result = runner(['cron', 'set', '--template', 'tests/test-chronos.json.tmpl'], env={
         'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
     })
 
+    assert mock_chronos_add.called
     assert result.exit_code == 0
 
 
+@mock.patch.object(chronos.ChronosClient, 'list')
 @mock.patch.object(chronos.ChronosClient, 'add')
-def test_add_multiple(mock_chronos_client, runner):
-    mock_chronos_client.return_value = True
+def test_set_multiple(mock_chronos_add, mock_chronos_list, runner):
+    mock_chronos_list.return_value = []
+    mock_chronos_add.return_value = True
 
     result = runner(
-        ['cron', 'add',
+        ['cron', 'set',
          '--template', 'tests/test-chronos.json.tmpl',
          '--template', 'tests/test-chronos-2.json.tmpl'],
         env={
@@ -68,6 +73,24 @@ def test_add_multiple(mock_chronos_client, runner):
         },
     )
 
+    assert mock_chronos_add.called_twice
+    assert result.exit_code == 0
+
+
+@mock.patch.object(chronos.ChronosClient, 'list')
+@mock.patch.object(chronos.ChronosClient, 'update')
+@mock.patch.object(chronos.ChronosClient, 'add')
+def test_set_update(mock_chronos_add, mock_chronos_update, mock_chronos_list, runner):
+    mock_chronos_list.return_value = [{'name': 'shpkpr-test-job'}]
+    mock_chronos_update.return_value = True
+
+    result = runner(['cron', 'set', '--template', 'tests/test-chronos.json.tmpl'], env={
+        'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+    })
+
+    mock_chronos_add.assert_not_called()
+
+    assert mock_chronos_update.called
     assert result.exit_code == 0
 
 
