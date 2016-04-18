@@ -83,4 +83,4 @@ def _pretty_print(dict):
 
 
 def _find_job(jobs, job_name):
-    return filter(lambda j: job_name == j["name"], jobs)
+    return list(filter(lambda j: job_name == j["name"], jobs))
