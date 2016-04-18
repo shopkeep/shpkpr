@@ -66,9 +66,11 @@ def test_set_multiple(mock_chronos_add, mock_chronos_list, runner):
     mock_chronos_add.return_value = True
 
     result = runner(
-        ['cron', 'set',
+        [
+         'cron', 'set',
          '--template', 'tests/test-chronos.json.tmpl',
-         '--template', 'tests/test-chronos-2.json.tmpl'],
+         '--template', 'tests/test-chronos-2.json.tmpl'
+        ],
         env={
             'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
             'SHPKPR_CHRONOS_JOB_NAME': 'shpkpr-test-job',
