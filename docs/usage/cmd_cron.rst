@@ -11,13 +11,7 @@ Managing Chronos Jobs
 
     Options:
       --help  Show this message and exit.
-
-    Commands:
-      delete        Deletes a Job from Chronos
-      delete-tasks  Terminate all tasks for a Chronos Job.
-      run           Runs a Chronos Job
-      set           Add or Update a Chronos Job
-      show          List Chronos Jobs as json
+      --chronos_url URL of the Chronos API to use.
 
 Required Configuration
 ^^^^^^^^^^^^^^^^^^^^^^
