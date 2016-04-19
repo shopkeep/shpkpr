@@ -11,7 +11,7 @@ Managing Chronos Jobs
 
     Options:
       --help  Show this message and exit.
-      --chronos_url URL of the Chronos API to use.
+      --chronos_url  URL of the Chronos API to use.
 
 Required Configuration
 ^^^^^^^^^^^^^^^^^^^^^^
