@@ -62,7 +62,7 @@ def delete(chronos_client, job_name):
     chronos_client.delete(job_name)
 
 
-@cli.command('delete-tasks', short_help='Terminate all tasks for a specified Chronos Job.', context_settings=CONTEXT_SETTINGS)
+@cli.command('delete-tasks', short_help='Terminate all tasks for a Chronos Job.', context_settings=CONTEXT_SETTINGS)
 @arguments.job_name
 @options.chronos_client
 def delete_tasks(chronos_client, job_name):
