@@ -1,0 +1,76 @@
+[
+    {
+        "arguments": [],
+        "async": false,
+        "command": "test-command.sh",
+        "constraints": [],
+        "cpus": 0.1,
+        "dataProcessingJobType": false,
+        "description": "",
+        "disabled": false,
+        "disk": 256.0,
+        "environmentVariables": [
+            {
+                "name": "foo",
+                "value": "bar"
+            }
+        ],
+        "epsilon": "PT60S",
+        "errorCount": 67,
+        "errorsSinceLastSuccess": 0,
+        "executor": "",
+        "executorFlags": "",
+        "highPriority": false,
+        "lastError": "2016-02-06T02:40:29.663Z",
+        "lastSuccess": "2016-04-18T14:43:24.095Z",
+        "mem": 32.0,
+        "name": "foo-job",
+        "owner": "example+foo@shopkeep.com",
+        "ownerName": "foo",
+        "retries": 2,
+        "runAsUser": "root",
+        "schedule": "R/2016-04-18T14:48:22.378Z/PT5M",
+        "scheduleTimeZone": "",
+        "shell": true,
+        "softError": false,
+        "successCount": 53525,
+        "uris": []
+    },
+    {
+        "arguments": [],
+        "async": false,
+        "command": "/usr/bin/fish",
+        "constraints": [],
+        "cpus": 2.0,
+        "dataProcessingJobType": false,
+        "description": "",
+        "disabled": false,
+        "disk": 512.0,
+        "environmentVariables": [
+            {
+                "name": "foo",
+                "value": "bar"
+            }
+        ],
+        "epsilon": "PT60S",
+        "errorCount": 47,
+        "errorsSinceLastSuccess": 0,
+        "executor": "",
+        "executorFlags": "",
+        "highPriority": true,
+        "lastError": "2016-01-16T02:40:29.663Z",
+        "lastSuccess": "2016-02-18T14:43:24.095Z",
+        "mem": 50.0,
+        "name": "bar-job",
+        "owner": "example+bar@shopkeep.com",
+        "ownerName": "bar",
+        "retries": 2,
+        "runAsUser": "root",
+        "schedule": "R/2016-04-18T14:48:22.378Z/PT5M",
+        "scheduleTimeZone": "",
+        "shell": true,
+        "softError": false,
+        "successCount": 53525,
+        "uris": []
+    }
+]

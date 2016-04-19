@@ -9,6 +9,7 @@ used for multiple commands.
 import os
 
 # third-party imports
+import chronos
 import click
 
 # local imports
@@ -138,4 +139,19 @@ template_names = click.option(
     required=True,
     help="Path of the template to use for deployment.",
     multiple=True,
+)
+
+chronos_client = click.option(
+    '--chronos_url',
+    'chronos_client',
+    envvar="{0}_CHRONOS_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    required=True,
+    help='URL of the Chronos endpoint to use',
+    callback=lambda c, p, v: chronos.connect([v]),
+)
+
+job_name = click.option(
+    '-j', '--job-name',
+    type=str,
+    help='Restrict command to specific job.',
 )

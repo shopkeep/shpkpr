@@ -118,3 +118,58 @@ def test_config_list_yet_again(runner, env):
 def test_logs(runner, env):
     result = runner(["logs", "-n", "10"], env=env)
     _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_cron_show(runner, env):
+    result = runner(["cron", "show"], env=env)
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_cron_set(runner, env):
+    result = runner(
+        [
+         "cron", "set",
+         "--template", "tests/test-chronos.json.tmpl",
+         "CHRONOS_JOB_NAME=shpkpr-test-job",
+        ],
+        env=env)
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_cron_show_after_add(runner, env):
+    result = runner(["cron", "show"], env=env)
+
+    _check_output_contains(result, '"name": "shpkpr-test-job"')
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_cron_run(runner, env):
+    result = runner(["cron", "run", "shpkpr-test-job"], env=env)
+
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_cron_delete_tasks(runner, env):
+    result = runner(["cron", "delete-tasks", "shpkpr-test-job"], env=env)
+
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_cron_delete(runner, env):
+    result = runner(["cron", "delete", "shpkpr-test-job"], env=env)
+
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_cron_show_after_delete(runner, env):
+    result = runner(["cron", "show"], env=env)
+
+    _check_output_does_not_contain(result, '"name": "shpkpr-test-job"')
+    _check_exits_zero(result)
