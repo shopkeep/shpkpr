@@ -19,7 +19,7 @@ def cli(logger):
     """
 
 
-@cli.command('show', short_help='List names all jobs in Chronos', context_settings=CONTEXT_SETTINGS)
+@cli.command('show', short_help='List Chronos Jobs as json', context_settings=CONTEXT_SETTINGS)
 @options.chronos_client
 @options.job_name
 @pass_logger
@@ -34,7 +34,7 @@ def show(logger, chronos_client, job_name):
         logger.log(_pretty_print(_find_job(jobs, job_name)))
 
 
-@cli.command('set', short_help='Add or Update a chronos job', context_settings=CONTEXT_SETTINGS)
+@cli.command('set', short_help='Add or Update a Chronos Job', context_settings=CONTEXT_SETTINGS)
 @arguments.env_pairs
 @options.chronos_client
 @options.env_prefix
@@ -55,21 +55,21 @@ def set(chronos_client, template_path, template_names, env_prefix, env_pairs):
             chronos_client.add(rendered_template)
 
 
-@cli.command('delete', short_help='Deletes a job from chronos', context_settings=CONTEXT_SETTINGS)
+@cli.command('delete', short_help='Deletes a Job from Chronos', context_settings=CONTEXT_SETTINGS)
 @arguments.job_name
 @options.chronos_client
 def delete(chronos_client, job_name):
     chronos_client.delete(job_name)
 
 
-@cli.command('delete-tasks', short_help='Terminate all jobs for specified task', context_settings=CONTEXT_SETTINGS)
+@cli.command('delete-tasks', short_help='Terminate all tasks for a specified Chronos Job.', context_settings=CONTEXT_SETTINGS)
 @arguments.job_name
 @options.chronos_client
 def delete_tasks(chronos_client, job_name):
     chronos_client.delete_tasks(job_name)
 
 
-@cli.command('run', short_help='Runs a job via chronos', context_settings=CONTEXT_SETTINGS)
+@cli.command('run', short_help='Runs a Chronos Job', context_settings=CONTEXT_SETTINGS)
 @arguments.job_name
 @options.chronos_client
 def run(chronos_client, job_name):
