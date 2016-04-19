@@ -141,7 +141,7 @@ template_names = click.option(
     multiple=True,
 )
 
-chronos_url = click.option(
+chronos_client = click.option(
     '--chronos_url',
     'chronos_client',
     envvar="{0}_CHRONOS_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
