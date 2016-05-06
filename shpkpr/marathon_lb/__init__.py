@@ -181,7 +181,9 @@ def check_time_and_sleep(max_wait, step_interval, timestamp):
 def swap_bluegreen_apps(logger, force, max_wait, step_interval, initial_instances,
                         marathon_client, marathon_lb_url, new_app, old_app,
                         timestamp):
-    while check_time_and_sleep(max_wait, step_interval, timestamp):
+    while True:
+
+        check_time_and_sleep(max_wait, step_interval, timestamp)
 
         old_app = marathon_client.get_application(old_app['id'], strip_response=False)
         new_app = marathon_client.get_application(new_app['id'], strip_response=False)
