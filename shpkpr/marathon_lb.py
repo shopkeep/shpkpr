@@ -3,13 +3,13 @@ from collections import namedtuple
 import csv
 from datetime import datetime
 import math
-import requests
 import socket
+import time
 
 # third-party imports
-import six.moves.urllib as urllib
-import time
 import click
+import requests
+import six.moves.urllib as urllib
 
 
 def _get_alias_records(hostname):
