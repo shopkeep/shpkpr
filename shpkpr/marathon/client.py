@@ -66,7 +66,33 @@ class MarathonClient(object):
         raw_schema = read_schema_from_file(self._deploy_schema_path)
         return Schema(raw_schema)
 
-    def get_application(self, application_id):
+    def delete_tasks(self, application_id, task_ids):
+        for task_id in task_ids:
+            return self.delete_task(application_id, task_id)
+
+    def delete_task(self, application_id, task_id):
+        """Deletes the Application corresponding with application_id
+        """
+        path = '/v2/apps/' + application_id + '/tasks/' + task_id
+        response = self._make_request('DELETE', path)
+
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+
+    def delete_application(self, application_id):
+        """Deletes the Application corresponding with application_id
+        """
+        path = "/v2/apps/" + application_id
+        response = self._make_request('DELETE', path)
+
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+
+    def get_application(self, application_id, strip_response=True):
         """Returns detailed information for a single application.
         """
         path = "/v2/apps/" + application_id
@@ -76,7 +102,10 @@ class MarathonClient(object):
         if response.status_code == 200:
             application = response.json()['app']
             self.app_schema.validate(application)
-            return self.app_schema.strip(application)
+            if strip_response:
+                return self.app_schema.strip(application)
+            else:
+                return application
 
         # raise an appropriate error if something went wrong
         if response.status_code == 404:
@@ -84,7 +113,7 @@ class MarathonClient(object):
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
 
-    def list_applications(self):
+    def list_applications(self, strip_response=True):
         """Return a list of all applications currently deployed to marathon.
         """
         path = "/v2/apps"
@@ -93,11 +122,14 @@ class MarathonClient(object):
 
         if response.status_code == 200:
             applications = response.json()['apps']
-            stripped_applications = []
+            application_list = []
             for app in applications:
                 self.app_schema.validate(app)
-                stripped_applications.append(self.app_schema.strip(app))
-            return stripped_applications
+                if strip_response:
+                    application_list.append(self.app_schema.strip(app))
+                else:
+                    application_list.append(app)
+            return application_list
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
 
@@ -136,6 +168,7 @@ class MarathonClient(object):
 
         # raise an appropriate error if something went wrong
         if response.status_code == 409:
+            raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
             deployment_ids = ', '.join([x['id'] for x in response.json()['deployments']])
             raise ClientError("App(s) locked by one or more deployments: %s" % deployment_ids)
 
