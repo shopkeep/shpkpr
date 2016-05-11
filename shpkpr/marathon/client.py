@@ -70,11 +70,12 @@ class MarathonClient(object):
         for task_id in task_ids:
             return self.delete_task(application_id, task_id)
 
-    def delete_task(self, application_id, task_id):
+    def delete_task(self, application_id, task_id, scale=True):
         """Deletes the Application corresponding with application_id
         """
         path = '/v2/apps/' + application_id + '/tasks/' + task_id
-        response = self._make_request('DELETE', path)
+        params = {'scale': scale}
+        response = self._make_request('DELETE', path, params=params)
 
         if response.status_code == 200:
             return True
