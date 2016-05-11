@@ -74,7 +74,7 @@ class MarathonClient(object):
         """Deletes the Application corresponding with application_id
         """
         path = '/v2/apps/' + application_id + '/tasks/' + task_id
-        params = { 'scale': scale }
+        params = {'scale': scale}
         response = self._make_request('DELETE', path, params=params)
 
         if response.status_code == 200:
