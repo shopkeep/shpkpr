@@ -3,9 +3,8 @@
 # future imports
 from __future__ import absolute_import
 
-import json
-
 # third-party imports
+import json
 import requests
 from cached_property import cached_property
 
