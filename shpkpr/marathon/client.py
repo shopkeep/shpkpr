@@ -70,7 +70,7 @@ class MarathonClient(object):
     def delete_tasks(self, task_ids, scale=True):
         """Deletes and optionally scales apps for the task_ids given
         """
-        path = '/v2/apps/tasks/delete'
+        path = '/v2/tasks/delete'
         data = json.dumps({'ids': task_ids})
         params = {'scale': scale}
         response = self._make_request('POST', path, params=params, data=data)

@@ -185,5 +185,5 @@ def test_get_deployment_not_found():
 def test_delete_tasks(requests):
     client = MarathonClient("http://marathon.somedomain.com:8080")
     client.delete_tasks(['foo', 'bar'], scale=True)
-    requests.assert_called_with('http://marathon.somedomain.com:8080/v2/apps/tasks/delete',
+    requests.assert_called_with('http://marathon.somedomain.com:8080/v2/tasks/delete',
                                 data='{"ids": ["foo", "bar"]}', params={'scale': True},)
