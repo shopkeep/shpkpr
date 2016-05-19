@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 
 # third-party imports
+import json
 import requests
 from cached_property import cached_property
 
@@ -66,16 +67,14 @@ class MarathonClient(object):
         raw_schema = read_schema_from_file(self._deploy_schema_path)
         return Schema(raw_schema)
 
-    def delete_tasks(self, application_id, task_ids):
-        for task_id in task_ids:
-            return self.delete_task(application_id, task_id)
-
-    def delete_task(self, application_id, task_id, scale=True):
-        """Deletes the Application corresponding with application_id
+    def delete_tasks(self, task_ids, scale=True):
+        """Deletes and optionally scales apps for the task_ids given
         """
-        path = '/v2/apps/' + application_id + '/tasks/' + task_id
+        path = '/v2/tasks/delete'
+        data = json.dumps({'ids': task_ids})
         params = {'scale': scale}
-        response = self._make_request('DELETE', path, params=params)
+        headers = {'Content-Type': 'application/json'}
+        response = self._make_request('POST', path, headers=headers, params=params, data=data)
 
         if response.status_code == 200:
             return True
