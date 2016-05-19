@@ -73,7 +73,8 @@ class MarathonClient(object):
         path = '/v2/tasks/delete'
         data = json.dumps({'ids': task_ids})
         params = {'scale': scale}
-        response = self._make_request('POST', path, params=params, data=data)
+        headers = {'Content-Type': 'application/json'}
+        response = self._make_request('POST', path, headers=headers, params=params, data=data)
 
         if response.status_code == 200:
             return True

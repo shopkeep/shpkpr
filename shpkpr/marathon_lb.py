@@ -228,7 +228,7 @@ def swap_bluegreen_apps(logger, force, max_wait, step_interval, initial_instance
             logger.log("Scaling down old app by {} instances"
                        .format(len(drained_task_ids)))
 
-            marathon_client.delete_tasks(old_app['id'], drained_task_ids)
+            marathon_client.delete_tasks(drained_task_ids)
             continue
         else:
             return False
