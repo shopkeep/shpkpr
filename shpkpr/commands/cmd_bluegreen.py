@@ -64,7 +64,7 @@ def cli(logger, marathon_client, marathon_lb_url, initial_instances, max_wait,
         # than one stack currently active.
         previous_deploys = fetch_previous_deploys(marathon_client, app)
         if len(previous_deploys) > 1:
-            raise DualStackAlreadyExists
+            raise DualStackAlreadyExists("Both blue and green apps detected")
         # transform the app to be deployed to apply the correct labels and
         # ID-change that will allow marathon-lb to cut traffic over as necessary.
         new_app = prepare_deploy(previous_deploys, app, initial_instances)
