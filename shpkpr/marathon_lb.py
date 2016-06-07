@@ -11,6 +11,13 @@ import click
 import requests
 import six.moves.urllib as urllib
 
+# local imports
+from shpkpr import exceptions
+
+
+class SwapApplicationTimeout(exceptions.ShpkprException):
+    pass
+
 
 def _get_alias_records(hostname):
     """Return all IPv4 A records for a given hostname
@@ -173,7 +180,7 @@ def max_wait_exceeded(max_wait, timestamp):
 
 def check_time_and_sleep(max_wait, step_interval, timestamp):
     if max_wait_exceeded(max_wait, timestamp):
-        raise Exception('Max wait Time Exceeded')
+        raise SwapApplicationTimeout('Max wait Time Exceeded')
 
     return time.sleep(step_interval)
 

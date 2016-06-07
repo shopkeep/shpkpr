@@ -13,6 +13,8 @@ from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
 from shpkpr.cli.logger import pass_logger
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
+from shpkpr.marathon import DeploymentFailed
+from shpkpr.marathon_lb import SwapApplicationTimeout
 from shpkpr.marathon_lb import fetch_previous_deploys
 from shpkpr.marathon_lb import prepare_deploy
 from shpkpr.marathon_lb import select_last_deploy
@@ -70,21 +72,44 @@ def cli(logger, marathon_client, marathon_lb_url, initial_instances, max_wait,
         logger.log('Final App Definition:')
         logger.log(json.dumps(new_app, indent=4, sort_keys=True))
         if force or click.confirm("Continue with deployment?"):
-            marathon_client.deploy([new_app]).wait()
+            try:
+                deploy_and_swap(marathon_client,
+                                new_app,
+                                previous_deploys,
+                                logger,
+                                force,
+                                max_wait,
+                                step_interval,
+                                initial_instances,
+                                marathon_lb_url)
+            except (DeploymentFailed, SwapApplicationTimeout):
+                logger.log("Deployment failed: removing newly deployed stack")
+                success = marathon_client.delete_application(app['id'], force=force)
+                if success:
+                    logger.log("Successfully removed newly deployed stack: %s", app['id'])
+                else:
+                    logger.log("Unable to remove newly deployed stack, manual intervention required: %s", app['id'])
 
-            if len(previous_deploys) == 0:
-                # This was the first deploy, nothing to swap
-                return True
-            else:
-                # This is a standard blue/green deploy, swap new app with old
-                old_app = select_last_deploy(previous_deploys)
-                return swap_bluegreen_apps(logger,
-                                           force,
-                                           max_wait,
-                                           step_interval,
-                                           initial_instances,
-                                           marathon_client,
-                                           marathon_lb_url,
-                                           new_app,
-                                           old_app,
-                                           time.time())
+
+def deploy_and_swap(marathon_client, new_app, previous_deploys, logger, force,
+                    max_wait, step_interval, initial_instances, marathon_lb_url):
+    """Deploy a new application and swap traffic from the old one once complete.
+    """
+    marathon_client.deploy([new_app]).wait()
+
+    if len(previous_deploys) == 0:
+        # This was the first deploy, nothing to swap
+        return True
+    else:
+        # This is a standard blue/green deploy, swap new app with old
+        old_app = select_last_deploy(previous_deploys)
+        return swap_bluegreen_apps(logger,
+                                   force,
+                                   max_wait,
+                                   step_interval,
+                                   initial_instances,
+                                   marathon_client,
+                                   marathon_lb_url,
+                                   new_app,
+                                   old_app,
+                                   time.time())
