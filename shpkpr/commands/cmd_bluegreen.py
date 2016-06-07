@@ -90,7 +90,7 @@ def deploy_and_swap(marathon_client, new_app, previous_deploys, logger, force,
                     max_wait, step_interval, initial_instances, marathon_lb_url):
     """Deploy a new application and swap traffic from the old one once complete.
     """
-    marathon_client.deploy([new_app]).wait()
+    marathon_client.deploy([new_app]).wait(timeout=max_wait)
 
     if len(previous_deploys) == 0:
         # This was the first deploy, nothing to swap
@@ -119,3 +119,4 @@ def remove_new_stack(marathon_client, logger, app_id, force):
         logger.log("Successfully removed newly deployed stack: %s", app_id)
     else:
         logger.log("Unable to remove newly deployed stack, manual intervention required: %s", app_id)
+    raise DeploymentFailed("Deployment failed")
