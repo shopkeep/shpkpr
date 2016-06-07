@@ -401,22 +401,3 @@ def prepare_deploy(previous_deploys, app, initial_instances):
     app['labels']['HAPROXY_DEPLOYMENT_STARTED_AT'] = datetime.now().isoformat()
 
     return app
-
-
-def safe_resume_deploy(logger, force, max_wait, step_interval, initial_instances,
-                       marathon_client, marathon_lb_url, previous_deploys):
-    if force or click.confirm("Found previous deployment, resuming"):
-        new_app, old_app = select_last_two_deploys(previous_deploys)
-        return swap_bluegreen_apps(logger,
-                                   force,
-                                   max_wait,
-                                   step_interval,
-                                   initial_instances,
-                                   marathon_client,
-                                   marathon_lb_url,
-                                   new_app,
-                                   old_app,
-                                   time.time())
-    else:
-        raise Exception("There appears to be an"
-                        " existing deployment in progress")
