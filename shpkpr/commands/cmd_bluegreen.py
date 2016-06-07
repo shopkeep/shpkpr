@@ -83,12 +83,7 @@ def cli(logger, marathon_client, marathon_lb_url, initial_instances, max_wait,
                                 initial_instances,
                                 marathon_lb_url)
             except (DeploymentFailed, SwapApplicationTimeout):
-                logger.log("Deployment failed: removing newly deployed stack")
-                success = marathon_client.delete_application(app['id'], force=force)
-                if success:
-                    logger.log("Successfully removed newly deployed stack: %s", app['id'])
-                else:
-                    logger.log("Unable to remove newly deployed stack, manual intervention required: %s", app['id'])
+                remove_new_stack(marathon_client, logger, app['id'], force)
 
 
 def deploy_and_swap(marathon_client, new_app, previous_deploys, logger, force,
@@ -113,3 +108,14 @@ def deploy_and_swap(marathon_client, new_app, previous_deploys, logger, force,
                                    new_app,
                                    old_app,
                                    time.time())
+
+
+def remove_new_stack(marathon_client, logger, app_id, force):
+    """Removes the newly started stack after a deploy error
+    """
+    logger.log("Deployment failed: removing newly deployed stack")
+    success = marathon_client.delete_application(app_id, force=force)
+    if success:
+        logger.log("Successfully removed newly deployed stack: %s", app_id)
+    else:
+        logger.log("Unable to remove newly deployed stack, manual intervention required: %s", app_id)
