@@ -29,7 +29,7 @@ class DualStackAlreadyExists(exceptions.ShpkprException):
     exit_code = 2
 
     def format_message(self):
-        msg = "Both blue and green stacks detected on Marathon, please resolve"
+        msg = "Both blue and green stacks detected on Marathon, please resolve "
         msg += "before deploying. This may mean that another deploy is in progress."
         return msg
 
