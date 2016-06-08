@@ -81,11 +81,12 @@ class MarathonClient(object):
         else:
             return False
 
-    def delete_application(self, application_id):
+    def delete_application(self, application_id, force=False):
         """Deletes the Application corresponding with application_id
         """
         path = "/v2/apps/" + application_id
-        response = self._make_request('DELETE', path)
+        params = {"force": "true"} if force else {}
+        response = self._make_request('DELETE', path, params=params)
 
         if response.status_code == 200:
             return True

@@ -11,6 +11,13 @@ import click
 import requests
 import six.moves.urllib as urllib
 
+# local imports
+from shpkpr import exceptions
+
+
+class SwapApplicationTimeout(exceptions.ShpkprException):
+    pass
+
 
 def _get_alias_records(hostname):
     """Return all IPv4 A records for a given hostname
@@ -173,7 +180,7 @@ def max_wait_exceeded(max_wait, timestamp):
 
 def check_time_and_sleep(max_wait, step_interval, timestamp):
     if max_wait_exceeded(max_wait, timestamp):
-        raise Exception('Max wait Time Exceeded')
+        raise SwapApplicationTimeout('Max wait Time Exceeded')
 
     return time.sleep(step_interval)
 
@@ -401,22 +408,3 @@ def prepare_deploy(previous_deploys, app, initial_instances):
     app['labels']['HAPROXY_DEPLOYMENT_STARTED_AT'] = datetime.now().isoformat()
 
     return app
-
-
-def safe_resume_deploy(logger, force, max_wait, step_interval, initial_instances,
-                       marathon_client, marathon_lb_url, previous_deploys):
-    if force or click.confirm("Found previous deployment, resuming"):
-        new_app, old_app = select_last_two_deploys(previous_deploys)
-        return swap_bluegreen_apps(logger,
-                                   force,
-                                   max_wait,
-                                   step_interval,
-                                   initial_instances,
-                                   marathon_client,
-                                   marathon_lb_url,
-                                   new_app,
-                                   old_app,
-                                   time.time())
-    else:
-        raise Exception("There appears to be an"
-                        " existing deployment in progress")
