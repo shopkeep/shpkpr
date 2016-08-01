@@ -72,6 +72,17 @@
                     "minimum": 0,
                     "type": "integer"
                   },
+                  "labels": {
+                    "type": "object",
+                    "description": "This can be used to add metadata to be interpreted by external applications such as firewalls.",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the service hosted on this port. If provided, it must be unique over all port mappings."
+                  },
                   "protocol": {
                     "type": "string"
                   },
