@@ -330,9 +330,6 @@ def set_app_ids(app, colour):
     app['labels']['HAPROXY_APP_ID'] = app['id']
     app['id'] = app['id'] + '-' + colour
 
-    if app['id'][0] != '/':
-        app['id'] = '/' + app['id']
-
     return app
 
 
