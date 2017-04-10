@@ -26,13 +26,6 @@ application_id = click.option(
 )
 
 
-cpus = click.option(
-    '-c', '--cpus',
-    type=float,
-    help="Number of CPUs to assign to each instance of the application.",
-)
-
-
 dry_run = click.option(
     '--dry-run',
     is_flag=True,
@@ -55,13 +48,6 @@ force = click.option(
 )
 
 
-instances = click.option(
-    '-i', '--instances',
-    type=int,
-    help="Number of instances of the application to run.",
-)
-
-
 marathon_client = click.option(
     '--marathon_url',
     'marathon_client',
@@ -69,13 +55,6 @@ marathon_client = click.option(
     required=True,
     help="URL of the Marathon API to use.",
     callback=lambda c, p, v: MarathonClient(v)
-)
-
-
-mem = click.option(
-    '-m', '--mem',
-    type=int,
-    help="Amount of RAM (in MB) to assign to each instance of the application.",
 )
 
 

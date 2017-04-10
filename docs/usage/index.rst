@@ -17,7 +17,6 @@ shpkpr is mostly self-documenting, and documentation for any command can be view
       config  Manage application configuration
       deploy  Deploy application from template.
       list    Lists all deployed applications
-      scale   Scale application resources.
       show    Show application details.
 
 For more detailed usage instructions use the sections linked below:
@@ -30,5 +29,4 @@ For more detailed usage instructions use the sections linked below:
    cmd_list
    cmd_show
    cmd_config
-   cmd_scale
    cmd_deploy
