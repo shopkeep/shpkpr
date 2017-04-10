@@ -16,7 +16,6 @@ import click
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
 from shpkpr.marathon import MarathonClient
 
-
 application_id = click.option(
     '-a', '--application',
     'application_id',
@@ -78,13 +77,21 @@ template_names = click.option(
     multiple=True,
 )
 
-chronos_client = click.option(
+chronos_url = click.option(
     '--chronos_url',
-    'chronos_client',
+    'chronos_url',
     envvar="{0}_CHRONOS_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     required=True,
-    help='URL of the Chronos endpoint to use',
-    callback=lambda c, p, v: chronos.connect([v]),
+    help='URL of the Chronos endpoint to use'
+)
+
+chronos_version = click.option(
+    '--chronos_version',
+    'chronos_version',
+    envvar="{0}_CHRONOS_VERSION".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    required=False,
+    help='Verson of the Chronos endpoint to use',
+    default=None
 )
 
 job_name = click.option(

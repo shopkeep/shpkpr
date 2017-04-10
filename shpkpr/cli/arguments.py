@@ -21,7 +21,6 @@ def _env_pairs_to_dict(ctx, param, value):
             d[pair[0]] = pair[1]
     return d
 
-
 env_pairs = click.argument(
     'env_pairs',
     nargs=-1,
