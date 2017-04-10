@@ -12,6 +12,7 @@ from shpkpr.cli.logger import pass_logger
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
 
+
 def chronos_connect(chronos_url, chronos_version=None):
     return chronos.connect(chronos_url, scheduler_api_version=chronos_version)
 

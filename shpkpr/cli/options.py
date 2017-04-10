@@ -9,12 +9,12 @@ used for multiple commands.
 import os
 
 # third-party imports
-import chronos
 import click
 
 # local imports
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
 from shpkpr.marathon import MarathonClient
+
 
 application_id = click.option(
     '-a', '--application',
