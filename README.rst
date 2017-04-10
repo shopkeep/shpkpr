@@ -23,4 +23,3 @@ Features
 * Scale application resources
 * View/Modify application configuration
 * Deploy applications (using Jinja2 templates)
-* View/Tail application logs

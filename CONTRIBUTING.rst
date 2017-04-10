@@ -86,9 +86,6 @@ Ready to contribute? Here's how to set up ``shpkpr`` for local development.
     # URL of the Marathon API to use
     export SHPKPR_MARATHON_URL=http://marathon.somedomain.com:8080
 
-    # URL of the Mesos master to use
-    export SHPKPR_MESOS_MASTER_URL=http://mesos.somedomain.com:5050
-
     # An application ID to use for testing, this should not exist on
     # Marathon prior to running the tests
     export SHPKPR_APPLICATION=my-dummy-application-for-testing
