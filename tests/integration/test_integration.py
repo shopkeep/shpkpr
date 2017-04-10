@@ -49,42 +49,6 @@ def test_show(runner, env):
 
 
 @pytest.mark.integration
-def test_config_list(runner, env):
-    result = runner(["config", "list"], env=env)
-    _check_exits_zero(result)
-    _check_output_does_not_contain(result, "SOMEVALUE")
-    _check_output_does_not_contain(result, "SOMEOTHERVALUE")
-
-
-@pytest.mark.integration
-def test_config_set(runner, env):
-    result = runner(["config", "set", "SOMEVALUE=some-key", "SOMEOTHERVALUE=some-other-key"], env=env)
-    _check_exits_zero(result)
-
-
-@pytest.mark.integration
-def test_config_list_again(runner, env):
-    result = runner(["config", "list"], env=env)
-    _check_exits_zero(result)
-    _check_output_contains(result, "SOMEVALUE=some-key")
-    _check_output_contains(result, "SOMEOTHERVALUE=some-other-key")
-
-
-@pytest.mark.integration
-def test_config_unset(runner, env):
-    result = runner(["config", "unset", "SOMEVALUE", "SOMEOTHERVALUE"], env=env)
-    _check_exits_zero(result)
-
-
-@pytest.mark.integration
-def test_config_list_yet_again(runner, env):
-    result = runner(["config", "list"], env=env)
-    _check_exits_zero(result)
-    _check_output_does_not_contain(result, "SOMEVALUE")
-    _check_output_does_not_contain(result, "SOMEOTHERVALUE")
-
-
-@pytest.mark.integration
 def test_cron_show(runner, env):
     result = runner(["cron", "show"], env=env)
     _check_exits_zero(result)
