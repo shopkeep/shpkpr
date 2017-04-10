@@ -20,5 +20,4 @@ Features
 
 * List all deployed applications
 * Show detailed application info
-* View/Modify application configuration
 * Deploy applications (using Jinja2 templates)
