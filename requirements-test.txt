@@ -8,4 +8,4 @@ pytest-mccabe==0.1
 pytest-pep8==1.0.6
 responses==0.5.0
 
--e git+https://github.com/asher/chronos-python.git@e531f47d35d1d7b08d8e58abd58c3767af13f584#egg=chronos-python
+git+https://github.com/asher/chronos-python.git@e531f47d35d1d7b08d8e58abd58c3767af13f584#egg=chronos-python
