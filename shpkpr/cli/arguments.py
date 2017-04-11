@@ -28,12 +28,6 @@ env_pairs = click.argument(
     callback=_env_pairs_to_dict,
 )
 
-
-env_keys = click.argument(
-    'env_keys',
-    nargs=-1,
-)
-
 job_name = click.argument(
     'job_name',
     nargs=1,
