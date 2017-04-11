@@ -1,5 +1,6 @@
 # stdlib imports
 import json
+from distutils.version import StrictVersion
 
 # third-party imports
 import click
@@ -13,8 +14,12 @@ from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
 
 
-def chronos_connect(chronos_url, chronos_version=None):
-    return chronos.connect(chronos_url, scheduler_api_version=chronos_version)
+def chronos_connect(chronos_url, chronos_version):
+    if StrictVersion(chronos_version) >= StrictVersion('3.0.0'):
+        api_version = 'v1'
+    else:
+        api_version = None
+    return chronos.connect(chronos_url, scheduler_api_version=api_version)
 
 
 @click.group('cron', short_help='Manage Chronos Jobs', context_settings=CONTEXT_SETTINGS)

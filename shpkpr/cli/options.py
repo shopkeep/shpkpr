@@ -91,7 +91,7 @@ chronos_version = click.option(
     envvar="{0}_CHRONOS_VERSION".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     required=False,
     help='Verson of the Chronos endpoint to use',
-    default=None
+    default='3.0.2'
 )
 
 job_name = click.option(
