@@ -49,36 +49,6 @@ def test_show(runner, env):
 
 
 @pytest.mark.integration
-def test_scale(runner, env):
-    result = runner(["scale", "--instances=3", "--cpus=0.1", "--mem=512"], env=env)
-    _check_exits_zero(result)
-
-
-@pytest.mark.integration
-def test_show_again(runner, env):
-    result = runner(["show"], env=env)
-    _check_exits_zero(result)
-    _check_output_contains(result, "Instances:    %s" % 3)
-    _check_output_contains(result, "CPUs:         %s" % 0.1)
-    _check_output_contains(result, "RAM:          %s" % 512)
-
-
-@pytest.mark.integration
-def test_scale_again(runner, env):
-    result = runner(["scale", "--instances=2", "--cpus=0.1", "--mem=256"], env=env)
-    _check_exits_zero(result)
-
-
-@pytest.mark.integration
-def test_show_yet_again(runner, env):
-    result = runner(["show"], env=env)
-    _check_exits_zero(result)
-    _check_output_contains(result, "Instances:    %s" % 2)
-    _check_output_contains(result, "CPUs:         %s" % 0.1)
-    _check_output_contains(result, "RAM:          %s" % 256)
-
-
-@pytest.mark.integration
 def test_config_list(runner, env):
     result = runner(["config", "list"], env=env)
     _check_exits_zero(result)
