@@ -10,4 +10,5 @@ tests/integration/__pycache__
 .tox
 .coverage
 .env
+.env.integration
 docs/_build
