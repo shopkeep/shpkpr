@@ -11,14 +11,12 @@ shpkpr is mostly self-documenting, and documentation for any command can be view
 
     Options:
       --marathon_url TEXT      URL of the Marathon API to use.
-      --mesos_master_url TEXT  URL of the Mesos master to use.
       --help                   Show this message and exit.
 
     Commands:
       config  Manage application configuration
       deploy  Deploy application from template.
       list    Lists all deployed applications
-      logs    View/tail application logs.
       scale   Scale application resources.
       show    Show application details.
 
@@ -34,4 +32,3 @@ For more detailed usage instructions use the sections linked below:
    cmd_config
    cmd_scale
    cmd_deploy
-   cmd_logs

@@ -15,7 +15,6 @@ import click
 # local imports
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
 from shpkpr.marathon import MarathonClient
-from shpkpr.mesos import MesosClient
 
 
 application_id = click.option(
@@ -24,13 +23,6 @@ application_id = click.option(
     envvar="{0}_APPLICATION".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     required=True,
     help="ID/name of the application to scale.",
-)
-
-
-completed = click.option(
-    '-c', '--completed',
-    is_flag=True,
-    help='Show logs for completed tasks.',
 )
 
 
@@ -56,13 +48,6 @@ env_prefix = click.option(
 )
 
 
-follow = click.option(
-    '-f', '--follow',
-    is_flag=True,
-    help='Enables follow mode.',
-)
-
-
 force = click.option(
     '--force',
     is_flag=True,
@@ -74,14 +59,6 @@ instances = click.option(
     '-i', '--instances',
     type=int,
     help="Number of instances of the application to run.",
-)
-
-
-lines = click.option(
-    '-n', '--lines',
-    type=int,
-    help='Number of lines to show in tail output.',
-    default=10,
 )
 
 
@@ -99,25 +76,6 @@ mem = click.option(
     '-m', '--mem',
     type=int,
     help="Amount of RAM (in MB) to assign to each instance of the application.",
-)
-
-
-mesos_client = click.option(
-    '--mesos_master_url',
-    'mesos_client',
-    envvar="{0}_MESOS_MASTER_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
-    required=True,
-    help="URL of the Mesos master to use.",
-    callback=lambda c, p, v: MesosClient(v)
-)
-
-
-stream = click.option(
-    '--file',
-    'stream',
-    envvar="{0}_FILE".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
-    help='Which sandbox file to read from.',
-    default="stdout",
 )
 
 
