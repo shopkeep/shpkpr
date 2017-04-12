@@ -8,3 +8,5 @@ tests/__pycache__
 .tox
 .coverage
 .git/
+.env
+.env.integration

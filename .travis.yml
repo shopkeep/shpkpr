@@ -1,13 +1,13 @@
-sudo: required
+language: python
+python:
+- "2.7"
+- "3.3"
+- "3.4"
+- "3.5"
+- "3.6"
+- "pypy"
 
-services:
-  - docker
-
-env:
-  - TEST_TARGET=test.2.7
-  - TEST_TARGET=test.3.3
-  - TEST_TARGET=test.3.5
-  - TEST_TARGET=test.pypy
-
+install:
+- pip install tox
 script:
-  - make $TEST_TARGET
+- tox -e $(echo py$TRAVIS_PYTHON_VERSION | tr -d . | sed -e 's/pypypy/pypy/')
