@@ -15,7 +15,6 @@ shpkpr is mostly self-documenting, and documentation for any command can be view
 
     Commands:
       deploy  Deploy application from template.
-      list    Lists all deployed applications
       show    Show application details.
 
 For more detailed usage instructions use the sections linked below:
@@ -25,6 +24,5 @@ For more detailed usage instructions use the sections linked below:
 
    configuration
 
-   cmd_list
    cmd_show
    cmd_deploy

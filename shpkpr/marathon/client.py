@@ -134,12 +134,6 @@ class MarathonClient(object):
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
 
-    def list_application_ids(self):
-        """Returns ids of all applications currently deployed to marathon.
-        """
-
-        return sorted([app['id'].lstrip('/') for app in self.list_applications()])
-
     def deploy(self, application_payload, force=False):
         """Deploys the given application(s) to Marathon.
         """

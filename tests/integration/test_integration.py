@@ -6,6 +6,10 @@ def _check_exits_zero(result):
     assert result.exit_code == 0
 
 
+def _check_exits_non_zero(result):
+    assert result.exit_code != 0
+
+
 def _check_output_contains(result, match):
     assert match in result.output
 
@@ -22,10 +26,10 @@ def test_help(runner, env):
 
 
 @pytest.mark.integration
-def test_list(runner, env):
-    result = runner(["list"], env=env)
-    _check_exits_zero(result)
-    _check_output_does_not_contain(result, env['SHPKPR_APPLICATION'])
+def test_show(runner, env):
+    result = runner(["show"], env=env)
+    _check_exits_non_zero(result)
+    _check_output_contains(result, "Unable to retrieve application details from marathon: does not exist.")
 
 
 @pytest.mark.integration
@@ -35,14 +39,7 @@ def test_deploy(runner, env):
 
 
 @pytest.mark.integration
-def test_list_again(runner, env):
-    result = runner(["list"], env=env)
-    _check_exits_zero(result)
-    _check_output_contains(result, env['SHPKPR_APPLICATION'])
-
-
-@pytest.mark.integration
-def test_show(runner, env):
+def test_show_again(runner, env):
     result = runner(["show"], env=env)
     _check_exits_zero(result)
     _check_output_contains(result, "ID:           %s" % env['SHPKPR_APPLICATION'])
