@@ -15,7 +15,7 @@ docs.watch: docs ## Watch for file changes and regenerate documentation as requi
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 
 build-test:
-	docker build -t shpkpr-test .
+	docker build -f Dockerfile.test -t shpkpr-test .
 
 # User-defined function to allow easy running of our tests inside Docker
 docker-test = docker run -i -v `pwd`:/src:ro $(1) --rm shpkpr-test $(2)
