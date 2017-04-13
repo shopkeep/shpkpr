@@ -28,3 +28,4 @@ For more detailed usage instructions use the sections linked below:
    cmd_list
    cmd_show
    cmd_deploy
+   cmd_cron
