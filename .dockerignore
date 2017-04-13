@@ -5,6 +5,7 @@ dist
 *.pyc
 *.pyo
 tests/__pycache__
+.eggs/
 .tox
 .coverage
 .git/
