@@ -30,7 +30,8 @@ def test_list(runner, env):
 
 @pytest.mark.integration
 def test_deploy(runner, env):
-    result = runner(["deploy", "-t", "tests/test.json.tmpl", "RANDOM_LABEL=some_value"], env=env)
+    _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
+    result = runner(["deploy", "-t", _tmpl_path, "RANDOM_LABEL=some_value"], env=env)
     _check_exits_zero(result)
 
 
@@ -56,13 +57,8 @@ def test_cron_show(runner, env):
 
 @pytest.mark.integration
 def test_cron_set(runner, env):
-    result = runner(
-        [
-         "cron", "set",
-         "--template", "tests/test-chronos.json.tmpl",
-         "CHRONOS_JOB_NAME=shpkpr-test-job",
-        ],
-        env=env)
+    _tmpl_path = 'tests/fixtures/templates/chronos/test-chronos.json.tmpl'
+    result = runner(["cron", "set", "--template", _tmpl_path, "CHRONOS_JOB_NAME=shpkpr-test-job"], env=env)
     _check_exits_zero(result)
 
 

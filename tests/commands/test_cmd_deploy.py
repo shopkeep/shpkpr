@@ -35,7 +35,8 @@ def test_no_force(mock_deployment_wait, runner, json_fixture):
         'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
         'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
     }
-    result = runner(['deploy', '--template', 'tests/test.json.tmpl', 'RANDOM_LABEL=some_value'], env=env)
+    _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
+    result = runner(['deploy', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)
 
     assert result.exit_code == 0
 
@@ -57,7 +58,8 @@ def test_force(mock_deployment_wait, runner, json_fixture):
         'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
         'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
     }
-    result = runner(['deploy', '--template', 'tests/test.json.tmpl', '--force', 'RANDOM_LABEL=some_value'], env=env)
+    _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
+    result = runner(['deploy', '--template', _tmpl_path, '--force', 'RANDOM_LABEL=some_value'], env=env)
 
     assert result.exit_code == 0
 
@@ -81,7 +83,9 @@ def test_multiple_templates(mock_deployment_wait, runner, json_fixture):
         'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
         'SHPKPR_RANDOM_LABEL': 'some_value',
     }
-    result = runner(['deploy', '--template', 'tests/test.json.tmpl', '--template', 'tests/test-2.json.tmpl'], env=env)
+    _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
+    _tmpl_path_2 = "tests/fixtures/templates/marathon/test-2.json.tmpl"
+    result = runner(['deploy', '--template', _tmpl_path, '--template', _tmpl_path_2], env=env)
 
     assert result.exit_code == 0
 
@@ -95,7 +99,8 @@ def test_dry_run(runner, json_fixture):
         'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
         'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
     }
-    result = runner(['deploy', '--dry-run', '--template', 'tests/test.json.tmpl', 'RANDOM_LABEL=some_value'], env=env)
+    _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
+    result = runner(['deploy', '--dry-run', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)
 
     assert result.exit_code == 0
     assert '--dry-run' in result.output
@@ -109,6 +114,7 @@ def test_dry_run_fail(runner, json_fixture):
         'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
         'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
     }
-    result = runner(['deploy', '--dry-run', '--template', 'tests/test.json.tmpl', 'RANDOM_LABEL=some_value'], env=env)
+    _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
+    result = runner(['deploy', '--dry-run', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)
 
     assert not result.exit_code == 0

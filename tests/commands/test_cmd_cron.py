@@ -50,7 +50,8 @@ def test_set(mock_chronos_add, mock_chronos_list, runner, json_fixture):
     mock_chronos_list.return_value = []
     mock_chronos_add.return_value = True
 
-    result = runner(['cron', 'set', '--template', 'tests/test-chronos.json.tmpl'], env={
+    _tmpl_path = 'tests/fixtures/templates/chronos/test-chronos.json.tmpl'
+    result = runner(['cron', 'set', '--template', _tmpl_path], env={
         'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
         'SHPKPR_CHRONOS_JOB_NAME': 'shpkpr-test-job',
     })
@@ -65,11 +66,13 @@ def test_set_multiple(mock_chronos_add, mock_chronos_list, runner):
     mock_chronos_list.return_value = []
     mock_chronos_add.return_value = True
 
+    _tmpl_path = 'tests/fixtures/templates/chronos/test-chronos.json.tmpl'
+    _tmpl_path_2 = 'tests/fixtures/templates/chronos/test-chronos-2.json.tmpl'
     result = runner(
         [
          'cron', 'set',
-         '--template', 'tests/test-chronos.json.tmpl',
-         '--template', 'tests/test-chronos-2.json.tmpl'
+         '--template', _tmpl_path,
+         '--template', _tmpl_path_2,
         ],
         env={
             'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
@@ -89,7 +92,8 @@ def test_set_update(mock_chronos_add, mock_chronos_update, mock_chronos_list, ru
     mock_chronos_list.return_value = [{'name': 'shpkpr-test-job'}]
     mock_chronos_update.return_value = True
 
-    result = runner(['cron', 'set', '--template', 'tests/test-chronos.json.tmpl'], env={
+    _tmpl_path = 'tests/fixtures/templates/chronos/test-chronos.json.tmpl'
+    result = runner(['cron', 'set', '--template', _tmpl_path], env={
         'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
         'SHPKPR_CHRONOS_JOB_NAME': 'shpkpr-test-job',
     })
