@@ -2,6 +2,7 @@ build
 dist
 .cache
 *.egg-info
+.eggs
 *.pyc
 *.pyo
 tests/__pycache__
