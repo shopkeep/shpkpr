@@ -8,7 +8,6 @@ import mock
 # local imports
 from shpkpr.marathon_lb import get_marathon_lb_urls
 from shpkpr.marathon_lb import prepare_deploy
-from shpkpr.marathon_lb import scale_new_app_instances
 from shpkpr.marathon_lb import parse_haproxy_stats
 from shpkpr.marathon_lb import fetch_app_listeners
 from shpkpr.marathon_lb import get_svnames_from_tasks
@@ -47,67 +46,21 @@ def test_get_marathon_lb_urls():
 def test_prepare_deploy_swap_colors():
     previous_apps = _load_marathon_apps()
     blue_app = _load_blue_app()
-    initial_instances = 5
 
-    deploy = prepare_deploy(previous_apps, blue_app, initial_instances)
+    deploy = prepare_deploy(previous_apps, blue_app)
 
     assert deploy['labels']['HAPROXY_DEPLOYMENT_COLOUR'] == 'green'
-    assert deploy['instances'] == initial_instances
+    assert deploy['instances'] == blue_app['instances']
 
 
 def test_prepare_deploy_first_deploy():
     previous_apps = []
     blue_app = _load_blue_app()
-    initial_instances = 5
 
-    deploy = prepare_deploy(previous_apps, blue_app, initial_instances)
+    deploy = prepare_deploy(previous_apps, blue_app)
 
     assert deploy['labels']['HAPROXY_DEPLOYMENT_COLOUR'] == 'blue'
     assert deploy['instances'] == blue_app['instances']
-
-
-@mock.patch('shpkpr.cli.logger.Logger')
-@mock.patch('shpkpr.marathon.client')
-@mock.patch('shpkpr.marathon_lb.scale_marathon_app_instances')
-def test_scale_new_app_instances_up_50_percent(scale_marathon_app_instances,
-                                               marathon_client, logger):
-    """When scaling new_app instances, increase instances by 50% of
-       existing instances if we have not yet met or surpassed the amount
-       of instances deployed by old_app
-    """
-    new_app = {
-        'instances': 10,
-        'labels': {
-            'HAPROXY_DEPLOYMENT_TARGET_INSTANCES': 30
-        }
-    }
-    old_app = {'instances': 30}
-    scale_new_app_instances(logger, marathon_client, new_app, old_app)
-
-    scale_marathon_app_instances.assert_called_with(
-      marathon_client, new_app, 15)
-
-
-@mock.patch('shpkpr.cli.logger.Logger')
-@mock.patch('shpkpr.marathon.client')
-@mock.patch('shpkpr.marathon_lb.scale_marathon_app_instances')
-def test_scale_new_app_instances_to_target(scale_marathon_app_instances,
-                                           marathon_client, logger):
-    """When scaling new instances up, if we have met or surpassed the
-       amount of instances deployed for old_app, go right to our
-       deployment target amount of instances for new_app
-    """
-    new_app = {
-        'instances': 10,
-        'labels': {
-            'HAPROXY_DEPLOYMENT_TARGET_INSTANCES': 30
-        }
-    }
-    old_app = {'instances': 8}
-    scale_new_app_instances(logger, marathon_client, new_app, old_app)
-
-    scale_marathon_app_instances.assert_called_with(
-      marathon_client, new_app, 30)
 
 
 def test_parse_haproxy_stats():
