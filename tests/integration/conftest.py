@@ -16,7 +16,9 @@ def env():
     # that they're set appropriately
     env = {
         "SHPKPR_MARATHON_URL": os.environ.get("SHPKPR_MARATHON_URL", None),
+        "SHPKPR_MARATHON_LB_URL": os.environ.get("SHPKPR_MARATHON_LB_URL", None),
         "SHPKPR_APPLICATION": os.environ.get("SHPKPR_APPLICATION", None),
+        "SHPKPR_DEPLOYMENT_GROUP": os.environ.get("SHPKPR_DEPLOYMENT_GROUP", None),
         "SHPKPR_DOCKER_REPOTAG": os.environ.get("SHPKPR_DOCKER_REPOTAG", None),
         "SHPKPR_DOCKER_EXPOSED_PORT": os.environ.get("SHPKPR_DOCKER_EXPOSED_PORT", None),
         "SHPKPR_DEPLOY_DOMAIN": os.environ.get("SHPKPR_DEPLOY_DOMAIN", None),

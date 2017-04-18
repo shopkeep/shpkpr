@@ -1,19 +1,19 @@
 {
-  "id": "{{APPLICATION}}",
+  "id": "{{APPLICATION}}-bluegreen",
   "cpus": 0.1,
-  "mem": 512,
-  "instances": 1,
+  "mem": 256,
+  "instances": 4,
   "container": {
     "type": "DOCKER",
     "docker": {
       "image": "{{DOCKER_REPOTAG}}",
-      "forcePullImage": false,
       "network": "BRIDGE",
       "portMappings": [
         {
           "containerPort": {{DOCKER_EXPOSED_PORT}},
           "hostPort": 0,
-          "protocol": "tcp"
+          "protocol": "tcp",
+          "servicePort": 11090
         }
       ]
     }
@@ -30,19 +30,16 @@
     }
   ],
   "constraints": [
-    [
-      "hostname",
-      "UNIQUE"
-    ],
-    [
-      "subnet", "LIKE", "internal"
-    ]
+    ["hostname", "UNIQUE"]
   ],
   "upgradeStrategy": {
       "minimumHealthCapacity": 1,
       "maximumOverCapacity": 1
   },
   "labels": {
-    "RANDOM_LABEL": "{{RANDOM_LABEL}}"
+      "HAPROXY_DEPLOYMENT_GROUP": "{{DEPLOYMENT_GROUP}}",
+      "HAPROXY_GROUP": "internal",
+      "HAPROXY_DEPLOYMENT_ALT_PORT": "11091",
+      "HAPROXY_0_VHOST": "{{DEPLOY_DOMAIN}}"
   }
 }
