@@ -179,13 +179,3 @@ def test_get_deployment_not_found():
     client = MarathonClient("http://marathon.somedomain.com:8080")
     with pytest.raises(DeploymentNotFound):
         client.get_deployment("1234")
-
-
-@mock.patch('requests.post')
-def test_delete_tasks(requests):
-    client = MarathonClient("http://marathon.somedomain.com:8080")
-    client.delete_tasks(['foo', 'bar'], scale=True)
-    requests.assert_called_with('http://marathon.somedomain.com:8080/v2/tasks/delete',
-                                data='{"ids": ["foo", "bar"]}',
-                                headers={'Content-Type': 'application/json'},
-                                params={'scale': True},)
