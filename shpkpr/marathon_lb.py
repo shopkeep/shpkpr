@@ -2,7 +2,6 @@
 from collections import namedtuple
 import csv
 from datetime import datetime
-import math
 import socket
 import time
 
@@ -13,6 +12,11 @@ import six.moves.urllib as urllib
 
 # local imports
 from shpkpr import exceptions
+
+
+# amount of time (in seconds) between subsequent polls of the load balancer
+# during a blue/green deploy.
+MARATHON_LB_POLL_INTERVAL = 5
 
 
 class SwapApplicationTimeout(exceptions.ShpkprException):
@@ -178,19 +182,18 @@ def max_wait_exceeded(max_wait, timestamp):
     return (time.time() - timestamp > max_wait)
 
 
-def check_time_and_sleep(max_wait, step_interval, timestamp):
+def check_time_and_sleep(max_wait, timestamp):
     if max_wait_exceeded(max_wait, timestamp):
         raise SwapApplicationTimeout('Max wait Time Exceeded')
 
-    return time.sleep(step_interval)
+    return time.sleep(MARATHON_LB_POLL_INTERVAL)
 
 
-def swap_bluegreen_apps(logger, force, max_wait, step_interval, initial_instances,
-                        marathon_client, marathon_lb_url, new_app, old_app,
-                        timestamp):
+def swap_bluegreen_apps(logger, force, max_wait, marathon_client,
+                        marathon_lb_url, new_app, old_app, timestamp):
     while True:
 
-        check_time_and_sleep(max_wait, step_interval, timestamp)
+        check_time_and_sleep(max_wait, timestamp)
 
         old_app = marathon_client.get_application(old_app['id'], strip_response=False)
         new_app = marathon_client.get_application(new_app['id'], strip_response=False)
@@ -223,23 +226,6 @@ def swap_bluegreen_apps(logger, force, max_wait, step_interval, initial_instance
             logger.log("About to delete old app {}".format(old_app['id']))
             return safe_delete_app(force, marathon_client, old_app)
 
-        logger.log("There are {} drained listeners, "
-                   "about to kill & scale for these tasks:\n  - {}"
-                   .format(len(drained_task_ids),
-                           "\n  - ".join(drained_task_ids)))
-
-        if force or click.confirm("Continue?"):
-            scale_new_app_instances(logger, marathon_client, new_app, old_app)
-
-            # Kill any drained tasks
-            logger.log("Scaling down old app by {} instances"
-                       .format(len(drained_task_ids)))
-
-            marathon_client.delete_tasks(drained_task_ids)
-            continue
-        else:
-            return False
-
 
 def waiting_on_marathon_lb(logger, marathon_lb_urls, new_app, old_app,
                            listeners, haproxy_count):
@@ -267,31 +253,12 @@ def waiting_for_drained_listeners(listeners):
     return len(select_drained_listeners(listeners)) < 1
 
 
-def scale_new_app_instances(logger, marathon_client, new_app, old_app):
-    """Scale the app by 50% of its existing instances until we
-       meet or surpass instances deployed for old_app.
-       At which point go right to the new_app deployment target
-    """
-    instances = (math.floor(new_app['instances'] +
-                 (new_app['instances'] + 1) / 2))
-    if instances >= old_app['instances']:
-        instances = get_deployment_target(new_app)
-
-    logger.log("Scaling new app up to {} instances".format(int(instances)))
-    return scale_marathon_app_instances(marathon_client, new_app, instances)
-
-
 def safe_delete_app(force, marathon_client, app):
     if force or click.confirm("Continue?"):
         marathon_client.delete_application(app['id'])
         return True
     else:
         return False
-
-
-def scale_marathon_app_instances(marathon_client, app, instances):
-    app = {'id': app['id'], 'instances': int(instances)}
-    return marathon_client.deploy([app]).wait()
 
 
 def get_service_port(app):
@@ -368,10 +335,6 @@ def select_last_deploy(apps):
     return sort_deploys(apps).pop()
 
 
-def select_last_two_deploys(apps):
-    return sort_deploys(apps)[:-3:-1]
-
-
 def get_deployment_group(app):
     return app.get('labels', {}).get('HAPROXY_DEPLOYMENT_GROUP')
 
@@ -382,13 +345,11 @@ def fetch_previous_deploys(marathon_client, app):
     return [a for a in apps if get_deployment_group(a) == app_deployment_group]
 
 
-def prepare_deploy(previous_deploys, app, initial_instances):
+def prepare_deploy(previous_deploys, app):
     """ Return a blue or a green version of `app` based on prexisting deploys
     """
     if len(previous_deploys) > 0:
         last_deploy = select_last_deploy(previous_deploys)
-
-        app['instances'] = initial_instances
         next_colour = select_next_colour(last_deploy)
         next_port = select_next_port(last_deploy)
         deployment_target_instances = last_deploy['instances']

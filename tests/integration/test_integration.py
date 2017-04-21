@@ -94,3 +94,31 @@ def test_cron_show_after_delete(runner, env):
 
     _check_output_does_not_contain(result, '"name": "shpkpr-test-job"')
     _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_bluegreen_deploy(runner, env):
+    _tmpl_path = "tests/fixtures/templates/marathon/test-bluegreen.json.tmpl"
+    result = runner(["bluegreen", "-t", _tmpl_path, "--force"], env=env)
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_ensure_bluegreen_deployed(runner, env):
+    result = runner(["list"], env=env)
+    _check_exits_zero(result)
+    _check_output_contains(result, env['SHPKPR_APPLICATION'] + "-bluegreen-blue")
+
+
+@pytest.mark.integration
+def test_bluegreen_deploy_with_existing_app(runner, env):
+    _tmpl_path = "tests/fixtures/templates/marathon/test-bluegreen.json.tmpl"
+    result = runner(["bluegreen", "-t", _tmpl_path, "--force"], env=env)
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_ensure_bluegreen_swapped(runner, env):
+    result = runner(["list"], env=env)
+    _check_exits_zero(result)
+    _check_output_contains(result, env['SHPKPR_APPLICATION'] + "-bluegreen-green")

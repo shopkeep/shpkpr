@@ -97,7 +97,6 @@ def test_dry_run(runner, json_fixture):
         'SHPKPR_APPLICATION': 'test-app',
         'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
         'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
-        'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
     }
     _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
     result = runner(['deploy', '--dry-run', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)
@@ -112,7 +111,6 @@ def test_dry_run_fail(runner, json_fixture):
         'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
         'SHPKPR_APPLICATION': 'test-app',
         'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
-        'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
     }
     _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
     result = runner(['deploy', '--dry-run', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)

@@ -103,30 +103,11 @@ marathon_lb_url = click.option(
 )
 
 
-initial_instances = click.option(
-    '--initial-instances',
-    type=int,
-    help='Ammount of instances to launch before continuing deploy',
-    envvar="{0}_INITIAL_INSTANCES".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
-    default=5,
-)
-
-
 max_wait = click.option(
     '--max-wait',
     'max_wait',
     type=int,
-    help='Maximum amount of time to wait for command to finish',
+    help='Maximum amount of time to wait for deployment to finish before aborting.',
     envvar="{0}_MAX_WAIT".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     default=300,
-)
-
-
-step_interval = click.option(
-    '--step-interval',
-    'step_interval',
-    type=int,
-    envvar="{0}_STEP_INTERVAL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
-    help='Time to wait between steps in command',
-    default=5,
 )

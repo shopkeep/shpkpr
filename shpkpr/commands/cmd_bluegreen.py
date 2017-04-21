@@ -42,13 +42,11 @@ class DualStackAlreadyExists(exceptions.ShpkprException):
 @options.env_prefix
 @options.marathon_client
 @options.marathon_lb_url
-@options.initial_instances
 @options.max_wait
-@options.step_interval
 @options.force
 @pass_logger
-def cli(logger, marathon_client, marathon_lb_url, initial_instances, max_wait,
-        step_interval, force, env_prefix, template_path, template_names, env_pairs):
+def cli(logger, marathon_client, marathon_lb_url, max_wait, force, env_prefix,
+        template_path, template_names, env_pairs):
     """Perform a blue/green deploy
     """
     values = load_values_from_environment(prefix=env_prefix, overrides=env_pairs)
@@ -67,7 +65,7 @@ def cli(logger, marathon_client, marathon_lb_url, initial_instances, max_wait,
             raise DualStackAlreadyExists("Both blue and green apps detected")
         # transform the app to be deployed to apply the correct labels and
         # ID-change that will allow marathon-lb to cut traffic over as necessary.
-        new_app = prepare_deploy(previous_deploys, app, initial_instances)
+        new_app = prepare_deploy(previous_deploys, app)
 
         logger.log('Final App Definition:')
         logger.log(json.dumps(new_app, indent=4, sort_keys=True))
@@ -79,15 +77,13 @@ def cli(logger, marathon_client, marathon_lb_url, initial_instances, max_wait,
                                 logger,
                                 force,
                                 max_wait,
-                                step_interval,
-                                initial_instances,
                                 marathon_lb_url)
             except (DeploymentFailed, SwapApplicationTimeout):
                 remove_new_stack(marathon_client, logger, app['id'], force)
 
 
 def deploy_and_swap(marathon_client, new_app, previous_deploys, logger, force,
-                    max_wait, step_interval, initial_instances, marathon_lb_url):
+                    max_wait, marathon_lb_url):
     """Deploy a new application and swap traffic from the old one once complete.
     """
     marathon_client.deploy([new_app]).wait(timeout=max_wait)
@@ -101,8 +97,6 @@ def deploy_and_swap(marathon_client, new_app, previous_deploys, logger, force,
         return swap_bluegreen_apps(logger,
                                    force,
                                    max_wait,
-                                   step_interval,
-                                   initial_instances,
                                    marathon_client,
                                    marathon_lb_url,
                                    new_app,
