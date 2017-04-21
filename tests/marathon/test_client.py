@@ -59,30 +59,6 @@ def test_get_application_internal_server_error():
 
 
 @responses.activate
-def test_list_application_ids():
-    responses.add(responses.GET,
-                  'http://marathon.somedomain.com:8080/v2/apps',
-                  status=200,
-                  json=_load_json_fixture("valid_apps"))
-
-    client = MarathonClient("http://marathon.somedomain.com:8080")
-    application_ids = client.list_application_ids()
-    assert application_ids == ['test-app-a', 'test-app-b', 'test-app-c']
-
-
-@responses.activate
-def test_list_application_ids_internal_server_error():
-    responses.add(responses.GET,
-                  'http://marathon.somedomain.com:8080/v2/apps',
-                  status=500,
-                  body="Internal Server Error")
-
-    client = MarathonClient("http://marathon.somedomain.com:8080")
-    with pytest.raises(ClientError):
-        client.list_application_ids()
-
-
-@responses.activate
 @mock.patch('shpkpr.marathon.MarathonDeployment.check')
 def test_deploy(mock_deployment_check):
     responses.add(responses.PUT,
