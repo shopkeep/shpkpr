@@ -45,7 +45,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'cached-property>=1.3.0, <2',
-        'chronos-python>=0.35.0, <1.0.0',
+        'chronos-python>=1.0.0',
         'click>=6.0, <7',
         'jinja2>=2.6, <3',
         'jsonschema>=2.6, <3',
