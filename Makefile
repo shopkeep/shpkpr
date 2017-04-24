@@ -24,22 +24,22 @@ test: clean build-test ## Run tests against all supported Python versions (2.7, 
 	$(call docker-test)
 
 test.2.7: clean build-test ## Run Python 2.7 tests inside Docker
-	$(call docker-test,,tox -e py27)
+	$(call docker-test,,tox -e py27-lowest -e py27-current)
 
 test.3.3: clean build-test ## Run Python 3.3 tests inside Docker
-	$(call docker-test,,tox -e py33)
+	$(call docker-test,,tox -e py33-lowest -e py33-current)
 
 test.3.4: clean build-test ## Run Python 3.4 tests inside Docker
-	$(call docker-test,,tox -e py34)
+	$(call docker-test,,tox -e py34-lowest -e py34-current)
 
 test.3.5: clean build-test ## Run Python 3.5 tests inside Docker
-	$(call docker-test,,tox -e py35)
+	$(call docker-test,,tox -e py35-lowest -e py35-current)
 
 test.3.6: clean build-test ## Run Python 3.6 tests inside Docker
-	$(call docker-test,,tox -e py36)
+	$(call docker-test,,tox -e py36-lowest -e py36-current)
 
 test.pypy: clean build-test ## Run PyPy 2 tests inside Docker
-	$(call docker-test,,tox -e pypy)
+	$(call docker-test,,tox -e pypy-lowest,pypy-current)
 
 test.integration: clean build-test ## Run integration tests inside Docker
 	$(shell env | grep SHPKPR > .env.integration)

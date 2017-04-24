@@ -2,8 +2,16 @@
 from setuptools import setup
 
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
+try:
+    with open('README.rst') as readme_file:
+        readme = readme_file.read()
+except IOError:
+    # README is not always available at the time this file is imported. This
+    # really only applies during an initial container build when we copy in
+    # setup.py but not the README. This is mostly to help with caching and
+    # keeping the time required to run the tests to a minimum. This should never
+    # make it into an actual build or release package.
+    readme = "Not Available"
 
 
 
@@ -25,12 +33,12 @@ setup(
         'click>=6.0, <7',
         'jinja2>=2.6, <3',
         'jsonschema>=2.6, <3',
-        'six>=1, <2',
-        'requests>=2, <3',
+        'six>=1.7.0',
+        'requests>=2.4.2',
     ],
     license='MIT',
     zip_safe=False,
-    keywords='shpkpr mesos marathon',
+    keywords='shpkpr mesos marathon chronos',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
@@ -43,6 +51,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
     entry_points='''
         [console_scripts]

@@ -1,4 +1,7 @@
-FROM themattrix/tox
+FROM themattrix/tox-base
+
+COPY requirements-test.txt setup.py tox.ini /app/
+RUN bash -c "TOXBUILD=true tox"
 
 RUN chown -R tox:tox /app/
 COPY docker-entrypoint.sh /
