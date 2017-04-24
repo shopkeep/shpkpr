@@ -1,3 +1,6 @@
+# stdlib imports
+import copy
+
 # third-party imports
 import pytest
 
@@ -105,9 +108,12 @@ def test_bluegreen_deploy(runner, env):
 
 @pytest.mark.integration
 def test_ensure_bluegreen_deployed(runner, env):
-    result = runner(["list"], env=env)
+    local_env = copy.deepcopy(env)
+    local_env["SHPKPR_APPLICATION"] = "shpkpr-test/integration-test-bluegreen-blue"
+
+    result = runner(["show"], env=local_env)
     _check_exits_zero(result)
-    _check_output_contains(result, env['SHPKPR_APPLICATION'] + "-bluegreen-blue")
+    _check_output_contains(result, "shpkpr-test/integration-test-bluegreen-blue")
 
 
 @pytest.mark.integration
@@ -119,6 +125,9 @@ def test_bluegreen_deploy_with_existing_app(runner, env):
 
 @pytest.mark.integration
 def test_ensure_bluegreen_swapped(runner, env):
-    result = runner(["list"], env=env)
+    local_env = copy.deepcopy(env)
+    local_env["SHPKPR_APPLICATION"] = "shpkpr-test/integration-test-bluegreen-green"
+
+    result = runner(["show"], env=local_env)
     _check_exits_zero(result)
-    _check_output_contains(result, env['SHPKPR_APPLICATION'] + "-bluegreen-green")
+    _check_output_contains(result, "shpkpr-test/integration-test-bluegreen-green")
