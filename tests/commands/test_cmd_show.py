@@ -1,5 +1,9 @@
+# stdlib imports
+import json
+
 # third-party imports
 import responses
+import yaml
 from click.testing import CliRunner
 
 # local imports
@@ -20,11 +24,11 @@ def test_help():
 
     assert result.exit_code == 0
     assert 'Usage:' in result.output
-    assert 'Shows detailed information for a single application.' in result.output
+    assert 'Shows detailed information for one or more applications.' in result.output
 
 
 @responses.activate
-def test_task_output(runner, json_fixture):
+def test_show_single_app(runner, json_fixture):
     responses.add(responses.GET,
                   'http://marathon.somedomain.com:8080/v2/apps/test-app',
                   status=200,
@@ -34,9 +38,61 @@ def test_task_output(runner, json_fixture):
         'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
         'SHPKPR_APPLICATION': 'test-app',
     })
-
-    assert "ID:   test-app.4f923863-92a5-11e5-96b3-0e6bed2f38c7" in result.output
-    assert "Host: 10.210.79.53:31001" in result.output
-    assert "ID:   test-app.66c575bb-9441-11e5-8523-0a61f3a56943" in result.output
-    assert "Host: 10.210.51.111:31000" in result.output
     assert result.exit_code == 0
+
+    parsed_payload = json.loads(result.output)
+    assert isinstance(parsed_payload, dict)
+    assert parsed_payload["id"] == "/test-app"
+
+
+@responses.activate
+def test_show_multiple_apps(runner, json_fixture):
+    responses.add(responses.GET,
+                  'http://marathon.somedomain.com:8080/v2/apps',
+                  status=200,
+                  json=json_fixture("valid_apps"))
+
+    result = runner(['show'], env={
+        'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
+    })
+    assert result.exit_code == 0
+
+    parsed_payload = json.loads(result.output)
+    assert isinstance(parsed_payload, list)
+
+    sorted_app_ids = sorted([x.get('id') for x in parsed_payload])
+    assert sorted_app_ids == ["/test-app-a", "/test-app-b", "/test-app-c"]
+
+
+@responses.activate
+def test_show_format_json(runner, json_fixture):
+    responses.add(responses.GET,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=200,
+                  json=json_fixture("valid_app"))
+
+    result = runner(['show'], env={
+        'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
+        'SHPKPR_APPLICATION': 'test-app',
+    })
+    assert result.exit_code == 0
+
+    parsed_payload = json.loads(result.output)
+    assert isinstance(parsed_payload, dict)
+
+
+@responses.activate
+def test_show_format_yaml(runner, json_fixture):
+    responses.add(responses.GET,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=200,
+                  json=json_fixture("valid_app"))
+
+    result = runner(['show'], env={
+        'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
+        'SHPKPR_APPLICATION': 'test-app',
+    })
+    assert result.exit_code == 0
+
+    parsed_payload = yaml.load(result.output)
+    assert isinstance(parsed_payload, dict)

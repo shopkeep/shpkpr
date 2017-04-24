@@ -46,7 +46,7 @@ def test_deploy(runner, env):
 def test_show_again(runner, env):
     result = runner(["show"], env=env)
     _check_exits_zero(result)
-    _check_output_contains(result, "ID:           %s" % env['SHPKPR_APPLICATION'])
+    _check_output_contains(result, '"id": "/%s"' % env['SHPKPR_APPLICATION'])
 
 
 @pytest.mark.integration
