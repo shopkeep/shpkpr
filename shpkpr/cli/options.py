@@ -20,7 +20,6 @@ application_id = click.option(
     '-a', '--application',
     'application_id',
     envvar="{0}_APPLICATION".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
-    required=True,
     help="ID/name of the application to scale.",
 )
 
@@ -117,4 +116,13 @@ max_wait = click.option(
     help='Maximum amount of time to wait for deployment to finish before aborting.',
     envvar="{0}_MAX_WAIT".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     default=300,
+)
+
+output_format = click.option(
+    '--output-format',
+    'output_format',
+    type=click.Choice(["json", "yaml"]),
+    help='Serialisation format to use when printing application data to stdout.',
+    envvar="{0}_OUTPUT_FORMAT".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    default="json",
 )

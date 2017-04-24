@@ -14,8 +14,6 @@ except IOError:
     readme = "Not Available"
 
 
-
-
 setup(
     name='shpkpr',
     version='0.1',
@@ -28,6 +26,7 @@ setup(
     package_data={'shpkpr': ['marathon/schema/*.json']},
     include_package_data=True,
     install_requires=[
+        'PyYAML>=3.10.0',
         'cached-property>=1.3.0, <2',
         'chronos-python>=1.0.0',
         'click>=6.0, <7',
