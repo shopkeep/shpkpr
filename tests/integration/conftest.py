@@ -23,6 +23,7 @@ def env():
         "SHPKPR_DOCKER_EXPOSED_PORT": os.environ.get("SHPKPR_DOCKER_EXPOSED_PORT", None),
         "SHPKPR_DEPLOY_DOMAIN": os.environ.get("SHPKPR_DEPLOY_DOMAIN", None),
         "SHPKPR_CHRONOS_URL": os.environ.get("SHPKPR_CHRONOS_URL", None),
+        "SHPKPR_CHRONOS_VERSION": os.environ.get("SHPKPR_CHRONOS_VERSION", None),
     }
     assert None not in env.values()
     return env
