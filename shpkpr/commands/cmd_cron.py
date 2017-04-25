@@ -1,5 +1,4 @@
 # stdlib imports
-import json
 from distutils.version import StrictVersion
 
 # third-party imports
@@ -33,16 +32,18 @@ def cli(logger):
 @options.chronos_url
 @options.chronos_version
 @options.job_name
+@options.output_formatter
 @pass_logger
-def show(logger, chronos_url, chronos_version, job_name):
+def show(logger, chronos_url, chronos_version, job_name, output_formatter):
     """List application configuration.
     """
     jobs = chronos_connect(chronos_url, chronos_version).list()
 
     if job_name is None:
-        logger.log(_pretty_print(jobs))
+        payload = jobs
     else:
-        logger.log(_pretty_print(_find_job(jobs, job_name)))
+        payload = _find_job(jobs, job_name)
+    logger.log(output_formatter.format(payload))
 
 
 @cli.command('set', short_help='Add or Update a Chronos Job', context_settings=CONTEXT_SETTINGS)
@@ -89,12 +90,6 @@ def delete_tasks(chronos_url, chronos_version, job_name):
 @options.chronos_version
 def run(chronos_url, chronos_version, job_name):
     chronos_connect(chronos_url, chronos_version).run(job_name)
-
-
-def _pretty_print(dict):
-    """Pretty print a dict as a json structure
-    """
-    return json.dumps(dict, indent=4, sort_keys=True, separators=(',', ': '))
 
 
 def _find_job(jobs, job_name):
