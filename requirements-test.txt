@@ -6,4 +6,5 @@ pytest-cov==2.2.0
 pytest-flakes==1.0.1
 pytest-mccabe==0.1
 pytest-pep8==1.0.6
+pytest-runner==2.11.1
 responses==0.5.0

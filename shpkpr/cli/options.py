@@ -13,6 +13,7 @@ import click
 
 # local imports
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
+from shpkpr.cli.formatter import OutputFormatter
 from shpkpr.marathon import MarathonClient
 
 
@@ -118,11 +119,12 @@ max_wait = click.option(
     default=300,
 )
 
-output_format = click.option(
+output_formatter = click.option(
     '--output-format',
-    'output_format',
+    'output_formatter',
     type=click.Choice(["json", "yaml"]),
-    help='Serialisation format to use when printing application data to stdout.',
+    help='Serialization format to use when printing config data to stdout.',
     envvar="{0}_OUTPUT_FORMAT".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     default="json",
+    callback=lambda c, p, v: OutputFormatter(v)
 )
