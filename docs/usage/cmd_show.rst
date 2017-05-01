@@ -2,19 +2,19 @@
 Showing Application Details
 ===========================
 
-``shpkpr show`` allows you to view details of one or more applications that are currently deployed to Marathon::
+``shpkpr show`` allows you to view details of one or all applications that are currently deployed to Marathon::
 
     $ shpkpr show --help
     Usage: shpkpr show [OPTIONS]
 
-      Shows detailed information for one or more applications.
+      Shows detailed information for one or all applications.
 
     Options:
     --output-format [json|yaml]  Serialisation format to use when printing
                                  application data to stdout.
     -a, --application TEXT       ID/name of the application to scale.
     --marathon_url TEXT          URL of the Marathon API to use.  [required]
-    --help                  Show this message and exit.
+    --help                       Show this message and exit.
 
 Required Configuration
 ~~~~~~~~~~~~~~~~~~~~~~
