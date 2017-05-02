@@ -5,14 +5,10 @@ from __future__ import absolute_import
 
 # third-party imports
 import requests
-from cached_property import cached_property
 
 # local imports
 from .deployment import DeploymentNotFound
 from .deployment import MarathonDeployment
-from .validate import Schema
-from .validate import schema_path
-from .validate import read_schema_from_file
 from shpkpr import exceptions
 
 
@@ -28,10 +24,8 @@ class MarathonClient(object):
     """A thin wrapper around marathon.MarathonClient for internal use
     """
 
-    def __init__(self, marathon_url, app_schema_path=None, deploy_schema_path=None):
+    def __init__(self, marathon_url):
         self._marathon_url = marathon_url
-        self._app_schema_path = app_schema_path
-        self._deploy_schema_path = deploy_schema_path
         self.dry_run = False
 
     def _build_url(self, path):
@@ -52,20 +46,6 @@ class MarathonClient(object):
             "{0}.taskStats".format(entity_type),
         ]
 
-    @cached_property
-    def app_schema(self):
-        if self._app_schema_path is None:
-            self._app_schema_path = schema_path("app")
-        raw_schema = read_schema_from_file(self._app_schema_path)
-        return Schema(raw_schema)
-
-    @cached_property
-    def deploy_schema(self):
-        if self._deploy_schema_path is None:
-            self._deploy_schema_path = schema_path("deploy")
-        raw_schema = read_schema_from_file(self._deploy_schema_path)
-        return Schema(raw_schema)
-
     def delete_application(self, application_id, force=False):
         """Deletes the Application corresponding with application_id
         """
@@ -78,7 +58,7 @@ class MarathonClient(object):
         else:
             return False
 
-    def get_application(self, application_id, strip_response=True):
+    def get_application(self, application_id):
         """Returns detailed information for a single application.
         """
         path = "/v2/apps/" + application_id
@@ -87,11 +67,7 @@ class MarathonClient(object):
 
         if response.status_code == 200:
             application = response.json()['app']
-            self.app_schema.validate(application)
-            if strip_response:
-                return self.app_schema.strip(application)
-            else:
-                return application
+            return application
 
         # raise an appropriate error if something went wrong
         if response.status_code == 404:
@@ -99,7 +75,7 @@ class MarathonClient(object):
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
 
-    def list_applications(self, strip_response=True):
+    def list_applications(self):
         """Return a list of all applications currently deployed to marathon.
         """
         path = "/v2/apps"
@@ -110,11 +86,7 @@ class MarathonClient(object):
             applications = response.json()['apps']
             application_list = []
             for app in applications:
-                self.app_schema.validate(app)
-                if strip_response:
-                    application_list.append(self.app_schema.strip(app))
-                else:
-                    application_list.append(app)
+                application_list.append(app)
             return application_list
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
@@ -132,11 +104,8 @@ class MarathonClient(object):
         # app, otherwise we treat it as a list of multiple applications to be
         # deployed together.
         if isinstance(application_payload, (list, tuple)):
-            for application in application_payload:
-                self.deploy_schema.validate(application)
             path = "/v2/apps/"
         else:
-            self.deploy_schema.validate(application_payload)
             path = "/v2/apps/" + application_payload['id']
 
         params = {"force": "true"} if force else {}

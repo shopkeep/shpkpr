@@ -195,8 +195,8 @@ def swap_bluegreen_apps(logger, force, max_wait, marathon_client,
 
         check_time_and_sleep(max_wait, timestamp)
 
-        old_app = marathon_client.get_application(old_app['id'], strip_response=False)
-        new_app = marathon_client.get_application(new_app['id'], strip_response=False)
+        old_app = marathon_client.get_application(old_app['id'])
+        new_app = marathon_client.get_application(new_app['id'])
 
         logger.log("Existing app running {} instances, "
                    "new app running {} instances"
@@ -340,7 +340,7 @@ def get_deployment_group(app):
 
 
 def fetch_previous_deploys(marathon_client, app):
-    apps = marathon_client.list_applications(strip_response=False)
+    apps = marathon_client.list_applications()
     app_deployment_group = get_deployment_group(app)
     return [a for a in apps if get_deployment_group(a) == app_deployment_group]
 
