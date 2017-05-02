@@ -58,7 +58,7 @@ class MarathonClient(object):
         else:
             return False
 
-    def get_application(self, application_id, strip_response=True):
+    def get_application(self, application_id):
         """Returns detailed information for a single application.
         """
         path = "/v2/apps/" + application_id
@@ -75,7 +75,7 @@ class MarathonClient(object):
 
         raise ClientError("Unknown Marathon error: %s\n\n%s" % (response.status_code, response.text))
 
-    def list_applications(self, strip_response=True):
+    def list_applications(self):
         """Return a list of all applications currently deployed to marathon.
         """
         path = "/v2/apps"
