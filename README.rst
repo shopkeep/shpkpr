@@ -22,3 +22,4 @@ Features
 * Deploy applications (using [Jinja2](http://jinja.pocoo.org/docs/2.9/) templates)
 * Zero-downtime application deploys when used with [Marathon-LB](https://github.com/mesosphere/marathon-lb)
 * List/show detailed cron task info
+* Deploy cron tasks (using [Jinja2](http://jinja.pocoo.org/docs/2.9/) templates)
