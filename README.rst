@@ -10,7 +10,7 @@ shpkpr
         :alt: Documentation Status
 
 
-shpkpr is a tool for controlling and observing applications running on Mesos/Marathon. shpkpr is designed to provide a simple command-line interface to Marathon (similiar to the ``heroku`` command-line tool) for use both manually and with CI tools like jenkins.
+shpkpr is a tool for controlling and observing applications/tasks running on Marathon and Chronos. shpkpr is designed to provide a simple command-line interface to Marathon and Chronos (similiar to the ``heroku`` command-line tool) for use both manually and with CI tools like jenkins.
 
 * Free software: MIT license
 * Documentation: https://shpkpr.readthedocs.org.
@@ -18,6 +18,7 @@ shpkpr is a tool for controlling and observing applications running on Mesos/Mar
 Features
 --------
 
-* List all deployed applications
-* Show detailed application info
-* Deploy applications (using Jinja2 templates)
+* List/show detailed application info
+* Deploy applications (using [Jinja2](http://jinja.pocoo.org/docs/2.9/) templates)
+* Zero-downtime application deploys when used with [Marathon-LB](https://github.com/mesosphere/marathon-lb)
+* List/show detailed cron task info
