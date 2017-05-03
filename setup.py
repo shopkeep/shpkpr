@@ -16,7 +16,7 @@ except IOError:
 
 setup(
     name='shpkpr',
-    version='0.1',
+    version='1.0.0',
     description='shpkpr is a command-line tool designed to manage applications running on Marathon',
     long_description=readme,
     author='ShopKeep.com Inc.',
