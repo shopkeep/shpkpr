@@ -38,7 +38,7 @@ setup(
     zip_safe=False,
     keywords='shpkpr mesos marathon chronos',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        "Development Status :: 5 - Production/Stable",
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
@@ -50,6 +50,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        "Programming Language :: Python :: Implementation :: PyPy",
     ],
     entry_points='''
         [console_scripts]
