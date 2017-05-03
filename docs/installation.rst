@@ -20,7 +20,7 @@ If you prefer to use shpkpr from git (**WARNING:** May be unstable), then::
 
 Once installed, shpkpr should be available on your ``$PATH``::
 
-    $ shpkpr --marathon_url=http://marathon.mydomain.com:8080 list
+    $ shpkpr --marathon_url=http://marathon.mydomain.com:8080 show
 
 Using Docker
 ~~~~~~~~~~~~
@@ -32,9 +32,9 @@ shpkpr is also available in a prebuilt Docker image if you'd prefer to run it in
 
 Once the image is downloaded, you can use shpkpr with ``docker run``::
 
-    $ docker run -ti shopkeep/shpkpr:master shpkpr --marathon_url=http://marathon.mydomain.com:8080 list
+    $ docker run -ti shopkeep/shpkpr:master shpkpr --marathon_url=http://marathon.mydomain.com:8080 show
 
 A simple way to avoid having to repeat the long ``docker run`` command is to use a bash alias::
 
     $ alias shpkpr="docker run -ti -e SHPKPR_MARATHON_URL=http://marathon.mydomain.com:8080 shopkeep/shpkpr:master shpkpr"
-    $ shpkpr list
+    $ shpkpr show
