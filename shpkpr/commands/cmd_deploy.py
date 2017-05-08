@@ -5,6 +5,7 @@ import click
 from shpkpr.cli import arguments
 from shpkpr.cli import options
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
+from shpkpr.deployment import StandardDeployment
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
 
@@ -30,4 +31,5 @@ def cli(marathon_client, env_prefix, template_path, template_names, dry_run, for
     for template_name in template_names:
         rendered_templates.append(render_json_template(template_path, template_name, **values))
 
-    marathon_client.deploy(rendered_templates, force=force).wait()
+    deployment = StandardDeployment(marathon_client, rendered_templates)
+    deployment.execute(force)
