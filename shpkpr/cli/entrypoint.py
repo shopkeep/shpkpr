@@ -6,7 +6,7 @@ import sys
 import click
 
 # local imports
-from .logger import pass_logger
+from . import logger
 
 
 CONTEXT_SETTINGS = dict(auto_envvar_prefix='SHPKPR')
@@ -32,6 +32,6 @@ class ShpkprCLI(click.MultiCommand):
 
 
 @click.command(cls=ShpkprCLI, context_settings=CONTEXT_SETTINGS)
-@pass_logger
-def cli(logger):
+def cli():
     """A tool to manage applications running on Marathon."""
+    logger.configure()

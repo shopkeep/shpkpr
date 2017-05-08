@@ -1,27 +1,25 @@
 # stdlib imports
+import logging
 import sys
 
-# third-party imports
-import click
 
+def configure():
+    """Configure logging for CLI use.
 
-class Logger(object):
+    This configures logging to go stdout by default and to only include the raw
+    message in the output (no decoration).
 
-    def __init__(self):
-        self.buffer = sys.stdout
+    This configuration is CLI specific and other users of this library may
+    choose to configure logging in a different way that's more appropriate for
+    the use case (e.g. JSON output for server-side logging).
+    """
+    FORMAT_STRING = "%(message)s"
+    LEVEL = logging.INFO
+    STREAM = sys.stdout
 
-    def log(self, msg, *args, **kwargs):
-        """Logs a message to stdout."""
-        if args:
-            msg %= args
-        click.echo(msg, file=self.buffer, **kwargs)
+    root_logger = logging.getLogger()
+    handler = logging.StreamHandler(stream=STREAM)
 
-    def style(self, msg, *args, **kwargs):
-        """Wrapper around click.style to allow modules to access this
-        functionality via the context object without having to depend on
-        click.
-        """
-        return click.style(msg, *args, **kwargs)
-
-
-pass_logger = click.make_pass_decorator(Logger, ensure=True)
+    handler.setFormatter(logging.Formatter(FORMAT_STRING))
+    root_logger.addHandler(handler)
+    root_logger.setLevel(LEVEL)

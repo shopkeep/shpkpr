@@ -73,18 +73,17 @@ def test_parse_haproxy_stats():
     assert results[2].svname == 'IPv4-cached'
 
 
-@mock.patch('shpkpr.cli.logger.Logger')
 @mock.patch('shpkpr.marathon_lb.fetch_combined_haproxy_stats',
-            mock.Mock(side_effect=lambda _, __: _load_listeners()))
-def test_fetch_app_listeners(logger):
+            mock.Mock(side_effect=lambda _: _load_listeners()))
+def test_fetch_app_listeners():
     app = {
-            'labels': {
-              'HAPROXY_DEPLOYMENT_GROUP': 'foobar',
-              'HAPROXY_0_PORT': '8080'
-            }
-          }
+        'labels': {
+            'HAPROXY_DEPLOYMENT_GROUP': 'foobar',
+            'HAPROXY_0_PORT': '8080'
+        }
+    }
 
-    app_listeners = fetch_app_listeners(logger, app, [])
+    app_listeners = fetch_app_listeners(app, [])
 
     assert app_listeners[0].pxname == 'foobar_8080'
     assert len(app_listeners) == 1

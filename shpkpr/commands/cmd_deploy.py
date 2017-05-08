@@ -5,7 +5,6 @@ import click
 from shpkpr.cli import arguments
 from shpkpr.cli import options
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
-from shpkpr.cli.logger import pass_logger
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
 
@@ -18,8 +17,7 @@ from shpkpr.template import render_json_template
 @options.template_path
 @options.env_prefix
 @options.marathon_client
-@pass_logger
-def cli(logger, marathon_client, env_prefix, template_path, template_names, dry_run, force, env_pairs):
+def cli(marathon_client, env_prefix, template_path, template_names, dry_run, force, env_pairs):
     """Deploy application from template.
     """
     # set dry_run param if the user has requested it. This happens in the
