@@ -1,4 +1,5 @@
 # stdlib imports
+import logging
 from distutils.version import StrictVersion
 
 # third-party imports
@@ -8,9 +9,11 @@ import chronos
 # local imports
 from shpkpr.cli import arguments, options
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
-from shpkpr.cli.logger import pass_logger
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
+
+
+logger = logging.getLogger(__name__)
 
 
 def chronos_connect(chronos_url, chronos_version):
@@ -22,8 +25,7 @@ def chronos_connect(chronos_url, chronos_version):
 
 
 @click.group('cron', short_help='Manage Chronos Jobs', context_settings=CONTEXT_SETTINGS)
-@pass_logger
-def cli(logger):
+def cli():
     """Manage Chronos Jobs.
     """
 
@@ -33,8 +35,7 @@ def cli(logger):
 @options.chronos_version
 @options.job_name
 @options.output_formatter
-@pass_logger
-def show(logger, chronos_url, chronos_version, job_name, output_formatter):
+def show(chronos_url, chronos_version, job_name, output_formatter):
     """List application configuration.
     """
     jobs = chronos_connect(chronos_url, chronos_version).list()
@@ -43,7 +44,7 @@ def show(logger, chronos_url, chronos_version, job_name, output_formatter):
         payload = jobs
     else:
         payload = _find_job(jobs, job_name)
-    logger.log(output_formatter.format(payload))
+    logger.info(output_formatter.format(payload))
 
 
 @cli.command('set', short_help='Add or Update a Chronos Job', context_settings=CONTEXT_SETTINGS)

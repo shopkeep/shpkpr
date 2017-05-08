@@ -1,5 +1,6 @@
 # stdlib imports
 import json
+import logging
 
 # third-party imports
 import click
@@ -10,7 +11,6 @@ from shpkpr import exceptions
 from shpkpr.cli import arguments
 from shpkpr.cli import options
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
-from shpkpr.cli.logger import pass_logger
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
 from shpkpr.marathon import DeploymentFailed
@@ -20,6 +20,9 @@ from shpkpr.marathon_lb import prepare_deploy
 from shpkpr.marathon_lb import select_last_deploy
 from shpkpr.marathon_lb import swap_bluegreen_apps
 from shpkpr.marathon_lb import validate_app
+
+
+logger = logging.getLogger(__name__)
 
 
 class DualStackAlreadyExists(exceptions.ShpkprException):
@@ -44,8 +47,7 @@ class DualStackAlreadyExists(exceptions.ShpkprException):
 @options.marathon_lb_url
 @options.max_wait
 @options.force
-@pass_logger
-def cli(logger, marathon_client, marathon_lb_url, max_wait, force, env_prefix,
+def cli(marathon_client, marathon_lb_url, max_wait, force, env_prefix,
         template_path, template_names, env_pairs):
     """Perform a blue/green deploy
     """
@@ -67,22 +69,21 @@ def cli(logger, marathon_client, marathon_lb_url, max_wait, force, env_prefix,
         # ID-change that will allow marathon-lb to cut traffic over as necessary.
         new_app = prepare_deploy(previous_deploys, app)
 
-        logger.log('Final App Definition:')
-        logger.log(json.dumps(new_app, indent=4, sort_keys=True))
+        logger.info('Final App Definition:')
+        logger.info(json.dumps(new_app, indent=4, sort_keys=True))
         if force or click.confirm("Continue with deployment?"):
             try:
                 deploy_and_swap(marathon_client,
                                 new_app,
                                 previous_deploys,
-                                logger,
                                 force,
                                 max_wait,
                                 marathon_lb_url)
             except (DeploymentFailed, SwapApplicationTimeout):
-                remove_new_stack(marathon_client, logger, app['id'], force)
+                remove_new_stack(marathon_client, app['id'], force)
 
 
-def deploy_and_swap(marathon_client, new_app, previous_deploys, logger, force,
+def deploy_and_swap(marathon_client, new_app, previous_deploys, force,
                     max_wait, marathon_lb_url):
     """Deploy a new application and swap traffic from the old one once complete.
     """
@@ -94,8 +95,7 @@ def deploy_and_swap(marathon_client, new_app, previous_deploys, logger, force,
     else:
         # This is a standard blue/green deploy, swap new app with old
         old_app = select_last_deploy(previous_deploys)
-        return swap_bluegreen_apps(logger,
-                                   force,
+        return swap_bluegreen_apps(force,
                                    max_wait,
                                    marathon_client,
                                    marathon_lb_url,
@@ -104,13 +104,13 @@ def deploy_and_swap(marathon_client, new_app, previous_deploys, logger, force,
                                    time.time())
 
 
-def remove_new_stack(marathon_client, logger, app_id, force):
+def remove_new_stack(marathon_client, app_id, force):
     """Removes the newly started stack after a deploy error
     """
-    logger.log("Deployment failed: removing newly deployed stack")
+    logger.info("Deployment failed: removing newly deployed stack")
     success = marathon_client.delete_application(app_id, force=force)
     if success:
-        logger.log("Successfully removed newly deployed stack: %s", app_id)
+        logger.info("Successfully removed newly deployed stack: %s", app_id)
     else:
-        logger.log("Unable to remove newly deployed stack, manual intervention required: %s", app_id)
+        logger.info("Unable to remove newly deployed stack, manual intervention required: %s", app_id)
     raise DeploymentFailed("Deployment failed")

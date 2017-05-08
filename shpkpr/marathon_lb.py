@@ -1,9 +1,10 @@
 # stdlib imports
-from collections import namedtuple
 import csv
-from datetime import datetime
+import logging
 import socket
 import time
+from collections import namedtuple
+from datetime import datetime
 
 # third-party imports
 import click
@@ -12,6 +13,9 @@ import six.moves.urllib as urllib
 
 # local imports
 from shpkpr import exceptions
+
+
+logger = logging.getLogger(__name__)
 
 
 # amount of time (in seconds) between subsequent polls of the load balancer
@@ -49,54 +53,54 @@ def get_marathon_lb_urls(marathon_lb_url):
     return [_unparse_url_alias(url, addr) for addr in addrs]
 
 
-def fetch_haproxy_pids(logger, haproxy_url):
+def fetch_haproxy_pids(haproxy_url):
     try:
         response = requests.get(haproxy_url + "/_haproxy_getpids")
         response.raise_for_status()
     except requests.exceptions.RequestException:
-        logger.log("Caught exception when retrieving HAProxy"
-                   " pids from " + haproxy_url)
+        logger.info("Caught exception when retrieving HAProxy"
+                    " pids from " + haproxy_url)
         raise
 
     return response.text.split()
 
 
-def check_haproxy_reloading(logger, haproxy_url):
+def check_haproxy_reloading(haproxy_url):
     """Return False if haproxy has only one pid, it is not reloading.
        Return True if we catch an exception while making a request to
        haproxy or if more than one pid is returned
     """
     try:
-        pids = fetch_haproxy_pids(logger, haproxy_url)
+        pids = fetch_haproxy_pids(haproxy_url)
     except requests.exceptions.RequestException:
         # Assume reloading on any error, this should be caught with a timeout
         return True
 
     if len(pids) > 1:
-        logger.log("Waiting for {} pids on {}".format(len(pids), haproxy_url))
+        logger.info("Waiting for {} pids on {}".format(len(pids), haproxy_url))
         return True
 
     return False
 
 
-def any_marathon_lb_reloading(logger, marathon_lb_urls):
-    return any([check_haproxy_reloading(logger, url) for url in marathon_lb_urls])
+def any_marathon_lb_reloading(marathon_lb_urls):
+    return any([check_haproxy_reloading(url) for url in marathon_lb_urls])
 
 
-def fetch_haproxy_stats(logger, haproxy_url):
+def fetch_haproxy_stats(haproxy_url):
     try:
         response = requests.get(haproxy_url + "/haproxy?stats;csv")
         response.raise_for_status()
     except requests.exceptions.RequestException:
-        logger.log("Caught exception when retrieving HAProxy"
-                   " stats from " + haproxy_url)
+        logger.info("Caught exception when retrieving HAProxy"
+                    " stats from " + haproxy_url)
         raise
 
     return response.text
 
 
-def fetch_combined_haproxy_stats(logger, marathon_lb_urls):
-    s = ''.join([fetch_haproxy_stats(logger, url) for url in marathon_lb_urls])
+def fetch_combined_haproxy_stats(marathon_lb_urls):
+    s = ''.join([fetch_haproxy_stats(url) for url in marathon_lb_urls])
     return parse_haproxy_stats(s)
 
 
@@ -119,8 +123,8 @@ def _is_app_listener(app, listener):
             listener.svname not in ['BACKEND', 'FRONTEND'])
 
 
-def fetch_app_listeners(logger, app, marathon_lb_urls):
-    haproxy_stats = fetch_combined_haproxy_stats(logger, marathon_lb_urls)
+def fetch_app_listeners(app, marathon_lb_urls):
+    haproxy_stats = fetch_combined_haproxy_stats(marathon_lb_urls)
     return [l for l in haproxy_stats if _is_app_listener(app, l)]
 
 
@@ -189,7 +193,7 @@ def check_time_and_sleep(max_wait, timestamp):
     return time.sleep(MARATHON_LB_POLL_INTERVAL)
 
 
-def swap_bluegreen_apps(logger, force, max_wait, marathon_client,
+def swap_bluegreen_apps(force, max_wait, marathon_client,
                         marathon_lb_url, new_app, old_app, timestamp):
     while True:
 
@@ -198,24 +202,24 @@ def swap_bluegreen_apps(logger, force, max_wait, marathon_client,
         old_app = marathon_client.get_application(old_app['id'])
         new_app = marathon_client.get_application(new_app['id'])
 
-        logger.log("Existing app running {} instances, "
-                   "new app running {} instances"
-                   .format(old_app['instances'], new_app['instances']))
+        logger.info("Existing app running {} instances, "
+                    "new app running {} instances"
+                    .format(old_app['instances'], new_app['instances']))
 
         marathon_lb_urls = get_marathon_lb_urls(marathon_lb_url)
         haproxy_count = len(marathon_lb_urls)
 
         try:
-            listeners = fetch_app_listeners(logger, new_app, marathon_lb_urls)
+            listeners = fetch_app_listeners(new_app, marathon_lb_urls)
         except requests.exceptions.RequestException:
             # Restart loop if we hit an exception while loading listeners,
             # this may be normal behaviour
             continue
 
-        logger.log("Found {} app listeners across {} HAProxy instances"
-                   .format(len(listeners), haproxy_count))
+        logger.info("Found {} app listeners across {} HAProxy instances"
+                    .format(len(listeners), haproxy_count))
 
-        if waiting_on_marathon_lb(logger, marathon_lb_urls, new_app, old_app,
+        if waiting_on_marathon_lb(marathon_lb_urls, new_app, old_app,
                                   listeners, haproxy_count):
             continue
 
@@ -223,13 +227,13 @@ def swap_bluegreen_apps(logger, force, max_wait, marathon_client,
             find_drained_task_ids(old_app, listeners, haproxy_count)
 
         if ready_to_delete_old_app(new_app, old_app, drained_task_ids):
-            logger.log("About to delete old app {}".format(old_app['id']))
+            logger.info("About to delete old app {}".format(old_app['id']))
             return safe_delete_app(force, marathon_client, old_app)
 
 
-def waiting_on_marathon_lb(logger, marathon_lb_urls, new_app, old_app,
+def waiting_on_marathon_lb(marathon_lb_urls, new_app, old_app,
                            listeners, haproxy_count):
-    if any_marathon_lb_reloading(logger, marathon_lb_urls):
+    if any_marathon_lb_reloading(marathon_lb_urls):
         return True
 
     if waiting_for_listeners(new_app, old_app, listeners, haproxy_count):
@@ -271,8 +275,7 @@ def get_service_port(app):
 
 def set_service_port(app, servicePort):
     try:
-        app['container']['docker']['portMappings'][0]['servicePort'] = \
-          int(servicePort)
+        app['container']['docker']['portMappings'][0]['servicePort'] = int(servicePort)
     except KeyError:
         app['ports'][0] = int(servicePort)
 
@@ -303,8 +306,7 @@ def set_app_ids(app, colour):
 def set_service_ports(app, servicePort):
     app['labels']['HAPROXY_0_PORT'] = str(get_service_port(app))
     try:
-        app['container']['docker']['portMappings'][0]['servicePort'] = \
-          int(servicePort)
+        app['container']['docker']['portMappings'][0]['servicePort'] = int(servicePort)
         return app
     except KeyError:
         app['ports'][0] = int(servicePort)
