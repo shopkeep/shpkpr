@@ -1,15 +1,11 @@
 # stdlib imports
-import csv
 import logging
-import socket
 import time
-from collections import namedtuple
 from datetime import datetime
 
 # third-party imports
 import click
 import requests
-import six.moves.urllib as urllib
 
 # local imports
 from shpkpr import exceptions
@@ -27,93 +23,6 @@ class SwapApplicationTimeout(exceptions.ShpkprException):
     pass
 
 
-def _get_alias_records(hostname):
-    """Return all IPv4 A records for a given hostname
-    """
-    return socket.gethostbyname_ex(hostname)[2]
-
-
-def _unparse_url_alias(url, addr):
-    """Reassemble a url object into a string but with a new address
-    """
-    return urllib.parse.urlunparse((url[0],
-                                    addr + ":" + str(url.port),
-                                    url[2],
-                                    url[3],
-                                    url[4],
-                                    url[5]))
-
-
-def get_marathon_lb_urls(marathon_lb_url):
-    """Return a list of urls for all Aliases of the
-       marathon_lb url passed in as an argument
-    """
-    url = urllib.parse.urlparse(marathon_lb_url)
-    addrs = _get_alias_records(url.hostname)
-    return [_unparse_url_alias(url, addr) for addr in addrs]
-
-
-def fetch_haproxy_pids(haproxy_url):
-    try:
-        response = requests.get(haproxy_url + "/_haproxy_getpids")
-        response.raise_for_status()
-    except requests.exceptions.RequestException:
-        logger.info("Caught exception when retrieving HAProxy"
-                    " pids from " + haproxy_url)
-        raise
-
-    return response.text.split()
-
-
-def check_haproxy_reloading(haproxy_url):
-    """Return False if haproxy has only one pid, it is not reloading.
-       Return True if we catch an exception while making a request to
-       haproxy or if more than one pid is returned
-    """
-    try:
-        pids = fetch_haproxy_pids(haproxy_url)
-    except requests.exceptions.RequestException:
-        # Assume reloading on any error, this should be caught with a timeout
-        return True
-
-    if len(pids) > 1:
-        logger.info("Waiting for {} pids on {}".format(len(pids), haproxy_url))
-        return True
-
-    return False
-
-
-def any_marathon_lb_reloading(marathon_lb_urls):
-    return any([check_haproxy_reloading(url) for url in marathon_lb_urls])
-
-
-def fetch_haproxy_stats(haproxy_url):
-    try:
-        response = requests.get(haproxy_url + "/haproxy?stats;csv")
-        response.raise_for_status()
-    except requests.exceptions.RequestException:
-        logger.info("Caught exception when retrieving HAProxy"
-                    " stats from " + haproxy_url)
-        raise
-
-    return response.text
-
-
-def fetch_combined_haproxy_stats(marathon_lb_urls):
-    s = ''.join([fetch_haproxy_stats(url) for url in marathon_lb_urls])
-    return parse_haproxy_stats(s)
-
-
-def parse_haproxy_stats(csv_data):
-    rows = csv_data.splitlines()
-    headings = rows.pop(0).lstrip('# ').rstrip(',\n').split(',')
-    csv_reader = csv.reader(rows, delimiter=',', quotechar="'")
-
-    Row = namedtuple('Row', headings)
-
-    return [Row(*row[0:-1]) for row in csv_reader if row[0][0] != '#']
-
-
 def get_deployment_label(app):
     return get_deployment_group(app) + "_" + app['labels']['HAPROXY_0_PORT']
 
@@ -123,8 +32,8 @@ def _is_app_listener(app, listener):
             listener.svname not in ['BACKEND', 'FRONTEND'])
 
 
-def fetch_app_listeners(app, marathon_lb_urls):
-    haproxy_stats = fetch_combined_haproxy_stats(marathon_lb_urls)
+def fetch_app_listeners(app, marathon_lb_client):
+    haproxy_stats = marathon_lb_client.fetch_stats()
     return [l for l in haproxy_stats if _is_app_listener(app, l)]
 
 
@@ -193,8 +102,8 @@ def check_time_and_sleep(max_wait, timestamp):
     return time.sleep(MARATHON_LB_POLL_INTERVAL)
 
 
-def swap_bluegreen_apps(force, max_wait, marathon_client,
-                        marathon_lb_url, new_app, old_app, timestamp):
+def swap_bluegreen_apps(force, max_wait, marathon_client, marathon_lb_client,
+                        new_app, old_app, timestamp):
     while True:
 
         check_time_and_sleep(max_wait, timestamp)
@@ -206,40 +115,36 @@ def swap_bluegreen_apps(force, max_wait, marathon_client,
                     "new app running {} instances"
                     .format(old_app['instances'], new_app['instances']))
 
-        marathon_lb_urls = get_marathon_lb_urls(marathon_lb_url)
-        haproxy_count = len(marathon_lb_urls)
-
         try:
-            listeners = fetch_app_listeners(new_app, marathon_lb_urls)
+            listeners = fetch_app_listeners(new_app, marathon_lb_client)
         except requests.exceptions.RequestException:
             # Restart loop if we hit an exception while loading listeners,
             # this may be normal behaviour
             continue
 
         logger.info("Found {} app listeners across {} HAProxy instances"
-                    .format(len(listeners), haproxy_count))
+                    .format(len(listeners), marathon_lb_client.instance_count))
 
-        if waiting_on_marathon_lb(marathon_lb_urls, new_app, old_app,
-                                  listeners, haproxy_count):
+        if waiting_on_marathon_lb(marathon_lb_client, new_app, old_app,
+                                  listeners):
             continue
 
-        drained_task_ids = \
-            find_drained_task_ids(old_app, listeners, haproxy_count)
+        drained_task_ids = find_drained_task_ids(old_app, listeners, marathon_lb_client.instance_count)
 
         if ready_to_delete_old_app(new_app, old_app, drained_task_ids):
             logger.info("About to delete old app {}".format(old_app['id']))
             return safe_delete_app(force, marathon_client, old_app)
 
 
-def waiting_on_marathon_lb(marathon_lb_urls, new_app, old_app,
-                           listeners, haproxy_count):
-    if any_marathon_lb_reloading(marathon_lb_urls):
+def waiting_on_marathon_lb(marathon_lb_client, new_app, old_app,
+                           listeners):
+    if marathon_lb_client.is_reloading():
         return True
 
-    if waiting_for_listeners(new_app, old_app, listeners, haproxy_count):
+    if waiting_for_listeners(new_app, old_app, listeners, marathon_lb_client.instance_count):
         return True
 
-    if waiting_for_up_listeners(new_app, listeners, haproxy_count):
+    if waiting_for_up_listeners(new_app, listeners, marathon_lb_client.instance_count):
         return True
 
     if waiting_for_drained_listeners(listeners):

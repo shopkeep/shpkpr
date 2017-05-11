@@ -6,18 +6,17 @@ import os
 import mock
 
 # local imports
-from shpkpr.marathon_lb import get_marathon_lb_urls
-from shpkpr.marathon_lb import prepare_deploy
-from shpkpr.marathon_lb import parse_haproxy_stats
-from shpkpr.marathon_lb import fetch_app_listeners
-from shpkpr.marathon_lb import get_svnames_from_tasks
-from shpkpr.marathon_lb import find_drained_task_ids
+from shpkpr.bluegreen import prepare_deploy
+from shpkpr.bluegreen import fetch_app_listeners
+from shpkpr.bluegreen import get_svnames_from_tasks
+from shpkpr.bluegreen import find_drained_task_ids
+from shpkpr.marathon_lb.stats import Stats
 
 
 def _load_listeners():
     path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fixtures', 'haproxy_stats.csv')
     with open(path) as f:
-        return parse_haproxy_stats(f.read())
+        return Stats(f.read())
 
 
 def _load_marathon_apps():
@@ -30,17 +29,6 @@ def _load_blue_app():
     path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fixtures', 'bluegreen_app_blue.json')
     with open(path) as f:
         return json.loads(f.read())['apps'][0]
-
-
-@mock.patch('socket.gethostbyname_ex',
-            mock.Mock(side_effect=lambda hostname:
-                      (hostname, [], ['127.0.0.1', '127.0.0.2'])))
-def test_get_marathon_lb_urls():
-    marathon_lb_urls = get_marathon_lb_urls('http://foobar.com:9090')
-
-    assert 'http://127.0.0.1:9090' in marathon_lb_urls
-    assert 'http://127.0.0.2:9090' in marathon_lb_urls
-    assert 'http://127.0.0.3:9090' not in marathon_lb_urls
 
 
 def test_prepare_deploy_swap_colors():
@@ -73,9 +61,10 @@ def test_parse_haproxy_stats():
     assert results[2].svname == 'IPv4-cached'
 
 
-@mock.patch('shpkpr.marathon_lb.fetch_combined_haproxy_stats',
-            mock.Mock(side_effect=lambda _: _load_listeners()))
 def test_fetch_app_listeners():
+    marathon_lb_client = mock.Mock()
+    marathon_lb_client.fetch_stats.side_effect = _load_listeners
+
     app = {
         'labels': {
             'HAPROXY_DEPLOYMENT_GROUP': 'foobar',
@@ -83,7 +72,7 @@ def test_fetch_app_listeners():
         }
     }
 
-    app_listeners = fetch_app_listeners(app, [])
+    app_listeners = fetch_app_listeners(app, marathon_lb_client)
 
     assert app_listeners[0].pxname == 'foobar_8080'
     assert len(app_listeners) == 1
