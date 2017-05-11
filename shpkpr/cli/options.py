@@ -15,6 +15,7 @@ import click
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
 from shpkpr.cli.formatter import OutputFormatter
 from shpkpr.marathon import MarathonClient
+from shpkpr.marathon_lb import MarathonLBClient
 
 
 application_id = click.option(
@@ -101,12 +102,13 @@ job_name = click.option(
 )
 
 
-marathon_lb_url = click.option(
+marathon_lb_client = click.option(
     '--marathon_lb_url',
-    'marathon_lb_url',
+    'marathon_lb_client',
     envvar="{0}_MARATHON_LB_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     required=True,
-    help="url of marathon lb",
+    help="URL for Marathon-LB used during blue/green deployment.",
+    callback=lambda c, p, v: MarathonLBClient(v)
 )
 
 

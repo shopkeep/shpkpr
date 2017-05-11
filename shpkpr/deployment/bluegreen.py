@@ -9,12 +9,12 @@ import click
 # local imports
 from shpkpr import exceptions
 from shpkpr.marathon import DeploymentFailed
-from shpkpr.marathon_lb import SwapApplicationTimeout
-from shpkpr.marathon_lb import fetch_previous_deploys
-from shpkpr.marathon_lb import prepare_deploy
-from shpkpr.marathon_lb import select_last_deploy
-from shpkpr.marathon_lb import swap_bluegreen_apps
-from shpkpr.marathon_lb import validate_app
+from shpkpr.bluegreen import SwapApplicationTimeout
+from shpkpr.bluegreen import fetch_previous_deploys
+from shpkpr.bluegreen import prepare_deploy
+from shpkpr.bluegreen import select_last_deploy
+from shpkpr.bluegreen import swap_bluegreen_apps
+from shpkpr.bluegreen import validate_app
 
 
 logger = logging.getLogger(__name__)
@@ -39,9 +39,9 @@ class BlueGreenDeployment(object):
     the web via Marathon-LB.
     """
 
-    def __init__(self, marathon_client, marathon_lb_url, max_wait, app_definitions):
+    def __init__(self, marathon_client, marathon_lb_client, max_wait, app_definitions):
         self.marathon_client = marathon_client
-        self.marathon_lb_url = marathon_lb_url
+        self.marathon_lb_client = marathon_lb_client
         self.max_wait = max_wait
         self.app_definitions = app_definitions
 
@@ -90,7 +90,7 @@ class BlueGreenDeployment(object):
             return swap_bluegreen_apps(force,
                                        self.max_wait,
                                        self.marathon_client,
-                                       self.marathon_lb_url,
+                                       self.marathon_lb_client,
                                        new_app,
                                        old_app,
                                        time.time())

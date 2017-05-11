@@ -17,10 +17,10 @@ from shpkpr.template import render_json_template
 @options.template_path
 @options.env_prefix
 @options.marathon_client
-@options.marathon_lb_url
+@options.marathon_lb_client
 @options.max_wait
 @options.force
-def cli(marathon_client, marathon_lb_url, max_wait, force, env_prefix,
+def cli(marathon_client, marathon_lb_client, max_wait, force, env_prefix,
         template_path, template_names, env_pairs):
     """Perform a blue/green deploy
     """
@@ -31,7 +31,7 @@ def cli(marathon_client, marathon_lb_url, max_wait, force, env_prefix,
         rendered_templates.append(render_json_template(template_path, template_name, **values))
 
     deployment = BlueGreenDeployment(marathon_client,
-                                     marathon_lb_url,
+                                     marathon_lb_client,
                                      max_wait,
                                      rendered_templates)
     deployment.execute(force)
