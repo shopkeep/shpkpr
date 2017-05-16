@@ -1,0 +1,45 @@
+{
+  "id": "my-app",
+  "cpus": 0.1,
+  "mem": 256,
+  "instances": 4,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "my-app:some-tag",
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 0,
+          "protocol": "tcp",
+          "servicePort": 11090
+        }
+      ]
+    }
+  },
+  "healthChecks": [
+    {
+      "path": "/",
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 10,
+      "timeoutSeconds": 5,
+      "maxConsecutiveFailures": 3
+    }
+  ],
+  "constraints": [
+    ["hostname", "UNIQUE"]
+  ],
+  "upgradeStrategy": {
+      "minimumHealthCapacity": 1,
+      "maximumOverCapacity": 1
+  },
+  "labels": {
+      "HAPROXY_DEPLOYMENT_GROUP": "my-group",
+      "HAPROXY_GROUP": "internal",
+      "HAPROXY_DEPLOYMENT_ALT_PORT": "11091",
+      "HAPROXY_0_VHOST": "my-app.my-domain.com"
+  }
+}
