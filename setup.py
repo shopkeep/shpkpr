@@ -1,4 +1,5 @@
 # stdlib imports
+from setuptools import find_packages
 from setuptools import setup
 
 
@@ -22,7 +23,7 @@ setup(
     author='ShopKeep.com Inc.',
     author_email='developers@shopkeep.com',
     url='https://github.com/shopkeep/shpkpr',
-    packages=['shpkpr', 'shpkpr.cli', 'shpkpr.commands', 'shpkpr.deployment', 'shpkpr.marathon', 'shpkpr.marathon_lb'],
+    packages=find_packages(),
     include_package_data=True,
     install_requires=[
         'PyYAML>=3.10.0',
@@ -60,6 +61,7 @@ setup(
         'pytest-runner',
     ],
     tests_require=[
+        'freezegun',
         'mock',
         'pytest',
         'responses',

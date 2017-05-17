@@ -70,9 +70,9 @@ def test_set_multiple(mock_chronos_add, mock_chronos_list, runner):
     _tmpl_path_2 = 'tests/fixtures/templates/chronos/test-chronos-2.json.tmpl'
     result = runner(
         [
-         'cron', 'set',
-         '--template', _tmpl_path,
-         '--template', _tmpl_path_2,
+            'cron', 'set',
+            '--template', _tmpl_path,
+            '--template', _tmpl_path_2,
         ],
         env={
             'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
