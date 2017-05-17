@@ -82,7 +82,10 @@ class MarathonStateValidator(object):
         self.marathon_client = marathon_client
 
     def validate(self, app_definition):
-        get_deployment_group = lambda a: a.get('labels').get('HAPROXY_DEPLOYMENT_GROUP')  # NOQA: E731
+        def get_deployment_group(app_definition):
+            labels = app_definition.get('labels', {})
+            return labels.get('HAPROXY_DEPLOYMENT_GROUP')
+
         app_group = get_deployment_group(app_definition)
 
         remote_apps = self.marathon_client.list_applications()

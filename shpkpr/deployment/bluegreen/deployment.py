@@ -138,9 +138,11 @@ class BlueGreenDeploymentSingleApp(object):
         from Marathon if one exists. If no existing stacks are found then
         ``None`` is returned instead.
         """
-        get_deployment_group = lambda a: a.get('labels').get('HAPROXY_DEPLOYMENT_GROUP')  # NOQA: E731
-        target_deployment_group = get_deployment_group(self.app_definition)
+        def get_deployment_group(app_definition):
+            labels = app_definition.get('labels', {})
+            return labels.get('HAPROXY_DEPLOYMENT_GROUP')
 
+        target_deployment_group = get_deployment_group(self.app_definition)
         for app_definition in self.marathon_client.list_applications():
             if get_deployment_group(app_definition) == target_deployment_group:
                 return app_definition

@@ -96,13 +96,11 @@ class ListenerCheck(object):
         self.app = app
         self.haproxy_count = haproxy_count
 
-    def check(self, status, predicate=None):
+    def check(self, status, predicate=lambda _: True):
         # fetch all listeners with the given status
         listeners = self.app_stats.listeners_with_status(status)
         # filter the list to contain only those listeners for which
         # `predicate(listener)` returns `True`
-        if predicate is None:
-            predicate = lambda _: True
         listeners = [l for l in listeners if predicate(l)]
         # ensure that task and listener counts match up
         return self._check_listeners_for_tasks(listeners)
