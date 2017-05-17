@@ -12,6 +12,7 @@ import os
 import click
 
 # local imports
+from shpkpr.cli.decorators import multioption
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
 from shpkpr.cli.formatter import OutputFormatter
 from shpkpr.marathon import MarathonClient
@@ -45,16 +46,6 @@ force = click.option(
     '--force',
     is_flag=True,
     help='Force update even if a deployment is in progress.',
-)
-
-
-marathon_client = click.option(
-    '--marathon_url',
-    'marathon_client',
-    envvar="{0}_MARATHON_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
-    required=True,
-    help="URL of the Marathon API to use.",
-    callback=lambda c, p, v: MarathonClient(v)
 )
 
 
@@ -129,4 +120,81 @@ output_formatter = click.option(
     envvar="{0}_OUTPUT_FORMAT".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     default="json",
     callback=lambda c, p, v: OutputFormatter(v)
+)
+
+username = click.option(
+    '--username',
+    'username',
+    type=str,
+    help='Username used for HTTP Basic Authentication to Marathon/Chronos.',
+    envvar="{0}_USERNAME".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    default=None,
+)
+
+password = click.option(
+    '--password',
+    'password',
+    type=str,
+    help='Password used for HTTP Basic Authentication to Marathon/Chronos.',
+    envvar="{0}_PASSWORD".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    default=None,
+)
+
+allow_insecure_auth = click.option(
+    '--allow-insecure-auth',
+    is_flag=True,
+    help='Allow HTTP basic authentication when not using SSL.',
+)
+
+marathon_url = click.option(
+    '--marathon_url',
+    'marathon_url',
+    envvar="{0}_MARATHON_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    required=True,
+    help="URL of the Marathon API to use.",
+)
+
+
+def _validate_marathon_client(ctx, _, __):
+    """Validates that all options required to initialise a marathon client have
+    been set properly and securely.
+
+    A client is then initialised and returned to the command function.
+    """
+    allow_insecure_auth = ctx.params["allow_insecure_auth"]
+    username = ctx.params["username"]
+    password = ctx.params["password"]
+    marathon_url = ctx.params["marathon_url"]
+
+    insecure_configuration = all([
+        bool(username) or bool(password),
+        not marathon_url.startswith("https://"),
+        not allow_insecure_auth,
+    ])
+
+    if insecure_configuration:
+        raise click.UsageError(
+            "HTTPS is strongly recommended when using basic authentication (as "
+            "credentials are sent unencrypted over the network).\n\nIf you "
+            "want to allow insecure communications regardless, you can use the "
+            "command-line flag: `--allow-insecure-auth`"
+        )
+
+    if username is not None and password is None:
+        password = click.prompt("Please enter your Marathon password")
+    if password is not None and username is None:
+        raise click.UsageError("A username is required to use HTTP Basic Authentication")
+
+    return MarathonClient(marathon_url, username, password)
+
+
+marathon_client = multioption(
+    name='marathon_client',
+    callback=_validate_marathon_client,
+    options=[
+        allow_insecure_auth,
+        username,
+        password,
+        marathon_url,
+    ],
 )

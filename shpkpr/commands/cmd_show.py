@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 @options.output_formatter
 @options.application_id
 @options.marathon_client
-def cli(marathon_client, application_id, output_formatter):
+def cli(marathon_client, application_id, output_formatter, **kw):
     """Shows detailed information for one or more applications.
     """
     if application_id is None:

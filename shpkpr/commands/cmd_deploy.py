@@ -18,7 +18,7 @@ from shpkpr.template import render_json_template
 @options.template_path
 @options.env_prefix
 @options.marathon_client
-def cli(marathon_client, env_prefix, template_path, template_names, dry_run, force, env_pairs):
+def cli(marathon_client, env_prefix, template_path, template_names, dry_run, force, env_pairs, **kw):
     """Deploy application from template.
     """
     # set dry_run param if the user has requested it. This happens in the

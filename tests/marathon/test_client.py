@@ -155,3 +155,31 @@ def test_get_deployment_not_found():
     client = MarathonClient("http://marathon.somedomain.com:8080")
     with pytest.raises(DeploymentNotFound):
         client.get_deployment("1234")
+
+
+@responses.activate
+def test_basic_auth_headers_present():
+    responses.add(responses.GET,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=200,
+                  json=_load_json_fixture("valid_app"))
+
+    client = MarathonClient("http://marathon.somedomain.com:8080",
+                            "some-username",
+                            "some-password")
+    client.get_application('test-app')
+
+    assert "Authorization" in responses.calls[0].request.headers
+
+
+@responses.activate
+def test_basic_auth_headers_not_present():
+    responses.add(responses.GET,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=200,
+                  json=_load_json_fixture("valid_app"))
+
+    client = MarathonClient("http://marathon.somedomain.com:8080")
+    client.get_application('test-app')
+
+    assert "Authorization" not in responses.calls[0].request.headers

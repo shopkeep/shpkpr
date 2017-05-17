@@ -21,7 +21,7 @@ from shpkpr.template import render_json_template
 @options.max_wait
 @options.force
 def cli(marathon_client, marathon_lb_client, max_wait, force, env_prefix,
-        template_path, template_names, env_pairs):
+        template_path, template_names, env_pairs, **kw):
     """Perform a blue/green deploy
     """
     values = load_values_from_environment(prefix=env_prefix, overrides=env_pairs)

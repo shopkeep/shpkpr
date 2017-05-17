@@ -24,9 +24,13 @@ class MarathonClient(object):
     """A thin wrapper around marathon.MarathonClient for internal use
     """
 
-    def __init__(self, marathon_url):
+    def __init__(self, marathon_url, username=None, password=None):
         self._marathon_url = marathon_url
         self.dry_run = False
+
+        self._basic_auth = None
+        if None not in [username, password]:
+            self._basic_auth = requests.auth.HTTPBasicAuth(username, password)
 
     def _build_url(self, path):
         return self._marathon_url.rstrip("/") + path
@@ -35,7 +39,7 @@ class MarathonClient(object):
         if self.dry_run:
             raise DryRun("Exiting as --dry-run requested")
         request = getattr(requests, method.lower())
-        return request(self._build_url(path), **kwargs)
+        return request(self._build_url(path), auth=self._basic_auth, **kwargs)
 
     def embed_params(self, entity_type):
         return [
