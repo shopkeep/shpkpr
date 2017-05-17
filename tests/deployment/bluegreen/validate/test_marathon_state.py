@@ -47,7 +47,7 @@ def test_valid_state_one_existing_stack(valid_app_definition, json_fixture):
 
 
 def test_invalid_state_two_existing_stacks(valid_app_definition, json_fixture):
-    """Test that an app validates successfully when one existing stack is
+    """Test that an app fails validation when more than one existing stack is
     present on Marathon.
     """
     marathon_client = mock.Mock()
