@@ -62,7 +62,6 @@ class BlueGreenDeploymentSingleApp(object):
     def execute(self, force=False):
         """Execute a bluegreen deployment for a single application.
         """
-        # validate the application definition before proceeding
         Validator(self.marathon_client).validate(self.app_definition)
 
         # prepare the new application for deployment by setting the appropriate
