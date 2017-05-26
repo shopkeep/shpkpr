@@ -7,9 +7,12 @@ used for multiple commands.
 """
 # stdlib imports
 import os
+from distutils.version import StrictVersion
 
 # third-party imports
 import click
+from chronos import ChronosClient
+from six.moves.urllib import parse
 
 # local imports
 from shpkpr.cli.decorators import multioption
@@ -74,8 +77,19 @@ chronos_url = click.option(
     'chronos_url',
     envvar="{0}_CHRONOS_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     required=True,
-    help='URL of the Chronos endpoint to use'
+    help='URL of the Chronos endpoint to use',
+    callback=lambda c, p, v: parse.urlparse(v, scheme="https"),
 )
+
+
+def _validate_chronos_version(ctx, param, value):
+    """chronos-python requires a version "prefix" to be used, so we convert the
+    target Chronos version to the appropriate prefix.
+    """
+    if StrictVersion(value) >= StrictVersion('3.0.0'):
+        return 'v1'
+    return None
+
 
 chronos_version = click.option(
     '--chronos_version',
@@ -83,7 +97,8 @@ chronos_version = click.option(
     envvar="{0}_CHRONOS_VERSION".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     required=False,
     help='Verson of the Chronos endpoint to use',
-    default='3.0.2'
+    default='3.0.2',
+    callback=_validate_chronos_version,
 )
 
 job_name = click.option(
@@ -121,6 +136,35 @@ output_formatter = click.option(
     default="json",
     callback=lambda c, p, v: OutputFormatter(v)
 )
+
+
+def _validate_authentication(ctx, url, service_name):
+    """Validates that authentication-related options required to initialise
+    marathon/chronos clients have been set properly and securely.
+    """
+    allow_insecure_auth = ctx.params["allow_insecure_auth"]
+    username = ctx.params["username"]
+    password = ctx.params["password"]
+
+    insecure_configuration = all([
+        bool(username) or bool(password),
+        not url.startswith("https://"),
+        not allow_insecure_auth,
+    ])
+
+    if insecure_configuration:
+        raise click.UsageError(
+            "HTTPS is strongly recommended when using basic authentication (as "
+            "credentials are sent unencrypted over the network).\n\nIf you "
+            "want to allow insecure communications regardless, you can use the "
+            "command-line flag: `--allow-insecure-auth`"
+        )
+
+    if username is not None and password is None:
+        password = click.prompt("Please enter your {0} password".format(service_name))
+    if password is not None and username is None:
+        raise click.UsageError("A username is required to use HTTP Basic Authentication")
+
 
 username = click.option(
     '--username',
@@ -161,31 +205,9 @@ def _validate_marathon_client(ctx, _, __):
 
     A client is then initialised and returned to the command function.
     """
-    allow_insecure_auth = ctx.params["allow_insecure_auth"]
-    username = ctx.params["username"]
-    password = ctx.params["password"]
-    marathon_url = ctx.params["marathon_url"]
-
-    insecure_configuration = all([
-        bool(username) or bool(password),
-        not marathon_url.startswith("https://"),
-        not allow_insecure_auth,
-    ])
-
-    if insecure_configuration:
-        raise click.UsageError(
-            "HTTPS is strongly recommended when using basic authentication (as "
-            "credentials are sent unencrypted over the network).\n\nIf you "
-            "want to allow insecure communications regardless, you can use the "
-            "command-line flag: `--allow-insecure-auth`"
-        )
-
-    if username is not None and password is None:
-        password = click.prompt("Please enter your Marathon password")
-    if password is not None and username is None:
-        raise click.UsageError("A username is required to use HTTP Basic Authentication")
-
-    return MarathonClient(marathon_url, username, password)
+    _c = ctx.params
+    _validate_authentication(ctx, _c["marathon_url"], "Marathon")
+    return MarathonClient(_c["marathon_url"], _c["username"], _c["password"])
 
 
 marathon_client = multioption(
@@ -196,5 +218,33 @@ marathon_client = multioption(
         username,
         password,
         marathon_url,
+    ],
+)
+
+
+def _validate_chronos_client(ctx, _, __):
+    """Validates that all options required to initialise a chronos client have
+    been set properly and securely.
+
+    A client is then initialised and returned to the command function.
+    """
+    _c = ctx.params
+    _validate_authentication(ctx, parse.urlunparse(_c["chronos_url"]), "Chronos")
+    return ChronosClient(_c["chronos_url"].netloc,
+                         proto=_c["chronos_url"].scheme,
+                         scheduler_api_version=_c["chronos_version"],
+                         username=_c["username"],
+                         password=_c["password"])
+
+
+chronos_client = multioption(
+    name='chronos_client',
+    callback=_validate_chronos_client,
+    options=[
+        allow_insecure_auth,
+        username,
+        password,
+        chronos_url,
+        chronos_version,
     ],
 )

@@ -1,5 +1,4 @@
 # third-party imports
-import chronos
 import mock
 
 
@@ -18,7 +17,7 @@ def test_help(runner):
     assert 'Manage Chronos Jobs' in result.output
 
 
-@mock.patch.object(chronos.ChronosClient, 'list')
+@mock.patch("shpkpr.cli.options.ChronosClient.list")
 def test_show(mock_chronos_client, runner, json_fixture):
     mock_chronos_client.return_value = json_fixture("chronos_jobs")
 
@@ -31,7 +30,7 @@ def test_show(mock_chronos_client, runner, json_fixture):
     assert result.exit_code == 0
 
 
-@mock.patch.object(chronos.ChronosClient, 'list')
+@mock.patch("shpkpr.cli.options.ChronosClient.list")
 def test_show_job_name(mock_chronos_client, runner, json_fixture):
     mock_chronos_client.return_value = json_fixture("chronos_jobs")
 
@@ -44,8 +43,8 @@ def test_show_job_name(mock_chronos_client, runner, json_fixture):
     assert result.exit_code == 0
 
 
-@mock.patch.object(chronos.ChronosClient, 'list')
-@mock.patch.object(chronos.ChronosClient, 'add')
+@mock.patch("shpkpr.cli.options.ChronosClient.list")
+@mock.patch("shpkpr.cli.options.ChronosClient.add")
 def test_set(mock_chronos_add, mock_chronos_list, runner, json_fixture):
     mock_chronos_list.return_value = []
     mock_chronos_add.return_value = True
@@ -60,8 +59,8 @@ def test_set(mock_chronos_add, mock_chronos_list, runner, json_fixture):
     assert result.exit_code == 0
 
 
-@mock.patch.object(chronos.ChronosClient, 'list')
-@mock.patch.object(chronos.ChronosClient, 'add')
+@mock.patch("shpkpr.cli.options.ChronosClient.list")
+@mock.patch("shpkpr.cli.options.ChronosClient.add")
 def test_set_multiple(mock_chronos_add, mock_chronos_list, runner):
     mock_chronos_list.return_value = []
     mock_chronos_add.return_value = True
@@ -85,9 +84,9 @@ def test_set_multiple(mock_chronos_add, mock_chronos_list, runner):
     assert result.exit_code == 0
 
 
-@mock.patch.object(chronos.ChronosClient, 'list')
-@mock.patch.object(chronos.ChronosClient, 'update')
-@mock.patch.object(chronos.ChronosClient, 'add')
+@mock.patch("shpkpr.cli.options.ChronosClient.list")
+@mock.patch("shpkpr.cli.options.ChronosClient.update")
+@mock.patch("shpkpr.cli.options.ChronosClient.add")
 def test_set_update(mock_chronos_add, mock_chronos_update, mock_chronos_list, runner):
     mock_chronos_list.return_value = [{'name': 'shpkpr-test-job'}]
     mock_chronos_update.return_value = True
@@ -104,7 +103,7 @@ def test_set_update(mock_chronos_add, mock_chronos_update, mock_chronos_list, ru
     assert result.exit_code == 0
 
 
-@mock.patch.object(chronos.ChronosClient, 'delete')
+@mock.patch("shpkpr.cli.options.ChronosClient.delete")
 def test_delete(mock_chronos_client, runner):
     mock_chronos_client.return_value = True
 
@@ -116,7 +115,7 @@ def test_delete(mock_chronos_client, runner):
     assert result.exit_code == 0
 
 
-@mock.patch.object(chronos.ChronosClient, 'delete_tasks')
+@mock.patch("shpkpr.cli.options.ChronosClient.delete_tasks")
 def test_delete_tasks(mock_chronos_client, runner):
     mock_chronos_client.return_value = True
 
@@ -128,7 +127,7 @@ def test_delete_tasks(mock_chronos_client, runner):
     assert result.exit_code == 0
 
 
-@mock.patch.object(chronos.ChronosClient, 'run')
+@mock.patch("shpkpr.cli.options.ChronosClient.run")
 def test_run(mock_chronos_client, runner):
     mock_chronos_client.return_value = True
 
