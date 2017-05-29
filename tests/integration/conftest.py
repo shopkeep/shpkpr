@@ -15,6 +15,7 @@ def env():
     # read the required environment variables into a dictionary and assert
     # that they're set appropriately
     env = {
+        "SHPKPR_MARATHON_APP_ID": os.environ.get("SHPKPR_MARATHON_APP_ID", None),
         "SHPKPR_MARATHON_URL": os.environ.get("SHPKPR_MARATHON_URL", None),
         "SHPKPR_MARATHON_LB_URL": os.environ.get("SHPKPR_MARATHON_LB_URL", None),
         "SHPKPR_APPLICATION": os.environ.get("SHPKPR_APPLICATION", None),
