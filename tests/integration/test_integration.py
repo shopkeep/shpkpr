@@ -36,7 +36,7 @@ def test_show(runner, env):
 
 
 @pytest.mark.integration
-def test_deploy(runner, env):
+def test_deploy_custom_template(runner, env):
     _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
     result = runner(["deploy", "-t", _tmpl_path, "RANDOM_LABEL=some_value"], env=env)
     _check_exits_zero(result)
@@ -47,6 +47,24 @@ def test_show_again(runner, env):
     result = runner(["show"], env=env)
     _check_exits_zero(result)
     _check_output_contains(result, '"id": "/%s"' % env['SHPKPR_APPLICATION'])
+
+
+@pytest.mark.integration
+def test_deploy_default_template(runner, env):
+    cmd = ["deploy",
+           "LABEL_RANDOM=some_value",
+           "DOCKER_EXPOSED_PORT=8080",
+           "MARATHON_HEALTH_CHECK_PATH=/"]
+    result = runner(cmd, env=env)
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_show_yet_again(runner, env):
+    result = runner(["show", "-a", env['SHPKPR_MARATHON_APP_ID']], env=env)
+    _check_exits_zero(result)
+    _check_output_contains(result, '"id": "/%s"' % env['SHPKPR_MARATHON_APP_ID'])
+    _check_output_contains(result, '"RANDOM": "some_value"')
 
 
 @pytest.mark.integration

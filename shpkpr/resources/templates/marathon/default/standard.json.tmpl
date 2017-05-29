@@ -1,0 +1,266 @@
+{#
+    Built-In Standard Template
+
+    This file contains the default template used by shpkpr when performing a
+    standard Marathon deployment if no custom template is provided. The goal of
+    this template is to provide a comprehensive application definition that
+    works in a wide variety of usecases.
+
+    With sensible defaults for most options, it should be possible to deploy a
+    new or updated application with very minimal configuration.
+
+    This template makes some assumptions about your application:
+
+    - It is configured via environment variables (12-factor style).
+    - It runs in a Docker container.
+    - It exposes at most one TCP port.
+
+    Only 2 values are required to deploy an application using this template:
+
+    - MARATHON_APP_ID: The name of the deployed application on Marathon
+    - DOCKER_REPOTAG: The repotag of the Docker image to be deployed
+
+    If the application being deployed exposes services via HTTP, it is
+    recommended that a health check is also configured using the
+    `MARATHON_HEALTH_CHECK_PATH` variable.
+#}
+{
+    {#
+        Unique identifier for the app consisting of a series of names separated
+        by slashes. Each name must be at least 1 character and may only contain
+        digits (0-9), dashes (-), dots (.), and lowercase letters (a-z). The
+        name may not begin or end with a dash.
+
+        When choosing an ID for your application it should meet the following
+        criteria:
+
+        - Be descriptive: A good ID should easily identify what is running. If
+          in doubt, the GitHub repo name is a good starting point.
+          - Good: `authentication-service`, `godoc`, `core-documentation`
+          - Bad: `incongruous-elderberries`, `banana-for-scale`, `so-service-much-http-wow`
+
+        - Use a common prefix: Where an application has more than one type of
+          service to run, all instances should use a common prefix to enable
+          easy categorization and sorting.
+          - Good: `some-service/consumer`, `some-service/web`
+          - Bad: `consumer-some-service`, `web-some-service`
+    #}
+    "id": "{{MARATHON_APP_ID}}",
+    {#
+        The command that is executed on task startup. This is optional, if not
+        defined it defaults to the CMD configured in the Docker container at
+        build time.
+    #}
+    {% if MARATHON_CMD is defined %}"cmd": "{{MARATHON_CMD}}",{% endif %}
+    {#
+        The number of CPU shares this application needs per instance.
+
+        The `cpus` parameter is used for two different purposes in two different
+        contexts, by Mesos when scheduling tasks across the cluster, and by the
+        Linux Kernel when scheduling processes on a single machine.
+
+        Mesos uses the `cpus` value when deciding on which slave a task should
+        be scheduled. Mesos treats `cpus` values as absolute, e.g. A box with 4
+        available CPUs would never be assigned a set of tasks whose `cpus`
+        values total more than 4. Mesos does not (yet) support oversubscription
+        of resources at the cluster level.
+
+        When a task has been scheduled to a given slave, Linux's scheduler takes
+        over. An application's `cpus` value is used by CFS (Linux's Completely
+        Fair Scheduler) to assign a *minimum* relative share of all CPU
+        resources on the slave, e.g. If a slave is running 3 CPU-bound tasks,
+        each with a `cpus` value of `0.1`, each will be allocated
+        *approximately* 33% of the available CPU time. If not all of the tasks
+        on a given slave are CPU-bound, CFS will allow the spare CPU resource to
+        be consumed by any task that requires it.
+
+        To summarize:
+
+        - Marathon’s cpu setting is used for 2 distinct purposes.
+        - Mesos treats the value as absolute and uses it to schedule a task to a
+          specific slave with the available resources.
+        - Linux treats the value as a relative weight, ensuring that an
+          application has access to a *minimum* share of CPU time (equivalent to
+          `task.cpus / sum([t.cpus for t in tasks])`).
+
+        When choosing a value for `cpus` you should take care not to request
+        more resources than your application needs:
+
+        - Is my application typically CPU bound?
+          - No: `0.1` is a good default value for `cpus`.
+          - Yes: `0.5` is a good starting value from which the application can
+            be monitored and adjusted up/down as necessary.
+    #}
+    "cpus": {{MARATHON_CPUS|default(0.1)|require_float(min=0.1)}},
+    {#
+        The amount of memory in MB that is needed for the application per
+        instance. If an application exceeds the amount of memory it has been
+        allocated, Marathon will kill and restart the task to reclaim the RAM.
+    #}
+    "mem": {{MARATHON_MEM|default(128)|require_int(min=0)}},
+    {# The number of instances of this application to start. #}
+    "instances": {{MARATHON_INSTANCES|default(1)|require_int(min=0)}},
+    "container": {
+        "type": "DOCKER",
+        "docker": {
+            {# The name/tag of the Docker image to use. #}
+            "image": "{{DOCKER_REPOTAG}}",
+            {% if DOCKER_EXPOSED_PORT is defined %}
+            "portMappings": [
+                {
+                    {#
+                        Port number within the container that should be exposed
+                        to the host.
+                    #}
+                    "containerPort": {{DOCKER_EXPOSED_PORT|require_int}},
+                    {#
+                        Setting `hostPort` to `0` allows Marathon to dynamically
+                        allocate a port on the host to map.
+                    #}
+                    "hostPort": 0,
+                    "protocol": "tcp"
+                }
+            ],
+            {% endif %}
+            "network": "BRIDGE"
+        }
+    },
+    {#
+        Key value pairs that get added to the environment variables of each task
+        that is started by Marathon.
+    #}
+    "env": {
+        {% for key, value in _all_env|filter_items("ENV_", strip_prefix=True) %}
+            "{{key}}": "{{value}}"{% if not loop.last %},{% endif %}
+        {% endfor %}
+    },
+    {#
+        Attaching metadata to apps can be useful to expose additional
+        information to other services, so Marathon has the ability to place
+        labels on apps (for example, you could label apps “staging” and
+        “production” to mark services by their position in the pipeline).
+    #}
+    "labels": {
+        {% for key, value in _all_env|filter_items("LABEL_", strip_prefix=True) %}
+            "{{key}}": "{{value}}"{% if not loop.last %},{% endif %}
+        {% endfor %}
+    },
+    {#
+        Secrets allow Marathon to retrieve secret data from configured "secret
+        stores" at application startup time. This allows decoupling of how
+        secrets are provisioned from the how applications make use of those
+        secrets at runtime.
+
+        Secrets functionality requires the use of a custom Marathon plugin, none
+        is enabled by default. The exact mechanism by which secrets are made
+        available to the application at runtime depends on the plugin being
+        used.
+
+        Docs: https://mesosphere.github.io/marathon/docs/plugin.html
+    #}
+    "secrets": {
+        {% for key, value in _all_env|filter_items("SECRET_", strip_prefix=True) %}
+            "{{key}}": {"source": "{{value}}"}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    },
+    {#
+        Constraints control where apps run to allow optimizing for either fault
+        tolerance (by spreading a task out on multiple nodes) or locality (by
+        running all of an applications tasks on the same node). Constraints have
+        three parts: a field name, an operator, and an optional parameter. The
+        field can be the hostname of the agent node or any attribute of the
+        agent node.
+
+        Docs: https://mesosphere.github.io/marathon/docs/constraints.html
+    #}
+    "constraints": [
+        ["hostname", "GROUP_BY", "{{MARATHON_GROUP_BY|default(2)|require_int(min=1)}}"]
+    ],
+    {#
+        During an upgrade all instances of an application get replaced by a new
+        version. The upgradeStrategy controls how Marathon stops old versions
+        and launches new versions.
+
+        Docs: https://mesosphere.github.io/marathon/docs/deployments.html#rolling-restarts
+    #}
+    "upgradeStrategy": {
+        {#
+            A number between 0 and 1 that is multiplied with the instance count.
+            This is the minimum number of healthy nodes that do not sacrifice
+            overall application purpose. Marathon will make sure, during the
+            upgrade process, that at any point of time this number of healthy
+            instances are up.
+        #}
+        "minimumHealthCapacity": {{MARATHON_MIN_HEALTH_CAPACITY|default(0)|require_float(min=0, max=1)}},
+        {#
+            A number between 0 and 1 which is multiplied with the instance
+            count. This is the maximum number of additional instances launched
+            at any point of time during the upgrade process.
+        #}
+        "maximumOverCapacity": {{MARATHON_MAX_OVER_CAPACITY|default(0)|require_float(min=0, max=1)}}
+    },
+    {#
+        An array of checks to be performed on running tasks to determine if they
+        are operating as expected. Health checks begin immediately upon task
+        launch.
+
+        An HTTP health check is considered passing if (1) its HTTP response code
+        is between 200 and 399, inclusive, and (2) its response is received
+        within the `timeoutSeconds` period.
+
+        If a task fails more than `maxConsecutiveFailures` health checks
+        consecutively, that task is killed causing Marathon to start more
+        instances.
+    #}
+    {% if MARATHON_HEALTH_CHECK_PATH is defined and MARATHON_HEALTH_CHECK_PATH %}
+    "healthChecks": [
+        {
+            {#
+                Path to endpoint exposed by the task that will provide health
+                status. Example: “/path/to/health”.
+            #}
+            "path": "{{MARATHON_HEALTH_CHECK_PATH}}",
+            {#
+                Protocol of the requests to be performed. One of “HTTP”,
+                “HTTPS”, “TCP”, or “Command”.
+            #}
+            "protocol": "{{MARATHON_HEALTH_CHECK_PROTOCOL|default("HTTP")}}",
+            {#
+                A port index of `0` tells Marathon to make requests to the
+                application on the first exposed port. In this case, since the
+                template can only ever expose a single port
+                (`DOCKER_EXPOSED_PORT` above) it's safe to hardcode this value.
+            #}
+            "portIndex": 0,
+            {#
+                Health check failures are ignored within this number of
+                seconds of the task being started or until the task becomes
+                healthy for the first time.
+            #}
+            "gracePeriodSeconds": {{MARATHON_HEALTH_CHECK_GRACE_PERIOD_SECONDS|default(300)|require_int(min=0)}},
+            {# Number of seconds to wait between health checks. #}
+            "intervalSeconds": {{MARATHON_HEALTH_CHECK_INTERVAL_SECONDS|default(10)|require_int(min=0)}},
+            {#
+                Number of seconds after which a health check is considered a
+                failure regardless of the response.
+            #}
+            "timeoutSeconds": {{MARATHON_HEALTH_CHECK_TIMEOUT_SECONDS|default(5)|require_int(min=0)}},
+            {#
+                Number of consecutive health check failures after which the
+                unhealthy task should be killed.
+            #}
+            "maxConsecutiveFailures": {{MARATHON_HEALTH_CHECK_MAX_CONSECUTIVE_FAILURES|default(3)|require_int(min=0)}}
+        }
+    ],
+    {% endif %}
+    {#
+        Configures the termination signal escalation behavior of executors when
+        stopping tasks. Sets the number of seconds between the executor sending
+        SIGTERM to a task it is about to stop and then finally sending SIGKILL
+        to enforce the matter.
+
+        Using this grace period, tasks should perform orderly shutdown
+        immediately upon receiving SIGTERM.
+    #}
+    "taskKillGracePeriodSeconds": {{MARATHON_TASK_KILL_GRACE_PERIOD_SECONDS|default(10)|require_int(min=0)}}
+}

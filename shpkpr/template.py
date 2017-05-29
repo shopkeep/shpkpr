@@ -92,11 +92,19 @@ def render_json_template(template_path, template_name, **values):
     ``values`` should be regular keyword arguments to the function which will
     be passed to the template at render time.
     """
+    # shpkpr ships with a number of built-in templates for each deployment type,
+    # so we need to tell jinja where to look for them
+    here = os.path.dirname(os.path.abspath(__file__))
+    built_in_template_path = os.path.join(here, "resources", "templates")
+
     # build a new Jinja2 environment so we can inject some custom filters into
     # the template we're rendering.
     template_env = jinja2.Environment(
         undefined=jinja2.StrictUndefined,
-        loader=jinja2.FileSystemLoader(template_path),
+        loader=jinja2.FileSystemLoader([
+            built_in_template_path,
+            template_path,
+        ]),
     )
     template_env.filters['filter_items'] = template_filters.filter_items
     template_env.filters['require_int'] = template_filters.require_int

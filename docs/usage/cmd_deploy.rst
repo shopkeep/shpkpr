@@ -13,8 +13,7 @@ Deploying a new application config
       --force                Force update even if a deployment is in progress.
       --dry-run              Enables dry-run mode. Shpkpr will not attempt to
                              contact Marathon when this is enabled.
-      -t, --template TEXT    Name of the template to use for deployment.
-                             [required]
+      -t, --template TEXT    Name of the template to use for deployment (default: built-in template).
       --template_dir TEXT    Base directory in which your templates are stored (default: `pwd`).
       -e, --env_prefix TEXT  Prefix used to restrict environment vars used for
                              templating.
@@ -32,15 +31,6 @@ Required Configuration
 
     * Environment variable: ``SHPKPR_MARATHON_URL``
     * Command-line flag: ``--marathon_url``
-
-**JSON Template Name:**
-
-    Name of the JSON template to use for deployment, e.g. ``a/template.json.tmpl`` or ``my-template.json.tmpl``. This path should always be relative to the template base directory defined by ``--template-dir`` (``pwd`` by default).
-
-    * Environment variable: ``SHPKPR_TEMPLATE``
-    * Command-line flag: ``--template``
-
-    **NOTE:** When running Marathon >0.13.0 it is possible to deploy multiple applications at the same time either by specifying the ``--template`` option multiple times, or by using a single template which contains a list of individual applications.
 
 Optional Configuration
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -72,6 +62,17 @@ Optional Configuration
     Absolute path to the base directory in which templates are stored. By default this is ``pwd`` but can be overridden to allow reading templates from any location on the filesystem. This setting is useful when using templates not found in ``pwd`` or controlling exactly how template inheritance should work. The specified directory is passed to a ``jinja2.FilesystemLoader`` within ``shpkpr``.
 
     * Command-line flag: ``--template_dir``
+
+**JSON Template Name:**
+
+    Name of the JSON template to use for deployment, e.g. ``a/template.json.tmpl`` or ``my-template.json.tmpl``. This path should always be relative to the template base directory defined by ``--template-dir`` (``pwd`` by default).
+
+    * Environment variable: ``SHPKPR_TEMPLATE``
+    * Command-line flag: ``--template``
+
+    If no template is explicitly provided then the default template is used (``marathon/default/standard.json.tmpl``).
+
+    **NOTE:** When running Marathon >0.13.0 it is possible to deploy multiple applications at the same time either by specifying the ``--template`` option multiple times, or by using a single template which contains a list of individual applications.
 
 Examples
 ^^^^^^^^
