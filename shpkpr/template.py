@@ -6,6 +6,7 @@ import os
 
 # third-party imports
 import jinja2
+import slugify
 
 # local imports
 from shpkpr import exceptions
@@ -109,6 +110,7 @@ def render_json_template(template_path, template_name, **values):
     template_env.filters['filter_items'] = template_filters.filter_items
     template_env.filters['require_int'] = template_filters.require_int
     template_env.filters['require_float'] = template_filters.require_float
+    template_env.filters['slugify'] = slugify.slugify
 
     template = template_env.get_template(template_name)
     rendered_template = template.render(_all_env=values, **values)

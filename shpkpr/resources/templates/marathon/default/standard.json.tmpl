@@ -105,6 +105,7 @@
         "docker": {
             {# The name/tag of the Docker image to use. #}
             "image": "{{DOCKER_REPOTAG}}",
+            {% block docker_port_mappings %}
             {% if DOCKER_EXPOSED_PORT is defined %}
             "portMappings": [
                 {
@@ -122,6 +123,7 @@
                 }
             ],
             {% endif %}
+            {% endblock %}
             "network": "BRIDGE"
         }
     },
@@ -140,11 +142,13 @@
         labels on apps (for example, you could label apps “staging” and
         “production” to mark services by their position in the pipeline).
     #}
+    {% block labels %}
     "labels": {
         {% for key, value in _all_env|filter_items("LABEL_", strip_prefix=True) %}
             "{{key}}": "{{value}}"{% if not loop.last %},{% endif %}
         {% endfor %}
     },
+    {% endblock %}
     {#
         Secrets allow Marathon to retrieve secret data from configured "secret
         stores" at application startup time. This allows decoupling of how
@@ -212,6 +216,7 @@
         consecutively, that task is killed causing Marathon to start more
         instances.
     #}
+    {% block healthchecks %}
     {% if MARATHON_HEALTH_CHECK_PATH is defined and MARATHON_HEALTH_CHECK_PATH %}
     "healthChecks": [
         {
@@ -253,6 +258,7 @@
         }
     ],
     {% endif %}
+    {% endblock %}
     {#
         Configures the termination signal escalation behavior of executors when
         stopping tasks. Sets the number of seconds between the executor sending
