@@ -24,8 +24,11 @@ def cli(marathon_client, marathon_lb_client, max_wait, force, env_prefix,
         template_path, template_names, env_pairs, **kw):
     """Perform a blue/green deploy
     """
-    values = load_values_from_environment(prefix=env_prefix, overrides=env_pairs)
+    # use the default template if none was specified
+    if not template_names:
+        template_names = ["marathon/default/bluegreen.json.tmpl"]
 
+    values = load_values_from_environment(prefix=env_prefix, overrides=env_pairs)
     rendered_templates = []
     for template_name in template_names:
         rendered_templates.append(render_json_template(template_path, template_name, **values))

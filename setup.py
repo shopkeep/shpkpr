@@ -32,6 +32,7 @@ setup(
         'click>=6.0, <7',
         'jinja2>=2.6, <3',
         'jsonschema>=2.6, <3',
+        'python-slugify>=1.2.4',
         'six>=1.7.0',
         'requests>=2.4.2',
     ],

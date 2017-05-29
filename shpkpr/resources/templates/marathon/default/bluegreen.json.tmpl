@@ -1,0 +1,105 @@
+{#
+    Built-In Blue-Green deployment Template
+
+    This file contains the default template used by shpkpr when performing a
+    blue-green deployment if no custom template is provided. The goal of
+    this template is to provide a comprehensive application definition that
+    works in a wide variety of usecases.
+
+    This template contains only those sections (blocks) which need to be
+    changed/overridden from the standard deployment template.
+
+    This template makes some assumptions about your application (in addition to
+    those made by the standard template from which this extends):
+
+    - It exposes exactly one TCP port.
+    - It has a domain/hostname.
+    - It exposes a healthcheck endpoint.
+
+    Several values are required to deploy an application using this template (in
+    addition to those required by the standard template):
+
+    - DOCKER_EXPOSED_PORT: Port number within the container that should be
+      exposed to the host.
+    - MARATHON_SERVICE_PORT: The port used by Marathon-LB for load-balancing.
+    - MARATHON_SERVICE_PORT_ALT: An alternate port used by Marathon-LB for
+      load-balancing during a blue-green deployment.
+    - MARATHON_HEALTH_CHECK_PATH: The path of an HTTP endpoint exposed by the
+      application for healthcheck purposes.
+    - HAPROXY_VHOST: The hostname(s) that that will be proxied to the
+      application (comma separated if multiple).
+#}
+{% extends "marathon/default/standard.json.tmpl" %}
+
+
+{% block docker_port_mappings %}
+{# Applications using blue-green deployment _must_ expose a port. #}
+"portMappings": [
+    {
+        "containerPort": {{DOCKER_EXPOSED_PORT|require_int}},
+        "hostPort": 0,
+        {#
+            The service port is used by Marathon-LB for load-balancing and
+            management of blue-green deploys. Must be globally unique.
+        #}
+        "servicePort": {{MARATHON_SERVICE_PORT|require_int}},
+        "protocol": "tcp"
+    }
+],
+{% endblock %}
+
+
+{% block healthchecks %}
+{# Applications using blue-green deployment _must_ define a healthcheck. #}
+"healthChecks": [
+    {
+        "path": "{{MARATHON_HEALTH_CHECK_PATH}}",
+        "protocol": "{{MARATHON_HEALTH_CHECK_PROTOCOL|default("HTTP")}}",
+        "portIndex": 0,
+        "gracePeriodSeconds": {{MARATHON_HEALTH_CHECK_GRACE_PERIOD_SECONDS|default(300)|require_int(min=0)}},
+        "intervalSeconds": {{MARATHON_HEALTH_CHECK_INTERVAL_SECONDS|default(10)|require_int(min=0)}},
+        "timeoutSeconds": {{MARATHON_HEALTH_CHECK_TIMEOUT_SECONDS|default(5)|require_int(min=0)}},
+        "maxConsecutiveFailures": {{MARATHON_HEALTH_CHECK_MAX_CONSECUTIVE_FAILURES|default(3)|require_int(min=0)}}
+    }
+],
+{% endblock %}
+
+
+{% block labels %}
+{#
+    Blue-Green deployments require a number of custom labels to be set at deploy
+    time. The required labels are configured below.
+
+    For full details of all available configuration options that can be set with
+    labels see https://github.com/mesosphere/marathon-lb/blob/master/Longhelp.md
+#}
+"labels": {
+    {#
+        Deployment group to which this app belongs. Used to identify
+        applications that should be considered when performing a blue-green
+        deploy.
+    #}
+    "HAPROXY_DEPLOYMENT_GROUP": "{{HAPROXY_DEPLOYMENT_GROUP|default(MARATHON_APP_ID)|slugify}}",
+    {#
+        HAProxy group per service. This allows you to assign the application to
+        either the `internal` or `external` group as appropriate.
+    #}
+    "HAPROXY_GROUP": "{{HAPROXY_GROUP|default("internal")}}",
+    {#
+        The alternate service port is used by Marathon-LB when cutting traffic
+        over between blue and green applications. Applications will typically
+        alternate between the primary and alternate ports as deploys happen.
+    #}
+    "HAPROXY_DEPLOYMENT_ALT_PORT": "{{MARATHON_SERVICE_PORT_ALT|require_int}}",
+    {#
+        The hostname(s) that that will be proxied to the application (comma
+        separated if multiple).
+    #}
+    "HAPROXY_0_VHOST": "{{HAPROXY_VHOST}}"
+    {# Allow setting arbitrary labels as in the parent template. #}
+    {% for key, value in _all_env|filter_items("LABEL_", strip_prefix=True) %}
+        {% if loop.first %},{% endif %}
+        "{{key}}": "{{value}}"{% if not loop.last %},{% endif %}
+    {% endfor %}
+},
+{% endblock %}

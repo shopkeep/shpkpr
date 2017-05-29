@@ -149,3 +149,49 @@ def test_ensure_bluegreen_swapped(runner, env):
     result = runner(["show"], env=local_env)
     _check_exits_zero(result)
     _check_output_contains(result, "shpkpr-test/integration-test-bluegreen-green")
+
+
+@pytest.mark.integration
+def test_bluegreen_deploy_default_template(runner, env):
+    cmd = ["bluegreen",
+           "DOCKER_EXPOSED_PORT=8080",
+           "MARATHON_APP_ID=shpkpr-test/integration-test-bluegreen-default-template",
+           "MARATHON_HEALTH_CHECK_PATH=/",
+           "MARATHON_SERVICE_PORT=11092",
+           "MARATHON_SERVICE_PORT_ALT=11093",
+           "HAPROXY_VHOST=shpkpr-test-bgdt.somedomain.com"]
+    result = runner(cmd, env=env)
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_ensure_bluegreen_default_template_deployed(runner, env):
+    local_env = copy.deepcopy(env)
+    local_env["SHPKPR_APPLICATION"] = "shpkpr-test/integration-test-bluegreen-default-template-blue"
+
+    result = runner(["show"], env=local_env)
+    _check_exits_zero(result)
+    _check_output_contains(result, local_env["SHPKPR_APPLICATION"])
+
+
+@pytest.mark.integration
+def test_bluegreen_deploy_with_existing_app_default_template(runner, env):
+    cmd = ["bluegreen",
+           "DOCKER_EXPOSED_PORT=8080",
+           "MARATHON_APP_ID=shpkpr-test/integration-test-bluegreen-default-template",
+           "MARATHON_HEALTH_CHECK_PATH=/",
+           "MARATHON_SERVICE_PORT=11092",
+           "MARATHON_SERVICE_PORT_ALT=11093",
+           "HAPROXY_VHOST=shpkpr-test-bgdt.somedomain.com"]
+    result = runner(cmd, env=env)
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_ensure_bluegreen_default_template_swapped(runner, env):
+    local_env = copy.deepcopy(env)
+    local_env["SHPKPR_APPLICATION"] = "shpkpr-test/integration-test-bluegreen-default-template-green"
+
+    result = runner(["show"], env=local_env)
+    _check_exits_zero(result)
+    _check_output_contains(result, local_env["SHPKPR_APPLICATION"])
