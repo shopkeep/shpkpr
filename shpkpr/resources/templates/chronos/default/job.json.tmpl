@@ -1,0 +1,102 @@
+{#
+    Built-In Job Template
+
+    This file contains the default template used by shpkpr when adding a new
+    Chronos job if no custom template is provided.
+
+    With sensible defaults for most options, it should be possible to deploy a
+    new or updated application with very minimal configuration.
+
+    This template makes some assumptions about your job:
+
+    - It is configured via environment variables (12-factor style).
+    - It runs in a Docker container.
+
+    4 values are required to run a job using this template:
+
+    - CHRONOS_NAME: The name of the Chronos job
+    - CHRONOS_OWNER: The email address of the team responsible for the job
+    - CHRONOS_CMD: The command that will be executed by Chronos
+    - DOCKER_REPOTAG: The repotag of the Docker image to be used
+#}
+{
+    {#
+        The job name. Must match the following regular expression: "([\w\.-]+)".
+    #}
+    "name": "{{CHRONOS_JOB_NAME}}",
+    {#
+        The email address of the person/team responsible for the job.
+    #}
+    "owner": "{{CHRONOS_OWNER}}",
+    {#
+        The actual command that will be executed by Chronos.
+    #}
+    "command": "{{CHRONOS_CMD}}",
+    "container": {
+        "type": "DOCKER",
+        {# The name/tag of the Docker image to use. #}
+        "image": "{{DOCKER_REPOTAG}}",
+        "network": "BRIDGE"
+    },
+    {# The number of CPU shares this job needs. #}
+    "cpus": {{CHRONOS_CPUS|default(0.1)|require_float(min=0.1)}},
+    {# Amount of Mesos Memory (in MB) for this job. #}
+    "mem": {{CHRONOS_MEM|default(512)|require_int(min=0)}},
+    {# If set to "true", this job will not be run. #}
+    "disabled": {{CHRONOS_DISABLED|default("false")}},
+    {#
+        Key value pairs that get added to the environment variables of each task
+        that is started by Chronos.
+    #}
+    "environmentVariables": [
+        {% for key, value in _all_env|filter_items("ENV_", strip_prefix=True) %}
+            {
+              "name": "{{key}}",
+              "value": "{{value}}"
+            }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ],
+    {#
+        If Chronos misses the scheduled run time for any reason, it will still
+        run the job if the time is within this interval. Epsilon must be
+        formatted like an ISO 8601 Duration.
+
+        https://en.wikipedia.org/wiki/ISO_8601#Durations
+    #}
+    "epsilon": "{{CHRONOS_EPSILON|default("PT60S")}}",
+    {#
+        The scheduling for the job, in ISO8601 format. Consists of 3 parts
+        separated by `/`:
+
+        - The number of times to repeat the job: `Rn` to repeat `n` times, or
+          `R` to repeat forever
+        - The start time of the job. An empty start time means start
+          immediately. Our format is ISO8601: `YYYY-MM-DDThh:mm:ss.sTZD` (e.g.,
+          `1997-07-16T19:20:30.45+01:00`) where:
+            - `YYYY` = four-digit year
+            - `MM`   = two-digit month (01 = January, etc.)
+            - `DD`   = two-digit day of month (01 through 31)
+            - `hh`   = two-digit hour in 24-hour time (00 through 23)
+            - `mm`   = two-digit minute (00 through 59)
+            - `ss`   = two-digit second (00 through 59)
+            - `s`    = one or more digits representing a decimal fraction of a
+                       second
+            - `TZD`  = time zone designator (`Z` for UTC or `+hh:mm` or `-hh:mm`
+                       for UTC offset)
+        - The run interval, defined following the "Duration" component of the
+          ISO8601 standard. `P` is required. `T` is for distinguishing M(inute)
+          and M(onth)––it is required when specifying Hour/Minute/Second. For
+          example:
+            - `P10M`           = 10 months
+            - `PT10M`          = 10 minutes
+            - `P1Y12M12D`      = 1 year, 12 months, and 12 days
+            - `P12DT12M`       = 12 days and 12 minutes
+            - `P1Y2M3DT4H5M6S` = 1 year, 2 months, 3 days, 4 hours, and 5
+                                 minutes
+
+        https://en.wikipedia.org/wiki/ISO_8601
+    #}
+    "schedule": "{{CHRONOS_SCHEDULE|default("R/2017-01-01T00:00:00.0Z/PT24H")}}",
+    {# Whether the job runs in the background or not. #}
+    "async": false
+}

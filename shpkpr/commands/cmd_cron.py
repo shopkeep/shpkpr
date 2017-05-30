@@ -58,6 +58,10 @@ def show(chronos_url, chronos_version, job_name, output_formatter):
 def set(chronos_url, chronos_version, template_path, template_names, env_prefix, env_pairs):
     """Add or Update a job in chronos.
     """
+    # use the default template if none was specified
+    if not template_names:
+        template_names = ["chronos/default/job.json.tmpl"]
+
     values = load_values_from_environment(prefix=env_prefix, overrides=env_pairs)
     current_jobs = chronos_connect(chronos_url, chronos_version).list()
 
