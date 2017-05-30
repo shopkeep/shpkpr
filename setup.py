@@ -28,7 +28,7 @@ setup(
     install_requires=[
         'PyYAML>=3.10.0',
         'cached-property>=1.3.0, <2',
-        'chronos-python>=1.0.0',
+        'chronos-python>=1.1.0',
         'click>=6.0, <7',
         'jinja2>=2.6, <3',
         'jsonschema>=2.6, <3',
