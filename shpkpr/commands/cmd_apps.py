@@ -1,3 +1,6 @@
+# stdlib imports
+import logging
+
 # third-party imports
 import click
 
@@ -9,6 +12,9 @@ from shpkpr.deployment import BlueGreenDeployment
 from shpkpr.deployment import StandardDeployment
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
+
+
+logger = logging.getLogger(__name__)
 
 
 def _validate_strategy_bluegreen(marathon_lb_client, **kw):
@@ -31,9 +37,16 @@ STRATEGIES = {
 }
 
 
-@click.command('deploy',
-               short_help='Deploy an application to Marathon.',
-               context_settings=CONTEXT_SETTINGS)
+@click.group('apps',
+             short_help='Manage Marathon applications',
+             context_settings=CONTEXT_SETTINGS)
+def cli():
+    """Manage Marathon applications.
+    """
+
+
+@cli.command(short_help='Deploy an application to Marathon.',
+             context_settings=CONTEXT_SETTINGS)
 @arguments.env_pairs
 @options.force
 @options.template_names
@@ -43,8 +56,8 @@ STRATEGIES = {
 @options.deployment_strategy
 @options.marathon_lb_client
 @options.marathon_client
-def cli(marathon_client, marathon_lb_client, deployment_strategy, timeout,
-        env_prefix, template_path, template_names, force, env_pairs, **kw):
+def deploy(marathon_client, marathon_lb_client, deployment_strategy, timeout,
+           env_prefix, template_path, template_names, force, env_pairs, **kw):
     """Deploy application from template.
     """
     # select the appropriate deployment strategy
@@ -68,3 +81,18 @@ def cli(marathon_client, marathon_lb_client, deployment_strategy, timeout,
                          "app_definitions": rendered_templates}
     strategy["validator"](**deployment_params)
     strategy["executor"](**deployment_params).execute(force)
+
+
+@cli.command(short_help='Show application details.',
+             context_settings=CONTEXT_SETTINGS)
+@options.output_formatter
+@options.application_id
+@options.marathon_client
+def show(marathon_client, application_id, output_formatter, **kw):
+    """Shows detailed information for one or more applications.
+    """
+    if application_id is None:
+        payload = marathon_client.list_applications()
+    else:
+        payload = marathon_client.get_application(application_id)
+    logger.info(output_formatter.format(payload))

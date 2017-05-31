@@ -4,14 +4,14 @@ import responses
 
 
 def test_no_args(runner):
-    result = runner(['deploy'])
+    result = runner(['apps', 'deploy'])
 
     assert result.exit_code == 2
     assert 'Usage:' in result.output
 
 
 def test_help(runner):
-    result = runner(['deploy', '--help'])
+    result = runner(['apps', 'deploy', '--help'])
 
     assert result.exit_code == 0
     assert 'Usage:' in result.output
@@ -36,7 +36,7 @@ def test_no_force(mock_deployment_wait, runner, json_fixture):
         'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
     }
     _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
-    result = runner(['deploy', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)
+    result = runner(['apps', 'deploy', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)
 
     assert result.exit_code == 0
 
@@ -59,7 +59,7 @@ def test_force(mock_deployment_wait, runner, json_fixture):
         'SHPKPR_DEPLOY_DOMAIN': 'mydomain.com',
     }
     _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
-    result = runner(['deploy', '--template', _tmpl_path, '--force', 'RANDOM_LABEL=some_value'], env=env)
+    result = runner(['apps', 'deploy', '--template', _tmpl_path, '--force', 'RANDOM_LABEL=some_value'], env=env)
 
     assert result.exit_code == 0
 
@@ -85,7 +85,7 @@ def test_multiple_templates(mock_deployment_wait, runner, json_fixture):
     }
     _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
     _tmpl_path_2 = "tests/fixtures/templates/marathon/test-2.json.tmpl"
-    result = runner(['deploy', '--template', _tmpl_path, '--template', _tmpl_path_2], env=env)
+    result = runner(['apps', 'deploy', '--template', _tmpl_path, '--template', _tmpl_path_2], env=env)
 
     assert result.exit_code == 0
 
@@ -99,7 +99,7 @@ def test_dry_run(runner, json_fixture):
         'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
     }
     _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
-    result = runner(['deploy', '--dry-run', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)
+    result = runner(['apps', 'deploy', '--dry-run', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)
 
     assert result.exit_code == 0
     assert '--dry-run' in result.output
@@ -113,7 +113,7 @@ def test_dry_run_fail(runner, json_fixture):
         'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
     }
     _tmpl_path = "tests/fixtures/templates/marathon/test.json.tmpl"
-    result = runner(['deploy', '--dry-run', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)
+    result = runner(['apps', 'deploy', '--dry-run', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)
 
     assert not result.exit_code == 0
 
@@ -129,7 +129,7 @@ def test_strategy_bluegreen_fails_without_marathon_lb(runner):
         'SHPKPR_DEPLOY_DOMAIN': 'test.com',
     }
     _tmpl_path = "tests/fixtures/templates/marathon/test-bluegreen.json.tmpl"
-    result = runner(['deploy', '--strategy', 'bluegreen', '--template', _tmpl_path], env=env)
+    result = runner(['apps', 'deploy', '--strategy', 'bluegreen', '--template', _tmpl_path], env=env)
 
     assert result.exit_code == 2
     assert 'Missing option "--marathon_lb_url".' in result.output
@@ -147,6 +147,6 @@ def test_strategy_bluegreen(runner):
         'SHPKPR_DEPLOY_DOMAIN': 'test.com',
     }
     _tmpl_path = "tests/fixtures/templates/marathon/test-bluegreen.json.tmpl"
-    result = runner(['deploy', '--dry-run', '--strategy', 'bluegreen', '--template', _tmpl_path], env=env)
+    result = runner(['apps', 'deploy', '--dry-run', '--strategy', 'bluegreen', '--template', _tmpl_path], env=env)
 
     assert result.exit_code == 0
