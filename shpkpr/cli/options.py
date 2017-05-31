@@ -38,7 +38,7 @@ dry_run = click.option(
 
 
 env_prefix = click.option(
-    '-e', '--env_prefix',
+    '-e', '--env-prefix',
     'env_prefix',
     default=CONTEXT_SETTINGS['auto_envvar_prefix'],
     help="Prefix used to restrict environment vars used for templating.",
@@ -63,7 +63,7 @@ deployment_strategy = click.option(
 
 
 template_path = click.option(
-    '--template_dir',
+    '--template-dir',
     'template_path',
     envvar="{0}_TEMPLATE_DIR".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     type=str,
@@ -82,7 +82,7 @@ template_names = click.option(
 )
 
 chronos_url = click.option(
-    '--chronos_url',
+    '--chronos-url',
     'chronos_url',
     envvar="{0}_CHRONOS_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     required=True,
@@ -101,7 +101,7 @@ def _validate_chronos_version(ctx, param, value):
 
 
 chronos_version = click.option(
-    '--chronos_version',
+    '--chronos-version',
     'chronos_version',
     envvar="{0}_CHRONOS_VERSION".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     required=False,
@@ -118,7 +118,7 @@ job_name = click.option(
 
 
 marathon_lb_client = click.option(
-    '--marathon_lb_url',
+    '--marathon-lb-url',
     'marathon_lb_client',
     envvar="{0}_MARATHON_LB_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     default=None,
@@ -200,7 +200,7 @@ allow_insecure_auth = click.option(
 )
 
 marathon_url = click.option(
-    '--marathon_url',
+    '--marathon-url',
     'marathon_url',
     envvar="{0}_MARATHON_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     required=True,
