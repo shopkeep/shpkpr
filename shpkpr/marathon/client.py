@@ -24,9 +24,9 @@ class MarathonClient(object):
     """A thin wrapper around marathon.MarathonClient for internal use
     """
 
-    def __init__(self, marathon_url, username=None, password=None):
+    def __init__(self, marathon_url, username=None, password=None, dry_run=False):
         self._marathon_url = marathon_url
-        self.dry_run = False
+        self._dry_run = dry_run
 
         self._basic_auth = None
         if None not in [username, password]:
@@ -36,7 +36,7 @@ class MarathonClient(object):
         return self._marathon_url.rstrip("/") + path
 
     def _make_request(self, method, path, **kwargs):
-        if self.dry_run:
+        if self._dry_run:
             raise DryRun("Exiting as --dry-run requested")
         request = getattr(requests, method.lower())
         return request(self._build_url(path), auth=self._basic_auth, **kwargs)

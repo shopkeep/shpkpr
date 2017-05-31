@@ -116,3 +116,37 @@ def test_dry_run_fail(runner, json_fixture):
     result = runner(['deploy', '--dry-run', '--template', _tmpl_path, 'RANDOM_LABEL=some_value'], env=env)
 
     assert not result.exit_code == 0
+
+
+@responses.activate
+def test_strategy_bluegreen_fails_without_marathon_lb(runner):
+    env = {
+        'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
+        'SHPKPR_APPLICATION': 'test-app',
+        'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
+        'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
+        'SHPKPR_DEPLOYMENT_GROUP': 'test',
+        'SHPKPR_DEPLOY_DOMAIN': 'test.com',
+    }
+    _tmpl_path = "tests/fixtures/templates/marathon/test-bluegreen.json.tmpl"
+    result = runner(['deploy', '--strategy', 'bluegreen', '--template', _tmpl_path], env=env)
+
+    assert result.exit_code == 2
+    assert 'Missing option "--marathon_lb_url".' in result.output
+
+
+@responses.activate
+def test_strategy_bluegreen(runner):
+    env = {
+        'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
+        'SHPKPR_MARATHON_LB_URL': "http://marathon-lb.somedomain.com:8080",
+        'SHPKPR_APPLICATION': 'test-app',
+        'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
+        'SHPKPR_DOCKER_EXPOSED_PORT': '8080',
+        'SHPKPR_DEPLOYMENT_GROUP': 'test',
+        'SHPKPR_DEPLOY_DOMAIN': 'test.com',
+    }
+    _tmpl_path = "tests/fixtures/templates/marathon/test-bluegreen.json.tmpl"
+    result = runner(['deploy', '--dry-run', '--strategy', 'bluegreen', '--template', _tmpl_path], env=env)
+
+    assert result.exit_code == 0

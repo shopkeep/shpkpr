@@ -154,7 +154,7 @@ def test_cron_show_default_template_after_delete(runner, env):
 @pytest.mark.integration
 def test_bluegreen_deploy(runner, env):
     _tmpl_path = "tests/fixtures/templates/marathon/test-bluegreen.json.tmpl"
-    result = runner(["bluegreen", "-t", _tmpl_path, "--force"], env=env)
+    result = runner(["deploy", "--strategy", "bluegreen", "-t", _tmpl_path], env=env)
     _check_exits_zero(result)
 
 
@@ -171,7 +171,7 @@ def test_ensure_bluegreen_deployed(runner, env):
 @pytest.mark.integration
 def test_bluegreen_deploy_with_existing_app(runner, env):
     _tmpl_path = "tests/fixtures/templates/marathon/test-bluegreen.json.tmpl"
-    result = runner(["bluegreen", "-t", _tmpl_path, "--force"], env=env)
+    result = runner(["deploy", "--strategy", "bluegreen", "-t", _tmpl_path], env=env)
     _check_exits_zero(result)
 
 
@@ -187,7 +187,9 @@ def test_ensure_bluegreen_swapped(runner, env):
 
 @pytest.mark.integration
 def test_bluegreen_deploy_default_template(runner, env):
-    cmd = ["bluegreen",
+    cmd = ["deploy",
+           "--strategy",
+           "bluegreen",
            "DOCKER_EXPOSED_PORT=8080",
            "MARATHON_APP_ID=shpkpr-test/integration-test-bluegreen-default-template",
            "MARATHON_HEALTH_CHECK_PATH=/",
@@ -210,7 +212,9 @@ def test_ensure_bluegreen_default_template_deployed(runner, env):
 
 @pytest.mark.integration
 def test_bluegreen_deploy_with_existing_app_default_template(runner, env):
-    cmd = ["bluegreen",
+    cmd = ["deploy",
+           "--strategy",
+           "bluegreen",
            "DOCKER_EXPOSED_PORT=8080",
            "MARATHON_APP_ID=shpkpr-test/integration-test-bluegreen-default-template",
            "MARATHON_HEALTH_CHECK_PATH=/",

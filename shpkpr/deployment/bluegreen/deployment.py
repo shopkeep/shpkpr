@@ -21,7 +21,7 @@ class BlueGreenDeployment(object):
     deployments for HTTP services exposed to the web via Marathon-LB.
     """
 
-    def __init__(self, marathon_client, marathon_lb_client, timeout, app_definitions):
+    def __init__(self, marathon_client, marathon_lb_client, timeout, app_definitions, **kw):
         self.marathon_client = marathon_client
         self.marathon_lb_client = marathon_lb_client
         self.timeout = timeout

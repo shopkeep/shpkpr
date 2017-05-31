@@ -5,25 +5,54 @@ import click
 from shpkpr.cli import arguments
 from shpkpr.cli import options
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
+from shpkpr.deployment import BlueGreenDeployment
 from shpkpr.deployment import StandardDeployment
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
 
 
-@click.command('deploy', short_help='Deploy application from template.', context_settings=CONTEXT_SETTINGS)
+def _validate_strategy_bluegreen(marathon_lb_client, **kw):
+    if marathon_lb_client is None:
+        msg = 'Missing option "--marathon_lb_url".'
+        raise click.UsageError(msg)
+
+
+STRATEGIES = {
+    "standard": {
+        "executor": StandardDeployment,
+        "validator": lambda **kw: None,
+        "default_template": "marathon/default/standard.json.tmpl",
+    },
+    "bluegreen": {
+        "executor": BlueGreenDeployment,
+        "validator": _validate_strategy_bluegreen,
+        "default_template": "marathon/default/bluegreen.json.tmpl",
+    },
+}
+
+
+@click.command('deploy',
+               short_help='Deploy an application to Marathon.',
+               context_settings=CONTEXT_SETTINGS)
 @arguments.env_pairs
 @options.force
-@options.dry_run
 @options.template_names
 @options.template_path
 @options.env_prefix
+@options.timeout
+@options.deployment_strategy
+@options.marathon_lb_client
 @options.marathon_client
-def cli(marathon_client, env_prefix, template_path, template_names, dry_run, force, env_pairs, **kw):
+def cli(marathon_client, marathon_lb_client, deployment_strategy, timeout,
+        env_prefix, template_path, template_names, force, env_pairs, **kw):
     """Deploy application from template.
     """
+    # select the appropriate deployment strategy
+    strategy = STRATEGIES[deployment_strategy]
+
     # use the default template if none was specified
     if not template_names:
-        template_names = ["marathon/default/standard.json.tmpl"]
+        template_names = [strategy["default_template"]]
 
     # read and render deploy template using values from the environment
     values = load_values_from_environment(prefix=env_prefix, overrides=env_pairs)
@@ -31,10 +60,11 @@ def cli(marathon_client, env_prefix, template_path, template_names, dry_run, for
     for template_name in template_names:
         rendered_templates.append(render_json_template(template_path, template_name, **values))
 
-    # set dry_run param if the user has requested it. This happens in the
-    # command callback as it only applies to the deploy command and doesn't make
-    # sense anywhere else.
-    marathon_client.dry_run = dry_run
-
-    deployment = StandardDeployment(marathon_client, rendered_templates)
-    deployment.execute(force)
+    # perform some extra pre-flight validation if required, and execute the
+    # deployment, blocking until complete.
+    deployment_params = {"marathon_client": marathon_client,
+                         "marathon_lb_client": marathon_lb_client,
+                         "timeout": timeout,
+                         "app_definitions": rendered_templates}
+    strategy["validator"](**deployment_params)
+    strategy["executor"](**deployment_params).execute(force)

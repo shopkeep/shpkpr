@@ -52,6 +52,16 @@ force = click.option(
 )
 
 
+deployment_strategy = click.option(
+    '--strategy',
+    'deployment_strategy',
+    type=click.Choice(["standard", "bluegreen"]),
+    help='Deployment strategy to utilise.',
+    envvar="{0}_DEPLOYMENT_STRATEGY".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    default="standard",
+)
+
+
 template_path = click.option(
     '--template_dir',
     'template_path',
@@ -111,18 +121,18 @@ marathon_lb_client = click.option(
     '--marathon_lb_url',
     'marathon_lb_client',
     envvar="{0}_MARATHON_LB_URL".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
-    required=True,
+    default=None,
     help="URL for Marathon-LB used during blue/green deployment.",
-    callback=lambda c, p, v: MarathonLBClient(v)
+    callback=lambda c, p, v: None if v is None else MarathonLBClient(v)
 )
 
 
-max_wait = click.option(
-    '--max-wait',
-    'max_wait',
+timeout = click.option(
+    '--timeout',
+    'timeout',
     type=int,
-    help='Maximum amount of time to wait for deployment to finish before aborting.',
-    envvar="{0}_MAX_WAIT".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    help='Maximum amount of time (in seconds) to wait for a deployment to finish before aborting.',
+    envvar="{0}_TIMEOUT".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     default=300,
 )
 
@@ -206,13 +216,17 @@ def _validate_marathon_client(ctx, _, __):
     """
     _c = ctx.params
     _validate_authentication(ctx, _c["marathon_url"], "Marathon")
-    return MarathonClient(_c["marathon_url"], _c["username"], _c["password"])
+    return MarathonClient(_c["marathon_url"],
+                          _c["username"],
+                          _c["password"],
+                          _c["dry_run"])
 
 
 marathon_client = multioption(
     name='marathon_client',
     callback=_validate_marathon_client,
     options=[
+        dry_run,
         allow_insecure_auth,
         username,
         password,
