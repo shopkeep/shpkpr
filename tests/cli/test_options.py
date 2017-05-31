@@ -27,13 +27,13 @@ def test_marathon_client_fails_with_no_args(runner):
 
 
 def test_marathon_client_succeeds_with_marathon_url(runner):
-    result = runner(["--marathon_url", "http://example.com"])
+    result = runner(["--marathon-url", "http://example.com"])
     assert result.exit_code == 0
 
 
 def test_marathon_client_succeeds_with_marathon_url_and_basic_auth(runner):
     result = runner([
-        "--marathon_url", "https://example.com",
+        "--marathon-url", "https://example.com",
         "--username", "someuser",
         "--password", "somepassword",
     ])
@@ -43,7 +43,7 @@ def test_marathon_client_succeeds_with_marathon_url_and_basic_auth(runner):
 
 def test_marathon_client_fails_with_marathon_url_and_basic_auth_without_ssl(runner):
     result = runner([
-        "--marathon_url", "http://example.com",
+        "--marathon-url", "http://example.com",
         "--username", "someuser",
         "--password", "somepassword",
     ])
@@ -53,7 +53,7 @@ def test_marathon_client_fails_with_marathon_url_and_basic_auth_without_ssl(runn
 
 def test_marathon_client_prompts_for_basic_auth_password(runner):
     result = runner([
-        "--marathon_url", "https://example.com",
+        "--marathon-url", "https://example.com",
         "--username", "someuser",
     ], input="somepassword\n")
 
@@ -62,7 +62,7 @@ def test_marathon_client_prompts_for_basic_auth_password(runner):
 
 def test_marathon_client_succeeds_fails_when_missing_basic_auth_username(runner):
     result = runner([
-        "--marathon_url", "https://example.com",
+        "--marathon-url", "https://example.com",
         "--password", "somepassword",
     ])
 
