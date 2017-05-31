@@ -10,8 +10,9 @@ class StandardDeployment(object):
     worker applications.
     """
 
-    def __init__(self, marathon_client, app_definitions):
+    def __init__(self, marathon_client, timeout, app_definitions, **kw):
         self.marathon_client = marathon_client
+        self.timeout = timeout
         self.app_definitions = app_definitions
 
     def execute(self, force=False):
@@ -21,4 +22,4 @@ class StandardDeployment(object):
             self.app_definitions,
             force=force,
         )
-        return deployment.wait()
+        return deployment.wait(timeout=self.timeout)

@@ -114,8 +114,7 @@ def test_deploy_conflict():
 
 @responses.activate
 def test_deploy_dry_run():
-    client = MarathonClient("http://marathon.somedomain.com:8080")
-    client.dry_run = True
+    client = MarathonClient("http://marathon.somedomain.com:8080", dry_run=True)
     with pytest.raises(DryRun):
         client.deploy({"id": "test-app"})
 
