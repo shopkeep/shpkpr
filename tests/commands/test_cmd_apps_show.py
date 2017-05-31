@@ -12,7 +12,7 @@ from shpkpr.cli.entrypoint import cli
 
 def test_no_args():
     runner = CliRunner()
-    result = runner.invoke(cli, ['show'])
+    result = runner.invoke(cli, ['apps', 'show'])
 
     assert result.exit_code == 2
     assert 'Usage:' in result.output
@@ -20,7 +20,7 @@ def test_no_args():
 
 def test_help():
     runner = CliRunner()
-    result = runner.invoke(cli, ['show', '--help'])
+    result = runner.invoke(cli, ['apps', 'show', '--help'])
 
     assert result.exit_code == 0
     assert 'Usage:' in result.output
@@ -34,7 +34,7 @@ def test_show_single_app(runner, json_fixture):
                   status=200,
                   json=json_fixture("valid_app"))
 
-    result = runner(['show'], env={
+    result = runner(['apps', 'show'], env={
         'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
         'SHPKPR_APPLICATION': 'test-app',
     })
@@ -52,7 +52,7 @@ def test_show_multiple_apps(runner, json_fixture):
                   status=200,
                   json=json_fixture("valid_apps"))
 
-    result = runner(['show'], env={
+    result = runner(['apps', 'show'], env={
         'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
     })
     assert result.exit_code == 0
@@ -71,7 +71,7 @@ def test_show_format_json(runner, json_fixture):
                   status=200,
                   json=json_fixture("valid_app"))
 
-    result = runner(['show'], env={
+    result = runner(['apps', 'show'], env={
         'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
         'SHPKPR_APPLICATION': 'test-app',
     })
@@ -88,7 +88,7 @@ def test_show_format_yaml(runner, json_fixture):
                   status=200,
                   json=json_fixture("valid_app"))
 
-    result = runner(['show'], env={
+    result = runner(['apps', 'show'], env={
         'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
         'SHPKPR_APPLICATION': 'test-app',
     })
