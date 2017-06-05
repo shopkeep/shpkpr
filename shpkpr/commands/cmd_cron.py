@@ -39,7 +39,6 @@ def show(chronos_client, job_name, output_formatter, **kw):
 @cli.command('set', short_help='Add or Update a Chronos Job', context_settings=CONTEXT_SETTINGS)
 @arguments.env_pairs
 @options.chronos_client
-@options.env_prefix
 @options.template_names
 @options.template_path
 @options.env_prefix
