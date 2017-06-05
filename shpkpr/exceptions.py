@@ -1,4 +1,5 @@
 # stdlib imports
+import functools
 import sys
 
 # third-party imports
@@ -36,6 +37,7 @@ def rewrap(exceptions_to_catch, exception_to_rewrap_with=ShpkprException):
     before re-raising with the original stack trace.
     """
     def real_decorator(function):
+        @functools.wraps(function)
         def wrapper(*args, **kwargs):
             try:
                 return function(*args, **kwargs)
