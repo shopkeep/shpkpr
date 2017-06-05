@@ -24,7 +24,7 @@ def test_help():
 
     assert result.exit_code == 0
     assert 'Usage:' in result.output
-    assert 'Shows detailed information for one or more applications.' in result.output
+    assert 'Show detailed information for one or more applications.' in result.output
 
 
 @responses.activate

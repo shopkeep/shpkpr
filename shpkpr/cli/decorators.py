@@ -8,6 +8,7 @@ import click
 class HiddenOption(click.Option):
     """Option type that suppresses any help output.
     """
+    hidden = True
 
     def get_help_record(self, ctx):
         return

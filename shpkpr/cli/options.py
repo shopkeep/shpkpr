@@ -26,14 +26,25 @@ application_id = click.option(
     '-a', '--application',
     'application_id',
     envvar="{0}_APPLICATION".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
-    help="ID/name of the application to scale.",
+    help=(
+        "ID of the Marathon application to target. This should be the full "
+        "path of the application (including slashes) e.g. ``/mygroup/myapp``. "
+        "The first/root slash is optional, shpkpr will add it if missing."
+    ),
 )
 
 
 dry_run = click.option(
     '--dry-run',
     is_flag=True,
-    help='Enables dry-run mode. Shpkpr will not attempt to contact Marathon when this is enabled.',
+    help=(
+        "Enables \"dry run\" mode. When enabled, shpkpr will avoid making "
+        "changes to any remote systems. This can be used to safely test "
+        "deployments or jobs before performing any destructive operations. "
+        "Exactly what constitues a \"dry run\" varies by operation type and "
+        "deployment strategy, see command documentation for further "
+        "information."
+    ),
 )
 
 
@@ -41,7 +52,8 @@ env_prefix = click.option(
     '-e', '--env-prefix',
     'env_prefix',
     default=CONTEXT_SETTINGS['auto_envvar_prefix'],
-    help="Prefix used to restrict environment vars used for templating.",
+    show_default=True,
+    help="Prefix used to filter environment variables used for templating.",
 )
 
 
@@ -59,6 +71,7 @@ deployment_strategy = click.option(
     help='Deployment strategy to utilise.',
     envvar="{0}_DEPLOYMENT_STRATEGY".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     default="standard",
+    show_default=True,
 )
 
 
@@ -107,6 +120,7 @@ chronos_version = click.option(
     required=False,
     help='Verson of the Chronos endpoint to use',
     default='3.0.2',
+    show_default=True,
     callback=_validate_chronos_version,
 )
 
@@ -134,6 +148,7 @@ timeout = click.option(
     help='Maximum amount of time (in seconds) to wait for a deployment to finish before aborting.',
     envvar="{0}_TIMEOUT".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     default=300,
+    show_default=True,
 )
 
 output_formatter = click.option(
@@ -143,6 +158,7 @@ output_formatter = click.option(
     help='Serialization format to use when printing config data to stdout.',
     envvar="{0}_OUTPUT_FORMAT".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
     default="json",
+    show_default=True,
     callback=lambda c, p, v: OutputFormatter(v)
 )
 
