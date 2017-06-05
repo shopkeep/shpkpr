@@ -12,6 +12,7 @@ For more detailed usage instructions see the sections linked below:
    :maxdepth: 1
 
    configuration
+   templates
 
    cmd_apps/index
    cmd_cron/index

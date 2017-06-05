@@ -8,10 +8,23 @@ def filter_items(value, startswith=None, strip_prefix=False):
 
     Returns a list of key/value tuples.
 
-    Usage:
+    .. code-block:: jinja
+
         {{ my_dict|filter_items }}
         {{ my_dict|filter_items("MY_PREFIX_") }}
         {{ my_dict|filter_items("MY_PREFIX_", True) }}
+
+    This is most useful in combination with the special
+    :ref:`_all_env <all_env>` variable that shpkpr injects into every template.
+    For example, to iterate over only the template variables that start with
+    ``LABEL_`` you could do:
+
+    .. code-block:: jinja
+
+        {% for k, v in _all_env|filter_items("LABEL_", strip_prefix=True) %}
+            "{{k}}": "{{v}}",
+        {% endfor %}
+
     """
     if startswith is not None:
         value = [x for x in value.items() if x[0].startswith(startswith)]
@@ -42,7 +55,8 @@ def require_int(value, min=None, max=None):
 
     Accepts optional min/max constraints.
 
-    Usage:
+    .. code-block:: jinja
+
         {{ my_integer_value|require_int }}
         {{ my_integer_value|require_int(min=0) }}
         {{ my_integer_value|require_int(min=0, max=20) }}
@@ -77,7 +91,8 @@ def require_float(value, min=None, max=None):
 
     Accepts optional min/max constraints.
 
-    Usage:
+    .. code-block:: jinja
+
         {{ my_float_value|require_float }}
         {{ my_float_value|require_float(min=0) }}
         {{ my_float_value|require_float(min=0, max=20) }}
