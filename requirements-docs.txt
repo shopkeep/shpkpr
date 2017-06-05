@@ -1,0 +1,6 @@
+# shpkpr docs requirements
+
+Sphinx==1.6.2
+sphinx-click==1.0.2
+sphinx-rtd-theme==0.2.4
+sphinxcontrib-programoutput==0.11

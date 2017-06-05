@@ -14,9 +14,9 @@ from shpkpr.template import render_json_template
 logger = logging.getLogger(__name__)
 
 
-@click.group('cron', short_help='Manage Chronos Jobs', context_settings=CONTEXT_SETTINGS)
+@click.group('cron', context_settings=CONTEXT_SETTINGS)
 def cli():
-    """Manage Chronos Jobs.
+    """Manage Chronos jobs.
     """
 
 

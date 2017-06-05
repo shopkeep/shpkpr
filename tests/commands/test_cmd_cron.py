@@ -14,7 +14,7 @@ def test_help(runner):
 
     assert result.exit_code == 0
     assert 'Usage:' in result.output
-    assert 'Manage Chronos Jobs' in result.output
+    assert 'Manage Chronos jobs' in result.output
 
 
 @mock.patch("shpkpr.cli.options.ChronosClient.list")

@@ -113,7 +113,7 @@ Ready to contribute? Here's how to set up ``shpkpr`` for local development.
 
 6. If your changes are user-facing, you should update the documentation to reflect the changes you've made. shpkpr's documentation is built with `Sphinx <http://sphinx-doc.org/>`_ and can be built using the ``make``::
 
-    $ pip install Sphinx
+    $ pip install -r requirements-docs.txt
     $ make docs
 
    While developing, you can watch the documentation for changes and rebuild as required by installing `watchdog <https://pypi.python.org/pypi/watchdog>`_::

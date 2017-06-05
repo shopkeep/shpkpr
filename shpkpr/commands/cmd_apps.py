@@ -37,9 +37,7 @@ STRATEGIES = {
 }
 
 
-@click.group('apps',
-             short_help='Manage Marathon applications',
-             context_settings=CONTEXT_SETTINGS)
+@click.group('apps', context_settings=CONTEXT_SETTINGS)
 def cli():
     """Manage Marathon applications.
     """
@@ -58,7 +56,7 @@ def cli():
 @options.marathon_client
 def deploy(marathon_client, marathon_lb_client, deployment_strategy, timeout,
            env_prefix, template_path, template_names, force, env_pairs, **kw):
-    """Deploy application from template.
+    """Deploy one or more applications to Marathon.
     """
     # select the appropriate deployment strategy
     strategy = STRATEGIES[deployment_strategy]
@@ -89,7 +87,7 @@ def deploy(marathon_client, marathon_lb_client, deployment_strategy, timeout,
 @options.application_id
 @options.marathon_client
 def show(marathon_client, application_id, output_formatter, **kw):
-    """Shows detailed information for one or more applications.
+    """Show detailed information for one or more applications.
     """
     if application_id is None:
         payload = marathon_client.list_applications()

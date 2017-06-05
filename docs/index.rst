@@ -9,4 +9,5 @@ Contents
 
    installation
    usage/index
+   deployment/index
    contributing

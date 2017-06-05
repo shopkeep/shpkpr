@@ -15,7 +15,7 @@ def test_help(runner):
 
     assert result.exit_code == 0
     assert 'Usage:' in result.output
-    assert 'Deploy application from template.' in result.output
+    assert 'Deploy one or more applications to Marathon.' in result.output
 
 
 @responses.activate
