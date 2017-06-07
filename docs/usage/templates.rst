@@ -93,6 +93,7 @@ In addition to the `built-in filters`_ shipped by Jinja, shpkpr provides a numbe
 .. autofunction:: shpkpr.template_filters.filter_items
 .. autofunction:: shpkpr.template_filters.require_int
 .. autofunction:: shpkpr.template_filters.require_float
+.. autofunction:: shpkpr.template_filters.slugify
 
 .. _all_env:
 
