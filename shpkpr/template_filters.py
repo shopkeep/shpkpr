@@ -1,6 +1,9 @@
 # local imports
 from shpkpr import exceptions
 
+# third-party imports
+import slugify as libslugify
+
 
 def filter_items(value, startswith=None, strip_prefix=False):
     """Jinja2 filter used to filter a dictionary's keys by specifying a
@@ -107,3 +110,20 @@ def require_float(value, min=None, max=None):
         raise FloatTooLarge("%f is larger than the maximum allowed value of %f" % (value, max))
 
     return value
+
+
+def slugify(value, *args, **kwargs):
+    """Jinja2 filter used to slugify a string.
+
+    All arguments are passed directly to python-slugify_'s ``slugify``
+    function, see the library's documentation_ for further information.
+
+    .. code-block:: jinja
+
+        {{ my_string|slugify }}
+        {{ my_string|slugify(max_length=20) }}
+
+    .. _python-slugify: https://pypi.python.org/pypi/python-slugify
+    .. _documentation: https://github.com/un33k/python-slugify#how-to-use
+    """
+    return libslugify.slugify(value, *args, **kwargs)
