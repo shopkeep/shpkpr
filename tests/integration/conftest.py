@@ -25,6 +25,8 @@ def env():
         "SHPKPR_DEPLOY_DOMAIN": os.environ.get("SHPKPR_DEPLOY_DOMAIN", None),
         "SHPKPR_CHRONOS_URL": os.environ.get("SHPKPR_CHRONOS_URL", None),
         "SHPKPR_CHRONOS_VERSION": os.environ.get("SHPKPR_CHRONOS_VERSION", None),
+        "SHPKPR_VAULT_ADDR": os.environ.get("SHPKPR_VAULT_ADDR", None),
+        "SHPKPR_VAULT_TOKEN": os.environ.get("SHPKPR_VAULT_TOKEN", None),
     }
     assert None not in env.values()
     return env

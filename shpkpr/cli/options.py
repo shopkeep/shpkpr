@@ -11,6 +11,7 @@ from distutils.version import StrictVersion
 
 # third-party imports
 import click
+import hvac
 from chronos import ChronosClient
 from six.moves.urllib import parse
 
@@ -275,5 +276,40 @@ chronos_client = multioption(
         password,
         chronos_url,
         chronos_version,
+    ],
+)
+
+
+vault_addr = click.option(
+    '--vault-addr',
+    'vault_addr',
+    envvar="{0}_VAULT_ADDR".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    help="URL of the Vault API to use.",
+)
+
+vault_token = click.option(
+    '--vault-token',
+    'vault_token',
+    envvar="{0}_VAULT_TOKEN".format(CONTEXT_SETTINGS['auto_envvar_prefix']),
+    help="Token used to authenticate with Vault.",
+)
+
+
+def _validate_vault_client(ctx, _, __):
+    """Validates that all options required to initialise a vault client have
+    been set properly and securely.
+
+    A client is then initialised and returned to the command function.
+    """
+    return hvac.Client(url=ctx.params['vault_addr'],
+                       token=ctx.params['vault_token'])
+
+
+vault_client = multioption(
+    name='vault_client',
+    callback=_validate_vault_client,
+    options=[
+        vault_addr,
+        vault_token,
     ],
 )
