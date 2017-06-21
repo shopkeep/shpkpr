@@ -9,6 +9,7 @@ from shpkpr.cli import arguments, options
 from shpkpr.cli.entrypoint import CONTEXT_SETTINGS
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
+from shpkpr.vault import resolve_secrets
 
 
 logger = logging.getLogger(__name__)
@@ -36,13 +37,26 @@ def show(chronos_client, job_name, output_formatter, **kw):
     logger.info(output_formatter.format(payload))
 
 
+def _inject_secrets(template, secrets):
+    """Given an object containing secrets, inject them into a Chronos job prior
+    to deployment.
+    """
+    for key, secret in secrets.items():
+        template["environmentVariables"].append({
+            "name": key,
+            "value": secret,
+        })
+    return template
+
+
 @cli.command('set', short_help='Add or Update a Chronos Job', context_settings=CONTEXT_SETTINGS)
 @arguments.env_pairs
 @options.chronos_client
+@options.vault_client
 @options.template_names
 @options.template_path
 @options.env_prefix
-def set(chronos_client, template_path, template_names, env_prefix, env_pairs, **kw):
+def set(chronos_client, vault_client, template_path, template_names, env_prefix, env_pairs, **kw):
     """Add or Update a job in chronos.
     """
     # use the default template if none was specified
@@ -54,6 +68,8 @@ def set(chronos_client, template_path, template_names, env_prefix, env_pairs, **
 
     for template_name in template_names:
         rendered_template = render_json_template(template_path, template_name, **values)
+        resolved_secrets = resolve_secrets(vault_client, rendered_template)
+        rendered_template = _inject_secrets(rendered_template, resolved_secrets)
         if _find_job(current_jobs, rendered_template['name']):
             chronos_client.update(rendered_template)
         else:
