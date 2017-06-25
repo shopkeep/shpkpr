@@ -3,7 +3,7 @@ import copy
 from datetime import datetime
 
 
-def prepare_app_definition(app_definition, old_app_definition=None):
+def prepare_app_definition(app_definition, old_app_definition=None, app_states=None):
     """Prepares ``app_definition`` for blue/green deployment by adding the
     necessary Marathon labels and setting the ID and service port.
 
@@ -15,35 +15,33 @@ def prepare_app_definition(app_definition, old_app_definition=None):
     # we can refer back to properties of the original as needed.
     new_app_definition = copy.deepcopy(app_definition)
 
+   
     if old_app_definition is not None:
-        next_colour = _select_next_colour(old_app_definition)
-        next_port = _select_next_port(old_app_definition)
+        _rotate_colour(new_app_definition, old_app_definition)
+        _rotate_port(new_app_definition, old_app_definition)
     else:
-        next_colour = 'blue'
-        next_port = _get_service_port(new_app_definition)
+        _set_app_colour(new_app_definition, 'blue')
+        _init_service_ports(new_app_definition, app_states)
 
     new_app_definition = _set_service_port(new_app_definition, next_port)
-    new_app_definition['id'] = new_app_definition['id'] + '-' + next_colour
+    new_app_definition['id'] = new_app_definition['id'] + '-' + _get_app_colour(new_app_definition)
     new_app_definition['labels']['HAPROXY_APP_ID'] = app_definition['id']
-    new_app_definition['labels']['HAPROXY_0_PORT'] = str(_get_service_port(app_definition))
-    new_app_definition['labels']['HAPROXY_DEPLOYMENT_COLOUR'] = next_colour
     new_app_definition['labels']['HAPROXY_DEPLOYMENT_STARTED_AT'] = datetime.now().isoformat()
     new_app_definition['labels']['HAPROXY_DEPLOYMENT_TARGET_INSTANCES'] = str(new_app_definition['instances'])
     return new_app_definition
 
 
-def _get_service_port(app_definition):
-    """Extract the currently configured service port from an app definition.
-
+def _init_service_ports(app_definition, app_states):
+    """Determines that start port for the application and updates the application state.
     This works for both Dockerised and non-Dockerised applications.
     """
-    try:
-        port_mappings = app_definition['container']['docker']['portMappings']
-        service_port = port_mappings[0]['servicePort']
-    except (KeyError, IndexError):
-        service_port = app_definition['ports'][0]
-    return int(service_port)
+    next_service_port = 0
+    for app_state in app_states:
+      next_service_port = max(next_service_port + 1, int(app_state["labels"]["HAPROXY_0_PORT"]))
 
+    app_definition['labels']['HAPROXY_0_PORT'] = next_service_port
+    app_definition['labels']['HAPROXY_1_PORT'] = next_service_port + 1 
+    return next_service_port
 
 def _set_service_port(app_definition, service_port):
     """Set the service port on the provided app definition.
@@ -57,27 +55,29 @@ def _set_service_port(app_definition, service_port):
         app_definition['ports'][0] = service_port
     return app_definition
 
+def _rotate_port(new_app_definition, old_app_definition):
+    """Given a currently deployed app definition, return the service port to use
+    for the next blue/green deployment.
+    """
+    next_port = old_app_definition['labels']['HAPROXY_1_PORT']
+    new_app_definition['labels']['HAPROXY_1_PORT'] = old_app_defintiion['labels']['HAPROXY_0_PORT']
+    new_app_definition['labels']['HAPROXY_0_PORT'] = next_port
+    return new_app_definition
 
-def _select_next_colour(app_definition):
+def _rotate_colour(new_app_definition, old_app_definition):
     """Given a currently deployed app definition, return the "color" to use for
     the next blue/green deployment.
 
     Right now this simply swaps the colors used, but could be extended in future
     to allow for more complex behaviour.
     """
-    colors = {"blue": "green", "green": "blue"}
-    old_color = app_definition['labels']['HAPROXY_DEPLOYMENT_COLOUR']
-    return colors[old_color]
+    colours = {"blue": "green", "green": "blue"}
+    old_colour = _get_app_colour(old_app_definition)
+    return _set_app_colour(new_app_definition, colors[old_colour])
 
+def _get_app_colour(app_definition):
+  return app_definition['labels']['HAPROXY_DEPLOYMENT_COLOUR']
 
-def _select_next_port(app_definition):
-    """Given a currently deployed app definition, return the service port to use
-    for the next blue/green deployment.
-    """
-    current_port = _get_service_port(app_definition)
-    default_port = int(app_definition['labels']['HAPROXY_0_PORT'])
-    alternate_port = int(app_definition['labels']['HAPROXY_DEPLOYMENT_ALT_PORT'])
-
-    if current_port == default_port:
-        return alternate_port
-    return default_port
+def _set_app_colour(app_definition, colour):
+    app_definition['labels']['HAPROXY_DEPLOYMENT_COLOUR'] = colour
+    return app_definition
