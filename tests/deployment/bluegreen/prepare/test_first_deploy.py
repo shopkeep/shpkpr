@@ -15,7 +15,8 @@ def app_definition(json_fixture):
     on Marathon.
     """
     app_definition_fixture = json_fixture("marathon/bluegreen_app_new")
-    return prepare_app_definition(app_definition_fixture)
+    app_states_fixture = json_fixture("valid_apps")
+    return prepare_app_definition(app_definition_fixture, None, app_states_fixture['apps'])
 
 
 def test_color(app_definition):
@@ -62,10 +63,10 @@ def test_labels_port(app_definition):
 
     assert actual == expected
 
-def test_labels_next_port(app_definition):
+def test_labels_alt_port(app_definition):
     """Test that the app's original port is preserved as a label
     """
-    actual = app_definition['labels']['HAPROXY_1_PORT']
+    actual = app_definition['labels']['HAPROXY_DEPLOYMENT_ALT_PORT']
     expected = "11091"
 
     assert actual == expected

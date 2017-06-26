@@ -149,9 +149,11 @@ class BlueGreenDeploymentSingleApp(object):
                 return app_definition
         return None
 
-    @memoized
+    fetch_app_states_memo = None
     def _fetch_app_states(self):
         """Fetch current marathon app state
         """
-        return self.marathon_client.list_applications()
+        if fetch_app_states_memo is None:
+          fetch_app_states_memo = self.marathon_client.list_applications()
+        return fetch_app_states_memo
  
