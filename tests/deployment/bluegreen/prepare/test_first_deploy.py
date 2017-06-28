@@ -53,16 +53,6 @@ def test_labels_id(app_definition):
 
     assert actual == expected
 
-
-def test_labels_port(app_definition):
-    """Test that the app's original port is preserved as a label
-    """
-    actual = app_definition['labels']['HAPROXY_0_PORT']
-    expected = "11090"
-
-    assert actual == expected
-
-
 def test_labels_deployment_started_at(app_definition):
     """Test that a timestamp is correctly added to the app's labels
     """
