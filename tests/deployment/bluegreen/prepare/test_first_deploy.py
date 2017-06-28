@@ -14,8 +14,9 @@ def app_definition(json_fixture):
     This fixture prepares an app and assumes that no existing stack is present
     on Marathon.
     """
-    app_definition_fixture = json_fixture("marathon/bluegreen_app_new")
-    return prepare_app_definition(app_definition_fixture)
+    app_definition_fixture = json_fixture("marathon/bluegreen_app_auto_port_new")
+    app_states_fixture = json_fixture("valid_apps")
+    return prepare_app_definition(app_definition_fixture, None, app_states_fixture['apps'])
 
 
 def test_color(app_definition):

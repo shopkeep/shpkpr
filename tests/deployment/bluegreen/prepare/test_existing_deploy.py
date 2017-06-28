@@ -12,7 +12,7 @@ def app_definition(json_fixture):
     This fixture prepares an app and assumes that an existing stack is present
     on Marathon.
     """
-    new_app_definition_fixture = json_fixture("marathon/bluegreen_app_new")
+    new_app_definition_fixture = json_fixture("marathon/bluegreen_app_auto_port_new")
     old_app_definition_fixture = json_fixture("marathon/bluegreen_app_existing")
     return prepare_app_definition(new_app_definition_fixture,
                                   old_app_definition_fixture)

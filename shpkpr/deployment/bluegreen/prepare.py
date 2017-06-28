@@ -73,7 +73,6 @@ def _select_next_port(app_definition, app_states):
     for the next blue/green deployment.
     """
 
-    port_range = range(1000,2000)
     used_ports = []
     for app_definition in app_states:
       used_ports.append(_get_service_port(app_definition))
