@@ -14,9 +14,10 @@ def app_definition(json_fixture):
     """
     new_app_definition_fixture = json_fixture("marathon/bluegreen_app_auto_port_new")
     old_app_definition_fixture = json_fixture("marathon/bluegreen_app_existing")
+    app_states_fixture = json_fixture("valid_apps")
     return prepare_app_definition(new_app_definition_fixture,
-                                  old_app_definition_fixture)
-
+                                  old_app_definition_fixture,
+                                  app_states_fixture['apps'])
 
 def test_color(app_definition):
     """Test that the app's color is set as a label
