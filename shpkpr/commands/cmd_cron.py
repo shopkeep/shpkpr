@@ -41,6 +41,8 @@ def _inject_secrets(template, secrets):
     """Given an object containing secrets, inject them into a Chronos job prior
     to deployment.
     """
+    if not template.get("environmentVariables"):
+        template["environmentVariables"] = []
     for key, secret in secrets.items():
         template["environmentVariables"].append({
             "name": key,

@@ -1,5 +1,6 @@
 # stdlib imports
 import copy
+import json
 
 # third-party imports
 import pytest
@@ -156,6 +157,15 @@ def test_cron_show_default_template_after_delete(runner, env):
 def test_cron_set_with_secrets(runner, env):
     _tmpl_path = 'tests/fixtures/templates/chronos/test-chronos-secrets.json.tmpl'
     result = runner(["cron", "set", "--template", _tmpl_path, "CHRONOS_JOB_NAME=shpkpr-test-job"], env=env)
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_cron_show_secrets_after_add(runner, env):
+    result = runner(["cron", "show", "-j", "shpkpr-test-job"], env=env)
+
+    env_vars = json.loads(result.output)[0].get("environmentVariables", [])
+    assert {"name": "MY_SECRET", "value": "bar"} in env_vars
     _check_exits_zero(result)
 
 
