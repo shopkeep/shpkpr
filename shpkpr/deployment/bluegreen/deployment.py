@@ -8,7 +8,7 @@ from .validate import Validator
 from .wait import SwapApplicationTimeout
 from .wait import Waiter
 from shpkpr.marathon import DeploymentFailed
-
+from cached_property import cached_property
 
 logger = logging.getLogger(__name__)
 
