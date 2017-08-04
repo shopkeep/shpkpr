@@ -70,7 +70,8 @@ class BlueGreenDeploymentSingleApp(object):
         # deployed.
         app_states = self._fetch_app_states()
         old_app_definition = self._fetch_old_app_definition()
-        new_app_definition = prepare_app_definition(self.app_definition, old_app_definition, app_states)
+        marathon_info = self._fetch_marathon_info()
+        new_app_definition = prepare_app_definition(self.app_definition, old_app_definition, app_states, marathon_info)
 
         # deploy the new application, wait until the traffic is cut over and
         # then tear down the old stack. If the process fails for any reason then
@@ -154,3 +155,9 @@ class BlueGreenDeploymentSingleApp(object):
         """Fetch current marathon app state
         """
         return self.marathon_client.list_applications()
+
+    @cached_property
+    def _fetch_marathon_info(self):
+        """Fetch current marathon configuration info
+        """
+        return self.marathon_client.get_info()
