@@ -145,7 +145,7 @@ class BlueGreenDeploymentSingleApp(object):
             return labels.get('HAPROXY_DEPLOYMENT_GROUP')
 
         target_deployment_group = get_deployment_group(self.app_definition)
-        for app_definition in _fetch_app_states():
+        for app_definition in self._fetch_app_states():
             if get_deployment_group(app_definition) == target_deployment_group:
                 return app_definition
         return None
