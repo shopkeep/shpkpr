@@ -50,6 +50,15 @@ class MarathonClient(object):
             "{0}.taskStats".format(entity_type),
         ]
 
+    def get_info(self):
+        """ Returns the marathon info from the /info endpoint
+        """
+        path = "/v2/info"
+        response = self._make_request('GET', path)
+        if response.status_code == 200:
+            return response.json()
+        raise ClientError("Unable to retrieve info from marathon")
+
     def delete_application(self, application_id, force=False):
         """Deletes the Application corresponding with application_id
         """
