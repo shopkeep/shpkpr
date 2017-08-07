@@ -6,6 +6,7 @@ from shpkpr.deployment.bluegreen.prepare import prepare_app_definition
 from shpkpr.deployment.bluegreen.prepare import _get_service_port
 from shpkpr.deployment.bluegreen.prepare import _get_alt_service_port
 
+
 @pytest.fixture
 def prepared_app_definition(json_fixture, app_states_fixture):
     """Prepare an app definition for deployment.
@@ -22,10 +23,12 @@ def prepared_app_definition(json_fixture, app_states_fixture):
                                   app_states_fixture['apps'],
                                   info_definition_fixture)
 
+
 @pytest.fixture
 def app_states_fixture(json_fixture):
     app_states_fixture = json_fixture("valid_apps")
-    return app_states_fixture 
+    return app_states_fixture
+
 
 def test_color(prepared_app_definition):
     """Test that the app's color is set as a label
@@ -53,10 +56,9 @@ def test_docker_service_port(prepared_app_definition, app_states_fixture):
     app_states = app_states_fixture['apps']
     used_ports = []
     for prepared_app_definition in app_states:
-      used_ports.append(_get_service_port(prepared_app_definition))
-      used_ports.append(_get_alt_service_port(prepared_app_definition))
+        used_ports.append(_get_service_port(prepared_app_definition))
+        used_ports.append(_get_alt_service_port(prepared_app_definition))
     assert actual not in used_ports
-
 
 
 def test_labels_id(prepared_app_definition):
