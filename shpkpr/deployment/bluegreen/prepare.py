@@ -20,7 +20,7 @@ def prepare_app_definition(app_definition, old_app_definition=None, app_states=N
         next_colour = _select_next_colour(old_app_definition)
     else:
         next_colour = 'blue'
-       
+
     next_port = _select_next_port(new_app_definition, app_states, marathon_info)
     new_app_definition = _set_service_port(new_app_definition, next_port)
     new_app_definition['id'] = new_app_definition['id'] + '-' + next_colour
@@ -43,6 +43,7 @@ def _get_service_port(app_definition):
         service_port = app_definition['ports'][0]
     return int(service_port)
 
+
 def _get_alt_service_port(app_definition):
     """Extract the currently configured alt service port from an app definition.
 
@@ -53,6 +54,7 @@ def _get_alt_service_port(app_definition):
         return int(service_port)
     except (KeyError, IndexError):
         return None
+
 
 def _set_service_port(app_definition, service_port):
     """Set the service port on the provided app definition.
@@ -88,11 +90,10 @@ def _select_next_port(app_definition, app_states, marathon_info):
 
     used_ports = []
     for app_definition in app_states:
-      used_ports.append(_get_service_port(app_definition))
-      used_ports.append(_get_alt_service_port(app_definition))
-
+        used_ports.append(_get_service_port(app_definition))
+        used_ports.append(_get_alt_service_port(app_definition))
 
     while True:
-      port = random.randint(min_port, max_port)
-      if port not in used_ports:
-        return port
+        port = random.randint(min_port, max_port)
+        if port not in used_ports:
+            return port
