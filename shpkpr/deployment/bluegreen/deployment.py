@@ -68,7 +68,7 @@ class BlueGreenDeploymentSingleApp(object):
         # labels and transforming the app's ID as appropriate. These changes
         # will allow Marathon-LB to cut the traffic over to the new app once
         # deployed.
-        apps_state = self._fetch_apps_state()
+        apps_state = self._fetch_apps_state
         old_app_definition = self._fetch_old_app_definition()
         new_app_definition = prepare_app_definition(self.app_definition, old_app_definition, apps_state)
 
@@ -144,7 +144,7 @@ class BlueGreenDeploymentSingleApp(object):
             return labels.get('HAPROXY_DEPLOYMENT_GROUP')
 
         target_deployment_group = get_deployment_group(self.app_definition)
-        for app_definition in self._fetch_apps_state():
+        for app_definition in self._fetch_apps_state:
             if get_deployment_group(app_definition) == target_deployment_group:
                 return app_definition
         return None

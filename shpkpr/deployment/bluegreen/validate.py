@@ -39,8 +39,7 @@ class AppDefinitionValidator(object):
     """
 
     REQUIRED_LABELS = [
-        "HAPROXY_DEPLOYMENT_GROUP",
-        "HAPROXY_DEPLOYMENT_ALT_PORT",
+        "HAPROXY_DEPLOYMENT_GROUP"
     ]
 
     ERROR_MESSAGE = "Missing label(s) from application definition: {0}"
