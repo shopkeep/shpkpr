@@ -19,6 +19,7 @@ def app_definition(json_fixture):
                                   old_app_definition_fixture,
                                   app_states_fixture['apps'])
 
+
 def test_color(app_definition):
     """Test that the app's color is set as a label
     """
@@ -62,6 +63,7 @@ def test_labels_port(app_definition):
     expected = "11090"
 
     assert actual == expected
+
 
 def test_labels_alt_port(app_definition):
     """Test that the app's original port is preserved as a label

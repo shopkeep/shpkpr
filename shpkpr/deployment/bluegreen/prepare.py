@@ -3,7 +3,7 @@ import copy
 from datetime import datetime
 
 
-def prepare_app_definition(app_definition, old_app_definition=None, app_states=None):
+def prepare_app_definition(app_definition, old_app_definition=None, apps_state=None):
     """Prepares ``app_definition`` for blue/green deployment by adding the
     necessary Marathon labels and setting the ID and service port.
 
@@ -15,13 +15,12 @@ def prepare_app_definition(app_definition, old_app_definition=None, app_states=N
     # we can refer back to properties of the original as needed.
     new_app_definition = copy.deepcopy(app_definition)
 
-   
     if old_app_definition is not None:
         _rotate_colour(new_app_definition, old_app_definition)
         _rotate_port(new_app_definition, old_app_definition)
     else:
         _set_app_colour(new_app_definition, 'blue')
-        _init_service_ports(new_app_definition, app_states)
+        _init_ports(new_app_definition, apps_state)
 
     new_app_definition['id'] = new_app_definition['id'] + '-' + _get_app_colour(new_app_definition)
     new_app_definition['labels']['HAPROXY_APP_ID'] = app_definition['id']
@@ -30,69 +29,47 @@ def prepare_app_definition(app_definition, old_app_definition=None, app_states=N
     return new_app_definition
 
 
-def _init_service_ports(app_definition, app_states):
+def _init_ports(app_definition, apps_state):
     """Determines that start port for the application and updates the application state.
     This works for both Dockerised and non-Dockerised applications.
     """
     if _is_service_port_defined(app_definition):
-      next_service_port = _get_service_port(app_definition)
+        next_service_port = _get_service_port(app_definition)
     else:
-      next_service_port = _determine_next_available_port(app_state)
-      
+        next_service_port = _determine_next_available_port(apps_state)
+
+    app_definition = _set_current_port(app_definition, next_service_port)
     app_definition = _set_service_port(app_definition, next_service_port)
-    app_definition['labels']['HAPROXY_0_PORT'] = str(next_service_port)
-    app_definition['labels']['HAPROXY_DEPLOYMENT_ALT_PORT'] = str(next_service_port + 1)
+    app_definition = _set_alt_port(app_definition, next_service_port + 1)
     return app_definition
 
-def _is_service_port_defined(app_definition):
-    return _get_service_port(app_definition) is not None and 'HAPROXY_DEPLOYMENT_ALT_PORT' in app_definition['labels']
 
-def _determine_next_available_port(app_state):
+def _determine_next_available_port(apps_state):
     next_service_port = 0
-    for app_state in app_states:
-      if 'HAPROXY_DEPLOYMENT_ALT_PORT' in app_state['labels']:
-        next_service_port = max(next_service_port + 1, int(app_state["labels"]["HAPROXY_DEPLOYMENT_ALT_PORT"]))
-      else:
-        next_service_port = max(next_service_port + 1, _get_service_port(app_state))
+    for app_state in apps_state:
+        if 'HAPROXY_DEPLOYMENT_ALT_PORT' in app_state['labels']:
+            next_service_port = max(next_service_port + 1, int(app_state["labels"]["HAPROXY_DEPLOYMENT_ALT_PORT"]))
+        else:
+            next_service_port = max(next_service_port + 1, _get_service_port(app_state))
     return next_service_port
-   
-def _set_service_port(app_definition, service_port):
-    """Set the service port on the provided app definition.
 
-    This works for both Dockerised and non-Dockerised applications.
-    """
-    try:
-        port_mappings = app_definition['container']['docker']['portMappings']
-        port_mappings[0]['servicePort'] = service_port
-    except (KeyError, IndexError):
-        app_definition['ports'][0] = service_port
-    return app_definition
-
-def _get_service_port(app_definition):
-    try:
-      port_mappings = app_definition['container']['docker']['portMappings']
-      service_port = port_mappings[0]['servicePort']
-    except (KeyError, IndexError):
-      if 'ports' in app_definition:
-         service_port = app_definition['ports'][0]
-      else:
-        return None
-    return int(service_port)
 
 def _rotate_port(new_app_definition, old_app_definition):
     """Given a currently deployed app definition, return the service port to use
     for the next blue/green deployment.
     """
-    primary_port = int(old_app_definition['labels']['HAPROXY_0_PORT'])
-    secondary_port = int(old_app_definition['labels']['HAPROXY_DEPLOYMENT_ALT_PORT'])
-    current_port = _get_service_port(old_app_definition)
+    primary_port = _get_service_port(old_app_definition)
+    secondary_port = _get_alt_port(old_app_definition)
+    current_port = _get_current_port(old_app_definition)
     if current_port == primary_port:
-      new_app_definition = _set_service_port(new_app_definition, secondary_port)
+        new_app_definition = _set_current_port(new_app_definition, secondary_port)
     else:
-      new_app_definition = _set_service_port(new_app_definition, primary_port)
-    new_app_definition['labels']['HAPROXY_0_PORT'] = old_app_definition['labels']['HAPROXY_0_PORT']
-    new_app_definition['labels']['HAPROXY_DEPLOYMENT_ALT_PORT'] = old_app_definition['labels']['HAPROXY_DEPLOYMENT_ALT_PORT']
+        new_app_definition = _set_current_port(new_app_definition, primary_port)
+
+    _set_service_port(new_app_definition, _get_service_port(old_app_definition))
+    _set_alt_port(new_app_definition, _get_alt_port(old_app_definition))
     return new_app_definition
+
 
 def _rotate_colour(new_app_definition, old_app_definition):
     """Given a currently deployed app definition, return the "color" to use for
@@ -105,8 +82,68 @@ def _rotate_colour(new_app_definition, old_app_definition):
     old_colour = _get_app_colour(old_app_definition)
     return _set_app_colour(new_app_definition, colours[old_colour])
 
+
+def _is_service_port_defined(app_definition):
+    return _get_service_port(app_definition) is not None and 'HAPROXY_DEPLOYMENT_ALT_PORT' in app_definition['labels']
+
+
+def _set_current_port(app_definition, service_port):
+    """Set the service port on the provided app definition.
+
+    This works for both Dockerised and non-Dockerised applications.
+    """
+    try:
+        port_mappings = app_definition['container']['docker']['portMappings']
+        port_mappings[0]['servicePort'] = service_port
+    except (KeyError, IndexError):
+        app_definition['ports'][0] = service_port
+
+    return app_definition
+
+
+def _set_service_port(app_definition, service_port):
+    """Set the service port on the provided app definition.
+
+    This works for both Dockerised and non-Dockerised applications.
+    """
+    app_definition['labels']['HAPROXY_0_PORT'] = str(service_port)
+    return app_definition
+
+
+def _set_alt_port(app_definition, alt_port):
+    """Set the alt port on the provided app definition.
+
+    This works for both Dockerised and non-Dockerised applications.
+    """
+    app_definition['labels']['HAPROXY_DEPLOYMENT_ALT_PORT'] = str(alt_port)
+    return app_definition
+
+
+def _get_current_port(app_definition):
+    try:
+        port_mappings = app_definition['container']['docker']['portMappings']
+        service_port = port_mappings[0]['servicePort']
+    except (KeyError, IndexError):
+        if 'ports' in app_definition:
+            service_port = app_definition['ports'][0]
+        else:
+            return None
+    return int(service_port)
+
+
+def _get_alt_port(app_definition):
+    return int(app_definition['labels']['HAPROXY_DEPLOYMENT_ALT_PORT'])
+
+
+def _get_service_port(app_definition):
+    if 'HAPROXY_0_PORT' in app_definition['labels']:
+        return int(app_definition['labels']['HAPROXY_0_PORT'])
+    return _get_current_port(app_definition)
+
+
 def _get_app_colour(app_definition):
-  return app_definition['labels']['HAPROXY_DEPLOYMENT_COLOUR']
+    return app_definition['labels']['HAPROXY_DEPLOYMENT_COLOUR']
+
 
 def _set_app_colour(app_definition, colour):
     app_definition['labels']['HAPROXY_DEPLOYMENT_COLOUR'] = colour

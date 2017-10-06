@@ -8,7 +8,7 @@ from .validate import Validator
 from .wait import SwapApplicationTimeout
 from .wait import Waiter
 from shpkpr.marathon import DeploymentFailed
-
+from cached_property import cached_property
 
 logger = logging.getLogger(__name__)
 
@@ -68,9 +68,9 @@ class BlueGreenDeploymentSingleApp(object):
         # labels and transforming the app's ID as appropriate. These changes
         # will allow Marathon-LB to cut the traffic over to the new app once
         # deployed.
-        app_states = self._fetch_app_states()
+        apps_state = self._fetch_apps_state()
         old_app_definition = self._fetch_old_app_definition()
-        new_app_definition = prepare_app_definition(self.app_definition, old_app_definition, app_states)
+        new_app_definition = prepare_app_definition(self.app_definition, old_app_definition, apps_state)
 
         # deploy the new application, wait until the traffic is cut over and
         # then tear down the old stack. If the process fails for any reason then
@@ -144,16 +144,13 @@ class BlueGreenDeploymentSingleApp(object):
             return labels.get('HAPROXY_DEPLOYMENT_GROUP')
 
         target_deployment_group = get_deployment_group(self.app_definition)
-        for app_definition in _fetch_apps_state:
+        for app_definition in self._fetch_apps_state():
             if get_deployment_group(app_definition) == target_deployment_group:
                 return app_definition
         return None
 
-    fetch_app_states_memo = None
-    def _fetch_app_states(self):
+    @cached_property
+    def _fetch_apps_state(self):
         """Fetch current marathon app state
         """
-        if fetch_app_states_memo is None:
-          fetch_app_states_memo = self.marathon_client.list_applications()
-        return fetch_app_states_memo
- 
+        return self.marathon_client.list_applications()

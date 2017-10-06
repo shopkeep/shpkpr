@@ -21,9 +21,6 @@
 
     - DOCKER_EXPOSED_PORT: Port number within the container that should be
       exposed to the host.
-    - MARATHON_SERVICE_PORT: The port used by Marathon-LB for load-balancing.
-    - MARATHON_SERVICE_PORT_ALT: An alternate port used by Marathon-LB for
-      load-balancing during a blue-green deployment.
     - MARATHON_HEALTH_CHECK_PATH: The path of an HTTP endpoint exposed by the
       application for healthcheck purposes.
     - HAPROXY_VHOST: The hostname(s) that that will be proxied to the
@@ -38,11 +35,6 @@
     {
         "containerPort": {{DOCKER_EXPOSED_PORT|require_int}},
         "hostPort": 0,
-        {#
-            The service port is used by Marathon-LB for load-balancing and
-            management of blue-green deploys. Must be globally unique.
-        #}
-        "servicePort": {{MARATHON_SERVICE_PORT|require_int}},
         "protocol": "tcp"
     }
 ],
@@ -85,12 +77,6 @@
         either the `internal` or `external` group as appropriate.
     #}
     "HAPROXY_GROUP": "{{HAPROXY_GROUP|default("internal")}}",
-    {#
-        The alternate service port is used by Marathon-LB when cutting traffic
-        over between blue and green applications. Applications will typically
-        alternate between the primary and alternate ports as deploys happen.
-    #}
-    "HAPROXY_DEPLOYMENT_ALT_PORT": "{{MARATHON_SERVICE_PORT_ALT|require_int}}",
     {#
         The hostname(s) that that will be proxied to the application (comma
         separated if multiple).
