@@ -15,9 +15,11 @@ def app_definition(json_fixture):
     new_app_definition_fixture = json_fixture("marathon/bluegreen_app_new")
     old_app_definition_fixture = json_fixture("marathon/bluegreen_app_existing")
     app_states_fixture = json_fixture("valid_apps")
+    info_definition_fixture = json_fixture("marathon/info")
     return prepare_app_definition(new_app_definition_fixture,
                                   old_app_definition_fixture,
-                                  app_states_fixture['apps'])
+                                  app_states_fixture['apps'],
+                                  info_definition_fixture)
 
 
 def test_color(app_definition):

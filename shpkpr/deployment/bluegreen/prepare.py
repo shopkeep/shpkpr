@@ -1,9 +1,10 @@
 # stdlib imports
 import copy
+import random
 from datetime import datetime
 
 
-def prepare_app_definition(app_definition, old_app_definition=None, apps_state=None):
+def prepare_app_definition(app_definition, old_app_definition=None, apps_state=None, marathon_info=None):
     """Prepares ``app_definition`` for blue/green deployment by adding the
     necessary Marathon labels and setting the ID and service port.
 
@@ -20,7 +21,7 @@ def prepare_app_definition(app_definition, old_app_definition=None, apps_state=N
         _rotate_port(new_app_definition, old_app_definition)
     else:
         _set_app_colour(new_app_definition, 'blue')
-        _init_ports(new_app_definition, apps_state)
+        _init_ports(new_app_definition, apps_state, marathon_info)
 
     new_app_definition['id'] = new_app_definition['id'] + '-' + _get_app_colour(new_app_definition)
     new_app_definition['labels']['HAPROXY_APP_ID'] = app_definition['id']
@@ -29,29 +30,38 @@ def prepare_app_definition(app_definition, old_app_definition=None, apps_state=N
     return new_app_definition
 
 
-def _init_ports(app_definition, apps_state):
+def _init_ports(app_definition, apps_state, marathon_info):
     """Determines that start port for the application and updates the application state.
     This works for both Dockerised and non-Dockerised applications.
     """
     if _is_service_port_defined(app_definition):
-        next_service_port = _get_service_port(app_definition)
+        service_port = _get_service_port(app_definition)
+        alt_port = _get_alt_port(app_definition)
     else:
-        next_service_port = _determine_next_available_port(apps_state)
+        service_port = _select_next_port(apps_state, marathon_info, [])
+        alt_port = _select_next_port(apps_state, marathon_info, [service_port])
 
-    app_definition = _set_current_port(app_definition, next_service_port)
-    app_definition = _set_service_port(app_definition, next_service_port)
-    app_definition = _set_alt_port(app_definition, next_service_port + 1)
+    app_definition = _set_current_port(app_definition, service_port)
+    app_definition = _set_service_port(app_definition, service_port)
+    app_definition = _set_alt_port(app_definition, alt_port)
     return app_definition
 
 
-def _determine_next_available_port(apps_state):
-    next_service_port = 0
-    for app_state in apps_state:
-        if 'HAPROXY_DEPLOYMENT_ALT_PORT' in app_state['labels']:
-            next_service_port = max(next_service_port + 1, int(app_state["labels"]["HAPROXY_DEPLOYMENT_ALT_PORT"]))
-        else:
-            next_service_port = max(next_service_port + 1, _get_service_port(app_state))
-    return next_service_port
+def _select_next_port(apps_state, marathon_info, used_ports):
+    """Given a currently deployed app definition, return the service port to use
+    for the next blue/green deployment.
+    """
+    min_port = marathon_info['marathon_config']['local_port_min']
+    max_port = marathon_info['marathon_config']['local_port_max']
+
+    for app_definition in apps_state:
+        used_ports.append(_get_service_port(app_definition))
+        used_ports.append(_get_alt_port(app_definition))
+
+    while True:
+        port = random.randint(min_port, max_port)
+        if port not in used_ports:
+            return port
 
 
 def _rotate_port(new_app_definition, old_app_definition):
