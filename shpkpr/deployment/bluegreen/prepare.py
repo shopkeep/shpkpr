@@ -142,7 +142,9 @@ def _get_current_port(app_definition):
 
 
 def _get_alt_port(app_definition):
-    return int(app_definition['labels']['HAPROXY_DEPLOYMENT_ALT_PORT'])
+    if 'HAPROXY_DEPLOYMENT_ALT_PORT' in app_definition['labels']:
+        return int(app_definition['labels']['HAPROXY_DEPLOYMENT_ALT_PORT'])
+    return None
 
 
 def _get_service_port(app_definition):
