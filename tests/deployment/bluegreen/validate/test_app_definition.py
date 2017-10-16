@@ -23,9 +23,7 @@ def test_valid_app(valid_app_definition):
 
 
 @pytest.fixture(params=[
-    ["HAPROXY_DEPLOYMENT_GROUP"],
-    ["HAPROXY_DEPLOYMENT_ALT_PORT"],
-    ["HAPROXY_DEPLOYMENT_GROUP", "HAPROXY_DEPLOYMENT_ALT_PORT"],
+    ["HAPROXY_DEPLOYMENT_GROUP"]
 ])
 def invalid_app_definition(json_fixture, request):
     app_definition = json_fixture("marathon/bluegreen_app_new")

@@ -12,8 +12,7 @@
         {
           "containerPort": {{DOCKER_EXPOSED_PORT}},
           "hostPort": 0,
-          "protocol": "tcp",
-          "servicePort": 11090
+          "protocol": "tcp"
         }
       ]
     }
@@ -39,7 +38,6 @@
   "labels": {
       "HAPROXY_DEPLOYMENT_GROUP": "{{DEPLOYMENT_GROUP}}",
       "HAPROXY_GROUP": "internal",
-      "HAPROXY_DEPLOYMENT_ALT_PORT": "11091",
       "HAPROXY_0_VHOST": "{{DEPLOY_DOMAIN}}"
   }
 }

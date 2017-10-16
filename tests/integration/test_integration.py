@@ -260,3 +260,54 @@ def test_ensure_bluegreen_default_template_swapped(runner, env):
     result = runner(["apps", "show"], env=local_env)
     _check_exits_zero(result)
     _check_output_contains(result, local_env["SHPKPR_APPLICATION"])
+
+
+@pytest.mark.integration
+def test_bluegreen_autoports_deploy(runner, env):
+    _tmpl_path = "tests/fixtures/templates/marathon/test-bluegreen-autoports.json.tmpl"
+    result = runner(["apps", "deploy", "--strategy", "bluegreen", "-t", _tmpl_path], env=env)
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_ensure_bluegreen_autoports_deploy(runner, env):
+    local_env = copy.deepcopy(env)
+    local_env["SHPKPR_APPLICATION"] = "shpkpr-test/integration-test-bluegreen-blue"
+
+    result = runner(["apps", "show"], env=local_env)
+    _check_exits_zero(result)
+    _check_output_contains(result, "shpkpr-test/integration-test-bluegreen-blue")
+
+
+@pytest.mark.integration
+def test_bluegreen_autoports_deploy_with_existing_app(runner, env):
+    _tmpl_path = "tests/fixtures/templates/marathon/test-bluegreen-autoports.json.tmpl"
+    result = runner(["apps", "deploy", "--strategy", "bluegreen", "-t", _tmpl_path], env=env)
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_ensure_bluegreen_autoports_swapped(runner, env):
+    local_env = copy.deepcopy(env)
+    local_env["SHPKPR_APPLICATION"] = "shpkpr-test/integration-test-bluegreen-green"
+
+    result = runner(["apps", "show"], env=local_env)
+    _check_exits_zero(result)
+    _check_output_contains(result, "shpkpr-test/integration-test-bluegreen-green")
+
+
+@pytest.mark.integration
+def test_bluegreen_autoports_deploy_reset(runner, env):
+    _tmpl_path = "tests/fixtures/templates/marathon/test-bluegreen-autoports.json.tmpl"
+    result = runner(["apps", "deploy", "--strategy", "bluegreen", "-t", _tmpl_path], env=env)
+    _check_exits_zero(result)
+
+
+@pytest.mark.integration
+def test_ensure_bluegreen_autoports_reset(runner, env):
+    local_env = copy.deepcopy(env)
+    local_env["SHPKPR_APPLICATION"] = "shpkpr-test/integration-test-bluegreen-blue"
+
+    result = runner(["apps", "show"], env=local_env)
+    _check_exits_zero(result)
+    _check_output_contains(result, "shpkpr-test/integration-test-bluegreen-blue")

@@ -1,19 +1,18 @@
 {
-  "id": "{{APPLICATION}}-bluegreen",
+  "id": "my-app",
   "cpus": 0.1,
   "mem": 256,
-  "instances": 1,
+  "instances": 4,
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{DOCKER_REPOTAG}}",
+      "image": "my-app:some-tag",
       "network": "BRIDGE",
       "portMappings": [
         {
-          "containerPort": {{DOCKER_EXPOSED_PORT}},
+          "containerPort": 8080,
           "hostPort": 0,
-          "protocol": "tcp",
-          "servicePort": 11090
+          "protocol": "tcp"
         }
       ]
     }
@@ -37,9 +36,8 @@
       "maximumOverCapacity": 1
   },
   "labels": {
-      "HAPROXY_DEPLOYMENT_GROUP": "{{DEPLOYMENT_GROUP}}",
+      "HAPROXY_DEPLOYMENT_GROUP": "my-group",
       "HAPROXY_GROUP": "internal",
-      "HAPROXY_DEPLOYMENT_ALT_PORT": "11091",
-      "HAPROXY_0_VHOST": "{{DEPLOY_DOMAIN}}"
+      "HAPROXY_0_VHOST": "my-app.my-domain.com"
   }
 }
