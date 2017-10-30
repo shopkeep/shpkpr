@@ -22,6 +22,11 @@ def _env_pairs_to_dict(ctx, param, value):
     return d
 
 
+command = click.argument(
+    'command',
+    nargs=1,
+)
+
 env_pairs = click.argument(
     'env_pairs',
     nargs=-1,

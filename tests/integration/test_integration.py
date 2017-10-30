@@ -70,6 +70,13 @@ def test_show_yet_again(runner, env):
 
 
 @pytest.mark.integration
+def test_run(runner, env):
+    result = runner(["apps", "run", "env", "ENV_TESTY_MC_TESTFACE=testy"], env=env)
+    _check_exits_zero(result)
+    _check_output_contains(result, "TESTY_MC_TESTFACE=testy")
+
+
+@pytest.mark.integration
 def test_cron_show(runner, env):
     result = runner(["cron", "show"], env=env)
     _check_exits_zero(result)

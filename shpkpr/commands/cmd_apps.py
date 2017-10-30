@@ -1,8 +1,10 @@
 # stdlib imports
 import logging
+import sys
 
 # third-party imports
 import click
+import docker
 
 # local imports
 from shpkpr.cli import arguments
@@ -12,6 +14,7 @@ from shpkpr.deployment import BlueGreenDeployment
 from shpkpr.deployment import StandardDeployment
 from shpkpr.template import load_values_from_environment
 from shpkpr.template import render_json_template
+from shpkpr.vault import resolve_secrets
 
 
 logger = logging.getLogger(__name__)
@@ -94,3 +97,55 @@ def show(marathon_client, application_id, output_formatter, **kw):
     else:
         payload = marathon_client.get_application(application_id)
     logger.info(output_formatter.format(payload))
+
+
+@cli.command(short_help='Run a one-off task in a production-like environment.',
+             context_settings=CONTEXT_SETTINGS)
+@arguments.command
+@arguments.env_pairs
+@options.vault_client
+@options.template_names
+@options.template_path
+@options.env_prefix
+def run(env_prefix, template_path, template_names, vault_client, command, env_pairs, **kw):
+    """Run a one-off task in a "production-like" environment.
+
+    Uses the current deployment configuration to start up a container locally
+    and run a single command. Environment variables and secrets are extracted
+    from the current deployment configuration and injected into the container
+    when starting up.
+    """
+    # use the default template if none was specified. We can just use the
+    # standard template here since all we care about are environment variables
+    # and secrets.
+    if not template_names:
+        template_name = STRATEGIES["standard"]["default_template"]
+    else:
+        template_name = template_names[0]
+
+    # read and render deploy template using values from the environment
+    values = load_values_from_environment(prefix=env_prefix, overrides=env_pairs)
+    rendered_template = render_json_template(template_path, template_name, **values)
+
+    # extract required configuration from the rendered template
+    app_id = rendered_template["id"]
+    docker_image = rendered_template["container"]["docker"]["image"]
+    environment_variables = rendered_template["env"]
+    environment_variables.update(resolve_secrets(vault_client, rendered_template))
+
+    logger.info("Running command for app ({0}): {1}\n".format(app_id, command))
+
+    docker_client = docker.from_env()
+    container = docker_client.containers.run(docker_image,
+                                             command,
+                                             detach=True,
+                                             auto_remove=True,
+                                             network_mode="host",
+                                             environment=environment_variables)
+
+    # stream logs from the running container to stdout
+    for line in container.logs(stream=True):
+        logger.info(line.decode('utf-8').rstrip())
+
+    # exit with the container's exit code once it finishes
+    sys.exit(container.wait())

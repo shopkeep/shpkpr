@@ -18,7 +18,7 @@ build-test:
 	docker build -f Dockerfile.test -t shpkpr-test .
 
 # User-defined function to allow easy running of our tests inside Docker
-docker-test = docker run -i -v `pwd`:/src:ro $(1) --rm shpkpr-test $(2)
+docker-test = docker run -i -v `pwd`:/src:ro -v /var/run/docker.sock:/var/run/docker.sock $(1) --rm shpkpr-test $(2)
 
 test: clean build-test ## Run tests against all supported Python versions (2.7, 3.3, 3.4, 3.5 and pypy) inside Docker
 	$(call docker-test)
