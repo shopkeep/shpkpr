@@ -38,6 +38,9 @@ class BlueGreenDeployment(object):
         down old stacks until _all_ new stacks are running so we can roll back
         partially successful invocations.
         """
+        app_ids = ", ".join([a["id"] for a in self.app_definitions])
+        logger.info("Executing bluegreen deployment: {0}".format(app_ids))
+
         for app_definition in self.app_definitions:
             self.execute_for_app(app_definition, force)
 
@@ -92,7 +95,11 @@ class BlueGreenDeploymentSingleApp(object):
         """Deploy a new application definition to Marathon.
         """
         deployment = self.marathon_client.deploy([new_app_definition])
-        deployment.wait(timeout=self.timeout)
+
+        logger.info("Waiting for marathon deployment to complete: {0}".format(deployment.deployment_id))
+        result = deployment.wait(timeout=self.timeout)
+        logger.info("Marathon deployment complete: {0}".format(deployment.deployment_id))
+        return result
 
     def _wait_for_traffic_swap(self, old_app_id, new_app_id):
         """Wait for traffic to cut over from the old to the new application

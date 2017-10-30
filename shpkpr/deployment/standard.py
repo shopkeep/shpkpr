@@ -1,3 +1,8 @@
+# stdlib imports
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class StandardDeployment(object):
@@ -18,8 +23,15 @@ class StandardDeployment(object):
     def execute(self, force=False):
         """Execute standard Marathon deployment.
         """
+        app_ids = ", ".join([a["id"] for a in self.app_definitions])
+        logger.info("Executing standard deployment: {0}".format(app_ids))
+
         deployment = self.marathon_client.deploy(
             self.app_definitions,
             force=force,
         )
-        return deployment.wait(timeout=self.timeout)
+
+        logger.info("Waiting for marathon deployment to complete: {0}".format(deployment.deployment_id))
+        result = deployment.wait(timeout=self.timeout)
+        logger.info("Marathon deployment complete: {0}".format(deployment.deployment_id))
+        return result

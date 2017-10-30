@@ -23,7 +23,7 @@ class MarathonDeployment(object):
 
     def __init__(self, client, deployment_id):
         self._client = client
-        self._deployment_id = deployment_id
+        self.deployment_id = deployment_id
 
     def check(self):
         """Check if this deployment has completed.
@@ -32,7 +32,7 @@ class MarathonDeployment(object):
         deployment is in progress.
         """
         try:
-            self._client.get_deployment(self._deployment_id)
+            self._client.get_deployment(self.deployment_id)
         except DeploymentNotFound:
             # if the deployment isn't listed, then we can consider the deployment as completed
             # successfully and return True. According to the marathon docs: "If the deployment
