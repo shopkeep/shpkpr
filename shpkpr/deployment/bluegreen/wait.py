@@ -37,14 +37,17 @@ class Waiter(object):
         """Check if the cutover is complete
         """
         if self.marathon_lb_client.is_reloading():
+            logger.info("Waiting for Marathon-LB to settle (reloading detected)")
             return False
 
         new_app = self.marathon_client.get_application(self.new_app_id)
         old_app = self.marathon_client.get_application(self.old_app_id)
         app_stats = self._fetch_application_stats(new_app)
         if not self._new_app_is_up(app_stats, new_app):
+            logger.info("Waiting for new application to come up")
             return False
         if not self._old_app_is_drained(app_stats, old_app):
+            logger.info("Waiting for traffic to drain from old application")
             return False
         return True
 
@@ -54,10 +57,15 @@ class Waiter(object):
 
         Blocks until success or ``deadline`` is reached.
         """
+        _msg = "Waiting for traffic to cut over from `{0}` to `{1}`"
+        logger.info(_msg.format(self.old_app_id, self.new_app_id))
+
         while not self.check():
             if time.time() >= deadline:
                 raise SwapApplicationTimeout('Max wait Time Exceeded')
             time.sleep(self.MARATHON_LB_POLL_INTERVAL)
+
+        logger.info("Traffic successfully routed to new application")
 
     def _fetch_application_stats(self, app_definition):
         """Fetch stats from HAProxy for the current application.
