@@ -97,6 +97,17 @@
         https://en.wikipedia.org/wiki/ISO_8601
     #}
     "schedule": "{{CHRONOS_SCHEDULE|default("R/2017-01-01T00:00:00.0Z/PT24H")}}",
+    {#
+        Secrets allow shpkpr to inject secret data from configured "secret
+        stores" at application deploy time. This allows decoupling of how
+        secrets are provisioned from the how applications make use of those
+        secrets at runtime.
+    #}
+    "secrets": {
+        {% for key, value in _all_env|filter_items("SECRET_", strip_prefix=True) %}
+            "{{key}}": {"source": "{{value}}"}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    },
     {# Whether the job runs in the background or not. #}
     "async": false
 }
