@@ -30,6 +30,7 @@ setup(
         'cached-property>=1.3.0, <2',
         'chronos-python>=1.1.0',
         'click>=6.0, <7',
+        'docker>=2.5.1',
         'hvac>=0.2.17',
         'jinja2>=2.6, <3',
         'jsonschema>=2.6, <3',

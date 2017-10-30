@@ -7,3 +7,4 @@ Manage Marathon Applications
 
    show
    deploy
+   run
