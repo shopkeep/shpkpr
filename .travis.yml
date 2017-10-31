@@ -19,3 +19,13 @@ script:
 
 notifications:
   email: false
+
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: shopkeep
+  password:
+    secure: mtTo6hENVc4lUluayUGKHnZH8cECdf6WlK2pRadO7vGJzcFAqGoa4EjVRzHErlATgu55CAf4AeaU6z4vtF9SNDs2KMDbGdVcH2J570csBLz78dl5Yv9w3LuGN6vaTKKY96423F0hpEqb3qZ765dNGo9LA8iXSZxQzC5ZcBxkbB7/clBls3h+aetD2K9ia3Dd8xmmr8xU69wFxCRar5kOLEn8nQ/U8RriaoJ5GeJqPCDZLlf0kQKjEotpv5VpLi29skk8nKUweJaca8CHLcKCty4xR5XMccMsRq0VgFOGxZXlX2uD84Kn7G+IhU/wJW6O9Ly84jkJ0i2a+Djh65d4uAgpRHbJyXmjGdAvZGAR+pxvC86ORv6KRK3Otbhqm/oWd2Mxf0fvH5vWBfRiDElvn5lcMHkGecc68Pebwn/0NT0wJGm+Lo6OYquw70B4At7W0BC0rwa9haDS8y2/PeiKnoPwasHhUVizzMRCVCDRBMhBZVY3fl+vPMhIxmxhcZMc+pL663nGuhblU8kOQgMIl8DnwcfhZTv6eejZFofa+gbEF2SuPmIkqwU4VOkG1P0ztMmy3nd4DZBEwTP6DgkX2uvqNO6pi6Dcu/dQi0XYZkgYjNKGmBGxLk3WMhn+q4UjnsfizYgEh11oKH7iGLjHxzivKHaR7jtcfhkA6DaWn9Y=
+  on:
+    python: 2.7
+    tags: true
