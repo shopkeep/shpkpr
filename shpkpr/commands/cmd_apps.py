@@ -140,7 +140,6 @@ def run(env_prefix, template_path, template_names, vault_client, command, env_pa
                                              command,
                                              detach=True,
                                              auto_remove=True,
-                                             network_mode="host",
                                              environment=environment_variables)
 
     # stream logs from the running container to stdout
