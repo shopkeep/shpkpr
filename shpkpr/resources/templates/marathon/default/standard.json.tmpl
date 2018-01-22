@@ -118,7 +118,7 @@
                         Setting `hostPort` to `0` allows Marathon to dynamically
                         allocate a port on the host to map.
                     #}
-                    "hostPort": 0,
+                    "hostPort": {{DOCKER_HOST_PORT|default(0)}},
                     "protocol": "tcp"
                 }
             ],
