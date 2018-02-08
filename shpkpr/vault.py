@@ -23,6 +23,6 @@ def resolve_secrets(vault_client, rendered_template):
         if secret:
             resolved_secrets[name] = secret["data"][key]
         else:
-            logger.info(f"Couldn't locate secret in Vault: {path}")
+            logger.info("Couldn't locate secret in Vault: {0}".format(path))
 
     return resolved_secrets
