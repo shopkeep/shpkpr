@@ -1,3 +1,8 @@
+# stdlib imports
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def resolve_secrets(vault_client, rendered_template):
@@ -14,7 +19,10 @@ def resolve_secrets(vault_client, rendered_template):
         # parse the secret source and retrieve from vault
         path, key = definition["source"].split(":")
         path = "secret/{0}".format(path)
-        secret = vault_client.read(path)["data"][key]
-        resolved_secrets[name] = secret
+        secret = vault_client.read(path)
+        if secret:
+            resolved_secrets[name] = secret["data"][key]
+        else:
+            logger.info("Couldn't locate secret in Vault: {0}".format(path))
 
     return resolved_secrets
