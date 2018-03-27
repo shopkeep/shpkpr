@@ -147,4 +147,4 @@ def run(env_prefix, template_path, template_names, vault_client, command, env_pa
         logger.info(line.decode('utf-8').rstrip())
 
     # exit with the container's exit code once it finishes
-    sys.exit(container.wait())
+    sys.exit(container.wait()['StatusCode'])
