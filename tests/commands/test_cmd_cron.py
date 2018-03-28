@@ -92,8 +92,6 @@ def test_set_default_template_labels(mock_chronos_add, mock_chronos_list, runner
         'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
     })
 
-    print(result.output)
-
     assert mock_chronos_add.called
     assert result.exit_code == 0
 
