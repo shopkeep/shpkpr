@@ -150,3 +150,44 @@ def test_strategy_bluegreen(runner):
     result = runner(['apps', 'deploy', '--dry-run', '--strategy', 'bluegreen', '--template', _tmpl_path], env=env)
 
     assert result.exit_code == 0
+
+
+@responses.activate
+@mock.patch('shpkpr.marathon.MarathonDeployment.wait')
+def test_default_template(mock_deployment_wait, runner, json_fixture):
+    responses.add(responses.PUT,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=201,
+                  json=json_fixture("deployment"),
+                  match_querystring=True)
+    mock_deployment_wait.return_value = True
+
+    env = {
+        'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
+        'SHPKPR_MARATHON_APP_ID': 'test-app',
+        'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
+    }
+    result = runner(['apps', 'deploy'], env=env)
+
+    assert result.exit_code == 0
+
+
+@responses.activate
+@mock.patch('shpkpr.marathon.MarathonDeployment.wait')
+def test_default_template_labels(mock_deployment_wait, runner, json_fixture):
+    responses.add(responses.PUT,
+                  'http://marathon.somedomain.com:8080/v2/apps/test-app',
+                  status=201,
+                  json=json_fixture("deployment"),
+                  match_querystring=True)
+    mock_deployment_wait.return_value = True
+
+    env = {
+        'SHPKPR_MARATHON_URL': "http://marathon.somedomain.com:8080",
+        'SHPKPR_MARATHON_APP_ID': 'test-app',
+        'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
+        'SHPKPR_LABEL_SOME_LABEL': 'somevalue',
+    }
+    result = runner(['apps', 'deploy'], env=env)
+
+    assert result.exit_code == 0

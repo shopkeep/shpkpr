@@ -124,6 +124,13 @@
             ],
             {% endif %}
             {% endblock %}
+            "parameters": [
+                {% block docker_labels %}
+                {% for key, value in _all_env|filter_items("LABEL_", strip_prefix=True) %}
+                    {"key": "label", "value": "{{key|slugify}}={{value}}"}{% if not loop.last %},{% endif %}
+                {% endfor %}
+                {% endblock %}
+            ],
             "network": "BRIDGE"
         }
     },
