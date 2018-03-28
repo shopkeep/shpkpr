@@ -61,6 +61,43 @@ def test_set(mock_chronos_add, mock_chronos_list, runner, json_fixture):
 
 @mock.patch("shpkpr.cli.options.ChronosClient.list")
 @mock.patch("shpkpr.cli.options.ChronosClient.add")
+def test_set_default_template(mock_chronos_add, mock_chronos_list, runner, json_fixture):
+    mock_chronos_list.return_value = []
+    mock_chronos_add.return_value = True
+
+    result = runner(['cron', 'set'], env={
+        'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+        'SHPKPR_CHRONOS_JOB_NAME': 'shpkpr-test-job',
+        'SHPKPR_CHRONOS_OWNER': 'shpkpr-test@example.com',
+        'SHPKPR_CHRONOS_CMD': 'someprogram --run',
+        'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
+    })
+
+    assert mock_chronos_add.called
+    assert result.exit_code == 0
+
+
+@mock.patch("shpkpr.cli.options.ChronosClient.list")
+@mock.patch("shpkpr.cli.options.ChronosClient.add")
+def test_set_default_template_labels(mock_chronos_add, mock_chronos_list, runner, json_fixture):
+    mock_chronos_list.return_value = []
+    mock_chronos_add.return_value = True
+
+    result = runner(['cron', 'set'], env={
+        'SHPKPR_CHRONOS_URL': "chronos.somedomain.com:4400",
+        'SHPKPR_CHRONOS_JOB_NAME': 'shpkpr-test-job',
+        'SHPKPR_CHRONOS_OWNER': 'shpkpr-test@example.com',
+        'SHPKPR_CHRONOS_CMD': 'someprogram --run',
+        'SHPKPR_LABEL_SOME_LABEL': 'some-value',
+        'SHPKPR_DOCKER_REPOTAG': 'goexample/outyet:latest',
+    })
+
+    assert mock_chronos_add.called
+    assert result.exit_code == 0
+
+
+@mock.patch("shpkpr.cli.options.ChronosClient.list")
+@mock.patch("shpkpr.cli.options.ChronosClient.add")
 def test_set_multiple(mock_chronos_add, mock_chronos_list, runner):
     mock_chronos_list.return_value = []
     mock_chronos_add.return_value = True
