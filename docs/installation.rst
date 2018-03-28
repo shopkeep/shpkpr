@@ -27,7 +27,7 @@ Using Docker
 
 shpkpr is also available in a prebuilt Docker image if you'd prefer to run it in a container. A list of the available tags can be found on the `Docker hub <https://hub.docker.com/r/shopkeep/shpkpr/tags/>`_::
 
-    $ docker pull shopkeep/shpkpr:v3.1.3
+    $ docker pull shopkeep/shpkpr:v3.2.0
     $ docker pull shopkeep/shpkpr:master
 
 Once the image is downloaded, you can use shpkpr with ``docker run``::
