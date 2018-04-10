@@ -25,5 +25,5 @@ def test_resolve_secrets(mock_vault_client_class):
     mock_vault_client.read.side_effect = read_vault_data
 
     result = resolve_secrets(mock_vault_client, mock_rendered_template)
-    assert result['MY_SECRET_USING_REL_PATH'] == 'some_secret_info'
+    assert 'MY_SECRET_USING_REL_PATH' not in result
     assert result['MY_SECRET_USING_FULL_PATH'] == 'some_secret_info'
