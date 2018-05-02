@@ -18,7 +18,6 @@ def resolve_secrets(vault_client, rendered_template):
     for name, definition in secrets.items():
         # parse the secret source and retrieve from vault
         path, key = definition["source"].split(":")
-        path = "secret/{0}".format(path)
         secret = vault_client.read(path)
         if secret:
             resolved_secrets[name] = secret["data"][key]
