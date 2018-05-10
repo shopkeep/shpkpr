@@ -233,10 +233,10 @@
             #}
             "path": "{{MARATHON_HEALTH_CHECK_PATH}}",
             {#
-                Protocol of the requests to be performed. One of “HTTP”,
-                “HTTPS”, “TCP”, or “Command”.
+                Protocol of the requests to be performed. One of “MESOS_HTTP”,
+                “MESOS_HTTPS”, “MESOS_TCP”, or “Command”.
             #}
-            "protocol": "{{MARATHON_HEALTH_CHECK_PROTOCOL|default("HTTP")}}",
+            "protocol": "{{MARATHON_HEALTH_CHECK_PROTOCOL|default("MESOS_HTTP")}}",
             {#
                 A port index of `0` tells Marathon to make requests to the
                 application on the first exposed port. In this case, since the
