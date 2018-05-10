@@ -46,7 +46,7 @@
 "healthChecks": [
     {
         "path": "{{MARATHON_HEALTH_CHECK_PATH}}",
-        "protocol": "{{MARATHON_HEALTH_CHECK_PROTOCOL|default("HTTP")}}",
+        "protocol": "{{MARATHON_HEALTH_CHECK_PROTOCOL|default("MESOS_HTTP")}}",
         "portIndex": 0,
         "gracePeriodSeconds": {{MARATHON_HEALTH_CHECK_GRACE_PERIOD_SECONDS|default(300)|require_int(min=0)}},
         "intervalSeconds": {{MARATHON_HEALTH_CHECK_INTERVAL_SECONDS|default(10)|require_int(min=0)}},
