@@ -185,7 +185,7 @@
         Docs: https://mesosphere.github.io/marathon/docs/constraints.html
     #}
     "constraints": [
-        ["hostname", "GROUP_BY", "{{MARATHON_GROUP_BY|default(2)|require_int(min=1)}}"]
+        ["hostname", "MAX_PER", "{{MARATHON_GROUP_BY|default(2)|require_int(min=1)}}"]
     ],
     {#
         During an upgrade all instances of an application get replaced by a new
