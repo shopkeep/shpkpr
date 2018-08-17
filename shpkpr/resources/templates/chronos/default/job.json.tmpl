@@ -51,6 +51,8 @@
     "mem": {{CHRONOS_MEM|default(512)|require_int(min=0)}},
     {# If set to "true", this job will not be run. #}
     "disabled": {{CHRONOS_DISABLED|default("false")}},
+    {# Set the number of times the job will retry. #}
+    "retries": {{CHRONOS_RETRIES|default(2)}},
     {#
         Key value pairs that get added to the environment variables of each task
         that is started by Chronos.
