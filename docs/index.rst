@@ -10,4 +10,5 @@ Contents
    installation
    usage/index
    deployment/index
+   chronos_deployment/index
    contributing
