@@ -14,6 +14,7 @@ shpkpr is a tool for controlling and observing applications/tasks running on Mar
 
 * Free software: MIT license
 * Documentation: https://shpkpr.readthedocs.org.
+* Quick start guide: https://shpkpr.readthedocs.io/en/latest/contributing.html#get-started
 
 Features
 --------
