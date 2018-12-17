@@ -35,7 +35,7 @@ setup(
         'jinja2>=2.6, <3',
         'jsonschema>=2.6, <3',
         'python-slugify>=1.2.4',
-        'six>=1.7.0',
+        'six>=1.11.0',
         'requests>=2.4.2',
     ],
     license='MIT',
