@@ -1,24 +1,12 @@
+---
 language: python
-
-env:
-  - REQUIREMENTS=lowest
-  - REQUIREMENTS=current
-
-python:
-- "2.7"
-- "3.4"
-- "3.5"
-- "3.6"
-- "pypy"
-
-install:
-- pip install tox
+env: [REQUIREMENTS=lowest, REQUIREMENTS=current]
+python: ['2.7', '3.4', '3.5', '3.6', pypy]
+install: [pip install tox]
 script:
-- tox -e $(echo py$TRAVIS_PYTHON_VERSION | tr -d . | sed -e 's/pypypy/pypy/')-$REQUIREMENTS
-
+  - tox -e $(echo py$TRAVIS_PYTHON_VERSION | tr -d . | sed -e 's/pypypy/pypy/')-$REQUIREMENTS
 notifications:
   email: false
-
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
