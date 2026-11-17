@@ -135,7 +135,7 @@ def run(env_prefix, template_path, template_names, vault_client, command, env_pa
 
     logger.info("Running command for app ({0}): {1}\n".format(app_id, command))
 
-    docker_client = docker.from_env()
+    docker_client = docker.from_env(version='auto')
     container = docker_client.containers.run(docker_image,
                                              command,
                                              detach=True,
