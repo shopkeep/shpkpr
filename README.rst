@@ -24,3 +24,14 @@ Features
 * Zero-downtime application deploys when used with `Marathon-LB <https://github.com/mesosphere/marathon-lb>`_
 * List/show detailed cron task info
 * Deploy cron tasks (using `Jinja2 <http://jinja.pocoo.org/docs/2.9/>`_ templates)
+
+Publishing the Docker image
+---------------------------
+
+The Jenkins pipeline builds an amd64 image and checks Docker API negotiation on
+the agent. To publish, run the multibranch job on ``master`` with
+``PUBLISH_IMAGE`` enabled and a versioned ``IMAGE_TAG`` (for example,
+``v4.1.3-lsr41151``). It uses the ``dockerhub_roboshopkeep`` Jenkins credential,
+which must have push access to ``lightspeedcommerceinc/shpkpr``. Publishing is
+disabled by default and the pipeline does not update the shared-pipelines image
+reference; update that reference separately after validating the published image.
