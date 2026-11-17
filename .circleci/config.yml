@@ -57,8 +57,8 @@ jobs:
       - run:
           name: Validate release
           command: |
-            if [ "$CIRCLE_BRANCH" != master ]; then
-              echo 'Images can only be published from master' >&2
+            if [ "$CIRCLE_BRANCH" != master ] && [ "$CIRCLE_BRANCH" != LSR-41151 ]; then
+              echo 'Images can only be published from master or LSR-41151' >&2
               exit 1
             fi
             if [ "$RELEASE_TAG" = latest ] || ! printf '%s\n' "$RELEASE_TAG" | grep -Eq '^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$'; then
@@ -84,11 +84,15 @@ workflows:
           save_image: true
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - LSR-41151
       - publish-image:
           context: kube-system/helm/dockerhub/roboshopkeep
           requires:
             - build-and-test
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - LSR-41151
