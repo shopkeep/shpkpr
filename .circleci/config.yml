@@ -1,0 +1,94 @@
+version: 2.1
+
+parameters:
+  publish_image:
+    type: boolean
+    default: false
+  image_tag:
+    type: string
+    default: ""
+
+jobs:
+  build-and-test:
+    parameters:
+      save_image:
+        type: boolean
+        default: false
+    docker:
+      - image: cimg/base:2023.03
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build amd64 image
+          command: docker build --platform linux/amd64 -t "shpkpr-ci:$CIRCLE_SHA1" .
+      - run:
+          name: Run non-integration tests
+          command: |
+            docker run --rm --entrypoint sh "shpkpr-ci:$CIRCLE_SHA1" -c '
+              pip install --no-cache-dir pytest==6.2.5 mock==3.0.5 responses==0.17.0 freezegun==0.3.9 &&
+              python -m pytest -c /dev/null -m "not integration" tests
+            '
+      - run:
+          name: Check Docker API negotiation
+          command: |
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+              --entrypoint python "shpkpr-ci:$CIRCLE_SHA1" \
+              -c 'import docker; print("Docker API:", docker.from_env(version="auto").version()["ApiVersion"])'
+      - when:
+          condition: << parameters.save_image >>
+          steps:
+            - run: docker save -o /tmp/shpkpr-image.tar "shpkpr-ci:$CIRCLE_SHA1"
+            - persist_to_workspace:
+                root: /tmp
+                paths:
+                  - shpkpr-image.tar
+
+  publish-image:
+    docker:
+      - image: cimg/base:2023.03
+    environment:
+      RELEASE_TAG: << pipeline.parameters.image_tag >>
+    steps:
+      - checkout
+      - setup_remote_docker
+      - attach_workspace:
+          at: /tmp/shpkpr-release
+      - run:
+          name: Validate release
+          command: |
+            if [ "$CIRCLE_BRANCH" != master ]; then
+              echo 'Images can only be published from master' >&2
+              exit 1
+            fi
+            if [ "$RELEASE_TAG" = latest ] || ! printf '%s\n' "$RELEASE_TAG" | grep -Eq '^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$'; then
+              echo 'Provide a valid, versioned image_tag other than latest' >&2
+              exit 1
+            fi
+      - run:
+          name: Publish tested Docker image
+          command: |
+            docker load -i /tmp/shpkpr-release/shpkpr-image.tar
+            docker tag "shpkpr-ci:$CIRCLE_SHA1" "lightspeedcommerceinc/shpkpr:$RELEASE_TAG"
+            printf '%s' "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+            docker push "lightspeedcommerceinc/shpkpr:$RELEASE_TAG"
+
+workflows:
+  validate:
+    jobs:
+      - build-and-test
+  publish:
+    when: << pipeline.parameters.publish_image >>
+    jobs:
+      - build-and-test:
+          save_image: true
+          filters:
+            branches:
+              only: master
+      - publish-image:
+          context: dockerhub-publish
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only: master
