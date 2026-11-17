@@ -70,7 +70,7 @@ jobs:
           command: |
             docker load -i /tmp/shpkpr-release/shpkpr-image.tar
             docker tag "shpkpr-ci:$CIRCLE_SHA1" "lightspeedcommerceinc/shpkpr:$RELEASE_TAG"
-            printf '%s' "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+            printf '%s' "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
             docker push "lightspeedcommerceinc/shpkpr:$RELEASE_TAG"
 
 workflows:
@@ -86,7 +86,7 @@ workflows:
             branches:
               only: master
       - publish-image:
-          context: dockerhub-publish
+          context: kube-system/helm/dockerhub/roboshopkeep
           requires:
             - build-and-test
           filters:

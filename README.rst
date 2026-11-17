@@ -31,8 +31,8 @@ Publishing the Docker image
 CircleCI builds an amd64 image, runs non-integration tests, and checks Docker API
 negotiation. To publish, trigger a pipeline on ``master`` with the boolean
 pipeline parameter ``publish_image`` set to true and ``image_tag`` set to a
-versioned tag (for example, ``v4.1.3-lsr41151``). Configure a restricted
-``dockerhub-publish`` CircleCI context with ``DOCKERHUB_USERNAME`` and
-``DOCKERHUB_TOKEN`` credentials that can push to ``lightspeedcommerceinc/shpkpr``.
+versioned tag (for example, ``v4.1.3-lsr41151``). The publish job uses the
+``kube-system/helm/dockerhub/roboshopkeep`` CircleCI context, whose credentials
+must have push access to ``lightspeedcommerceinc/shpkpr``.
 Publishing is disabled by default and does not update the shared-pipelines image
 reference; update that reference separately after validating the published image.
