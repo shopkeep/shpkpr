@@ -94,5 +94,5 @@ def test_show_format_yaml(runner, json_fixture):
     })
     assert result.exit_code == 0
 
-    parsed_payload = yaml.load(result.output)
+    parsed_payload = yaml.safe_load(result.output)
     assert isinstance(parsed_payload, dict)
